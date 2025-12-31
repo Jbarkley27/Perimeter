@@ -79,7 +79,6 @@ public struct Wave
 
     [HideInInspector] public bool isCompleted;
 
-    // Optional: This could be triggered through your Action Queue
     public IEnumerator StartWaveRoutine(WaveSpawner spawner)
     {
         return spawner.ProcessWave(this);

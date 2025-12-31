@@ -185,6 +185,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7563755986399544967}
+  - component: {fileID: 2350924466311633605}
+  - component: {fileID: 5558927957401621205}
   m_Layer: 0
   m_Name: Bomber Enemy
   m_TagString: Untagged
@@ -208,6 +210,52 @@ Transform:
   - {fileID: 5059850845483132343}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!195 &2350924466311633605
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4654219242862119827}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 2
+  m_Speed: 3.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 0
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 2
+  m_BaseOffset: 0
+  m_WalkableMask: 1
+  m_ObstacleAvoidanceType: 4
+--- !u!114 &5558927957401621205
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4654219242862119827}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 43e3d513625ec4e35bcbf72b67b96c27, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyAI
+  minSpeed: 8
+  maxSpeed: 10
+  minAccel: 15
+  maxAccel: 20
+  minStoppingDistance: 3
+  maxStoppingDistance: 8
+  statUpdateInterval: 5
+  attackRange: 3
+  rangePreference: 0
+  slotReassignInterval: 6
+  slotReassignMinInterval: 8
+  slotReassignMaxInterval: 12
 --- !u!1 &5579749693871525346
 GameObject:
   m_ObjectHideFlags: 0

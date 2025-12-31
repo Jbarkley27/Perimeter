@@ -21,12 +21,6 @@ public class InputManager : MonoBehaviour
     {
         CursorInput = new Vector2(0, 0);
         _playerInput = GetComponent<PlayerInput>();
-
-        // Disable everything first
-        // _playerInput.actions.Disable();
-
-        // // Enable the default map you want active on start
-        // _playerInput.SwitchCurrentActionMap("Gameplay");
     }
 
 
