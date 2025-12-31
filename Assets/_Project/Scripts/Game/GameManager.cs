@@ -5,6 +5,7 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
+    public WaveSpawner waveSpawner;
 
 
     private void Awake()
@@ -34,8 +35,20 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("Preparing Battle Phase...");
         yield return new WaitForSeconds(2f); // Simulate some preparation time
+        StartBattlePhase();
         Debug.Log("Battle Phase Ready!");
     }
 
+
+    public void StartBattlePhase()
+    {
+        ActionQueue.Instance.Enqueue(
+            new GameAction(
+                debugName: "Start Battle Phase",
+                isValid: () => true,
+                execute: () => waveSpawner.StartNextWave()
+            )
+        );
+    }
 
 }
