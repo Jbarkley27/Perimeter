@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 971187685623517384}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Visual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -41,7 +41,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5059850845483132343}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Root
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -76,7 +76,7 @@ GameObject:
   - component: {fileID: 2671696053734061672}
   - component: {fileID: 6208437379871196681}
   - component: {fileID: 466408695873462381}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Sphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -93,7 +93,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 3, y: 3, z: 3}
+  m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 7518801235633312525}
@@ -187,7 +187,7 @@ GameObject:
   - component: {fileID: 7563755986399544967}
   - component: {fileID: 2350924466311633605}
   - component: {fileID: 5558927957401621205}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Bomber Enemy
   m_TagString: Untagged
   m_Icon: {fileID: 0}

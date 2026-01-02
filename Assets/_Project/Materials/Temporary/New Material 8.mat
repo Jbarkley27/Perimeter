@@ -7,16 +7,18 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: New Material 4
+  m_Name: New Material 8
   m_Shader: {fileID: 4800000, guid: 733fefdcde0d35f4b822d2935d5a22f4, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - _MK_ENVIRONMENT_REFLECTIONS_AMBIENT
   - _MK_LIGHT_CEL
+  - _MK_RECEIVE_SHADOWS
   m_InvalidKeywords:
   - _MK_ARTISTIC_ANIMATION_STUTTER
   - _MK_WRAPPED_DIFFUSE
+  - _RECEIVESHADOWS_ON
   - _WRAPPEDLIGHTING_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -225,7 +227,7 @@ Material:
     - _OptionsTab: 1
     - _Parallax: 0.005
     - _QueueOffset: 0
-    - _ReceiveShadows: 0
+    - _ReceiveShadows: 1
     - _RenderFace: 2
     - _RenderPriority: 0
     - _Rim: 0
@@ -263,13 +265,13 @@ Material:
     - _ZTest: 4
     - _ZWrite: 1
     m_Colors:
-    - _AlbedoColor: {r: 0.83137256, g: 0.12156862, b: 0.46124122, a: 1}
+    - _AlbedoColor: {r: 0.4862745, g: 0.6509804, b: 0.5019608, a: 1}
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
-    - _Color: {r: 0.83137256, g: 0.12156858, b: 0.4612412, a: 1}
+    - _Color: {r: 0.48627448, g: 0.6509804, b: 0.5019608, a: 1}
     - _DissolveBorderColor: {r: 1, g: 1, b: 1, a: 1}
-    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _EmissionColor: {r: 0.50767475, g: 0.8215804, b: 0.52162606, a: 1}
     - _GoochBrightColor: {r: 1, g: 1, b: 1, a: 1}
-    - _GoochDarkColor: {r: 0.8113208, g: 0.8113208, b: 0.8113208, a: 1}
+    - _GoochDarkColor: {r: 0.745283, g: 0.745283, b: 0.745283, a: 1}
     - _IridescenceColor: {r: 1, g: 1, b: 1, a: 0.5}
     - _RimBrightColor: {r: 1, g: 1, b: 1, a: 1}
     - _RimColor: {r: 1, g: 1, b: 1, a: 1}

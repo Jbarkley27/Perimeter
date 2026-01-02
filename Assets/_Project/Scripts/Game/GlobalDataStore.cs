@@ -5,6 +5,8 @@ public class GlobalDataStore : MonoBehaviour
 {
     public static GlobalDataStore Instance;
     public GameObject Player;
+    public SkillElementLibrary SkillElementLibrary;
+    public SkillCaster SkillCaster;
 
     private void Awake()
     {
