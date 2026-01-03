@@ -8,13 +8,11 @@ public class HoverManager : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 
     void Start()
     {
-        // rangeUI.SetActive(false);
 
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        // rangeUI.SetActive(true);
         if (hoverSequence != null && hoverSequence.IsActive())
         {
             hoverSequence.Kill();
@@ -27,7 +25,6 @@ public class HoverManager : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        // rangeUI.SetActive(false);
         if (hoverSequence != null && hoverSequence.IsActive())
         {
             hoverSequence.Kill();

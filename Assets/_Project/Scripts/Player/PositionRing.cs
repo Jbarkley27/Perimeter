@@ -60,7 +60,7 @@ public class PositionRing : MonoBehaviour
         return generated;
     }
 
-    // 📌 Helper Methods for External Scripts (AI / Spawners)
+    // Helper Methods for External Scripts (AI / Spawners)
     public Vector3 GetRandomClose() => closeSlots[Random.Range(0, closeSlots.Count)];
     public Vector3 GetRandomMid()   => midSlots[Random.Range(0, midSlots.Count)];
     public Vector3 GetRandomLong()  => longSlots[Random.Range(0, longSlots.Count)];

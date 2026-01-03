@@ -11,13 +11,10 @@ public class EnemyAI : MonoBehaviour
     [Header("Randomized Agent Settings")]
     public float minSpeed = 2f;
     public float maxSpeed = 5f;
-
     public float minAccel = 6f;
     public float maxAccel = 12f;
-
     public float minStoppingDistance = 2f;
     public float maxStoppingDistance = 4f;
-
     public float statUpdateInterval = 2.5f; // seconds
 
     [Header("Combat")]
@@ -32,11 +29,15 @@ public class EnemyAI : MonoBehaviour
     private Vector3 currentSlot;
     private float slotTimer;
 
+
+
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
         agent.updateRotation = false; // we handle rotation manually
     }
+
+
 
     private void OnEnable()
     {
@@ -46,6 +47,8 @@ public class EnemyAI : MonoBehaviour
         PickRandomSlot();
         InvokeRepeating(nameof(RandomizeAgentStats), 0f, statUpdateInterval);
     }
+
+
 
     private void Update()
     {
@@ -77,6 +80,8 @@ public class EnemyAI : MonoBehaviour
         agent.isStopped = inAttackRange;
     }
 
+
+
     private void RandomizeAgentStats()
     {
         agent.speed = Random.Range(minSpeed, maxSpeed);
@@ -85,10 +90,14 @@ public class EnemyAI : MonoBehaviour
         slotReassignInterval = Random.Range(slotReassignMinInterval, slotReassignMaxInterval);
     }
 
+
+
     private void PickRandomSlot()
     {
         currentSlot = ring.GetRandomSlotWithinDistance(rangePreference, transform.position, currentSlot);
     }
+
+
 
     private void OnDisable()
     {

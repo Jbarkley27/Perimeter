@@ -30,7 +30,7 @@ public class EnemyPooler : MonoBehaviour
     public Transform inactiveParent;
     public Transform activeParent;
 
-    // Dictionary for fast runtime access
+    
     private Dictionary<EnemyType, Queue<GameObject>> pools = new Dictionary<EnemyType, Queue<GameObject>>();
 
     private void Awake()
@@ -38,6 +38,8 @@ public class EnemyPooler : MonoBehaviour
         Instance = this;
         InitializePools();
     }
+
+
 
     private void InitializePools()
     {
@@ -55,6 +57,8 @@ public class EnemyPooler : MonoBehaviour
             pools.Add(type.enemyID, queue);
         }
     }
+
+
 
     public GameObject GetEnemy(EnemyType enemyID)
     {
@@ -74,6 +78,8 @@ public class EnemyPooler : MonoBehaviour
         return enemy;
     }
 
+
+
     public void ReturnEnemy(GameObject enemy, EnemyType enemyID)
     {
         if (!pools.ContainsKey(enemyID))
@@ -87,6 +93,8 @@ public class EnemyPooler : MonoBehaviour
         enemy.transform.SetParent(inactiveParent);
         pools[enemyID].Enqueue(enemy);
     }
+
+    
 
     private void ExpandPool(EnemyType enemyID)
     {

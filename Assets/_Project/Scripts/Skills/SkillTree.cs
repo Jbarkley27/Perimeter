@@ -6,7 +6,7 @@ public class SkillTree : MonoBehaviour
     public static SkillTree Instance { get; private set; }
 
     [Header("All Skills The Player Has Unlocked")]
-    public List<SkillData> unlockedSkills = new List<SkillData>();
+    // public List<SkillData> unlockedSkills = new List<SkillData>();
 
     [Header("Equipped Skills (Displayed In HUD)")]
     public List<SkillData> equippedSkills = new List<SkillData>();

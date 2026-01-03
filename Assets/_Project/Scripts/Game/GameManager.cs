@@ -18,6 +18,7 @@ public class GameManager : MonoBehaviour
         Instance = this;
     }
 
+
     void Start()
     {
         ActionQueue.Instance.Enqueue(
@@ -28,6 +29,7 @@ public class GameManager : MonoBehaviour
             )
         );
     }
+
 
 
     public IEnumerator PrepareBattlePhase()

@@ -5,19 +5,17 @@ using UnityEngine;
 public class ActionQueue : MonoBehaviour
 {
     public static ActionQueue Instance { get; private set; }
-
     private readonly Queue<GameAction> queue = new();
     private bool isRunning;
-
     public GameAction CurrentAction { get; private set; }
 
-    public int QueueCount => queue.Count;
-    public bool IsRunning => isRunning;
 
     private void Awake()
     {
         Instance = this;
     }
+
+
 
     public void Enqueue(GameAction action)
     {
@@ -27,6 +25,8 @@ public class ActionQueue : MonoBehaviour
         if (!isRunning)
             StartCoroutine(ProcessQueue());
     }
+
+    
 
     private IEnumerator ProcessQueue()
     {

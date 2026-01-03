@@ -8,11 +8,13 @@ public class WaveSpawner : MonoBehaviour
     public Transform player;
     public float spawnRadius = 20f;
 
+
     [Header("Waves In Order")]
     public List<Wave> waves;
-
     private int currentWaveIndex = 0;
     private bool isSpawning = false;
+
+
 
     public IEnumerator StartNextWave()
     {
@@ -47,6 +49,7 @@ public class WaveSpawner : MonoBehaviour
         currentWaveIndex++;
         isSpawning = false;
     }
+
 
     private void SpawnEnemy(EnemyPooler.EnemyType enemyID)
     {

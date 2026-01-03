@@ -12,10 +12,7 @@ public class SkillCaster : MonoBehaviour
     public float targetSearchRadius = 20f;
     public Transform ClosestTarget;
 
-    void Start()
-    {
-        
-    }
+
 
     void Update()
     {
@@ -31,9 +28,9 @@ public class SkillCaster : MonoBehaviour
     }
 
 
-    // -----------------------------------------------------------
-    // TARGETING LOGIC
-    // -----------------------------------------------------------
+
+
+
     public Transform GetClosestEnemy()
     {
         Collider[] hits = Physics.OverlapSphere(transform.position, targetSearchRadius, enemyMask);
@@ -51,9 +48,7 @@ public class SkillCaster : MonoBehaviour
 
 
 
-    // -----------------------------------------------------------
-    // PROJECTILE SPAWN + LAUNCH
-    // -----------------------------------------------------------
+
     public void FireProjectile(SkillData skill, Transform target)
     {
         SkillData data = skill;

@@ -8,7 +8,6 @@ public class InputManager : MonoBehaviour
 
     [Header("Cursor")]
     public Vector2 CursorInput;
-    public Vector3 CursorPosition;
 
 
     [Header("Current Device Settings")]

@@ -7,6 +7,8 @@ public class GameAction
     public Func<bool> IsValid { get; }
     public Func<IEnumerator> Execute { get; }
 
+
+
     public GameAction(
         string debugName,
         Func<bool> isValid,

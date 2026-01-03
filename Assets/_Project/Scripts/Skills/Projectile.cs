@@ -4,11 +4,12 @@ using UnityEngine;
 [RequireComponent(typeof(Collider))]
 public class Projectile : MonoBehaviour
 {
+    [Header("Gneral Variables")]
     private Vector3 travelDirection;
     private Transform target;
     private Vector3 lastTargetPosition;
     private Vector3 targetVelocity;
-
+    private Rigidbody rb;
     private float speed;
     private float baseSpeed;
     private float damage;
@@ -30,12 +31,12 @@ public class Projectile : MonoBehaviour
     [Header("Intercept Guidance")]
     public float maxLeadTime = 0.6f;
     public float leadDistanceScale = 10f;
-
     private float guidanceTimer;
     private bool isGuiding;
     private float flightTime;
 
-    private Rigidbody rb;
+
+
 
     private void Awake()
     {
@@ -45,9 +46,23 @@ public class Projectile : MonoBehaviour
         rb.interpolation = RigidbodyInterpolation.Interpolate;
     }
 
-    // -------------------------------------------------------
-    // LAUNCH
-    // -------------------------------------------------------
+
+
+    private void Update()
+    {
+        HandleGuidanceTimer();
+    }
+
+
+    private void FixedUpdate()
+    {
+        flightTime += Time.fixedDeltaTime;
+        UpdateTargetVelocity();
+        HandleMovement();
+    }
+
+
+
     public void Launch(
         Transform targetTransform,
         float dmg,
@@ -80,21 +95,10 @@ public class Projectile : MonoBehaviour
         Destroy(gameObject, lifetime);
     }
 
-    private void Update()
-    {
-        HandleGuidanceTimer();
-    }
 
-    private void FixedUpdate()
-    {
-        flightTime += Time.fixedDeltaTime;
-        UpdateTargetVelocity();
-        HandleMovement();
-    }
 
-    // -------------------------------------------------------
-    // GUIDANCE STATE
-    // -------------------------------------------------------
+
+
     private void HandleGuidanceTimer()
     {
         if (isGuiding)
@@ -105,9 +109,9 @@ public class Projectile : MonoBehaviour
             isGuiding = true;
     }
 
-    // -------------------------------------------------------
-    // TARGET VELOCITY ESTIMATION
-    // -------------------------------------------------------
+
+
+
     private void UpdateTargetVelocity()
     {
         if (target == null)
@@ -117,9 +121,9 @@ public class Projectile : MonoBehaviour
         lastTargetPosition = target.position;
     }
 
-    // -------------------------------------------------------
-    // MOVEMENT AND GUIDANCE
-    // -------------------------------------------------------
+
+
+
     private void HandleMovement()
     {
         if (isGuiding && target != null)
@@ -149,17 +153,25 @@ public class Projectile : MonoBehaviour
         }
     }
 
-    // -------------------------------------------------------
-    // COLLISION
-    // -------------------------------------------------------
+
+
+
     private void OnCollisionEnter(Collision collision)
     {
+        // Apply damage logic here
+        // Try to get an EnemyHealthModule from the hit object
+        EnemyHealthModule healthModule = collision.gameObject.GetComponent<EnemyHealthModule>();
+        if (healthModule != null)
+        {
+            healthModule.TakeDamage(damage);
+        }
+        
         Destroy(gameObject);
     }
 
-    // -------------------------------------------------------
-    // ACCURACY CONE
-    // -------------------------------------------------------
+
+
+
     private Vector3 ApplyAccuracySpread(Vector3 forward, float maxAngle)
     {
         if (maxAngle <= 0f)
