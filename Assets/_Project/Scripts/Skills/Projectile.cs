@@ -50,6 +50,12 @@ public class Projectile : MonoBehaviour
 
     private void Update()
     {
+        if (GameManager.Instance.GamePaused)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
         HandleGuidanceTimer();
     }
 
@@ -160,6 +166,7 @@ public class Projectile : MonoBehaviour
     {
         // Apply damage logic here
         // Try to get an EnemyHealthModule from the hit object
+        Debug.Log($"Projectile hit: {collision.gameObject.name}");
         EnemyHealthModule healthModule = collision.gameObject.GetComponent<EnemyHealthModule>();
         if (healthModule != null)
         {

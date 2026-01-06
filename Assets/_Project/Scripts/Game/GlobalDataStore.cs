@@ -7,6 +7,8 @@ public class GlobalDataStore : MonoBehaviour
     public GameObject Player;
     public SkillElementLibrary SkillElementLibrary;
     public SkillCaster SkillCaster;
+    public EnemyPooler EnemyPooler;
+    public WaveSpawner WaveSpawner;
 
     private void Awake()
     {

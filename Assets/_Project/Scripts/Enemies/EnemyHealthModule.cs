@@ -10,6 +10,7 @@ public class EnemyHealthModule : MonoBehaviour
     public Slider healthBarSlider;
     public DamageNumber damageNumberPrefab;
     public float heightOffset = 5;
+    public EnemyPooler.EnemyType enemyType;
 
     void Start()
     {
@@ -40,8 +41,13 @@ public class EnemyHealthModule : MonoBehaviour
     private void Die()
     {
         Debug.Log($"{gameObject.name} has died.");
+        
         // Add death logic here (e.g., play animation, drop loot, etc.)
-        Destroy(gameObject);
+
+        EnemyPooler.Instance.ReturnEnemyToPool(
+            gameObject,
+            enemyType
+        );
     }
 
 
@@ -49,5 +55,11 @@ public class EnemyHealthModule : MonoBehaviour
     {
         Vector3 offsetVec = new Vector3(transform.position.x, heightOffset, transform.position.z);
         if (damageNumberPrefab) damageNumberPrefab.Spawn(offsetVec, damage.ToString());
+    }
+
+    public void ResetHealth()
+    {
+        currentHealth = maxHealth;
+        UpdateHealthBar();
     }
 }

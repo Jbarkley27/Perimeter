@@ -7,6 +7,8 @@ public class EnemyAI : MonoBehaviour
     private Transform player;
     private NavMeshAgent agent;
     private PositionRing ring;
+    public EnemyPooler.EnemyType enemyType;
+    public EnemyHealthModule healthModule;
 
     [Header("Randomized Agent Settings")]
     public float minSpeed = 2f;
@@ -46,6 +48,8 @@ public class EnemyAI : MonoBehaviour
 
         PickRandomSlot();
         InvokeRepeating(nameof(RandomizeAgentStats), 0f, statUpdateInterval);
+        
+        ResetEnemy();
     }
 
 
@@ -53,6 +57,7 @@ public class EnemyAI : MonoBehaviour
     private void Update()
     {
         if (!player) return;
+        if (GameManager.Instance.GamePaused) return;
 
         // Move toward current slot
         agent.SetDestination(currentSlot);
@@ -108,6 +113,12 @@ public class EnemyAI : MonoBehaviour
             agent.isStopped = true;
             CancelInvoke(nameof(RandomizeAgentStats));
         }
+    }
+
+
+    public void ResetEnemy()
+    {
+        if (healthModule) healthModule.ResetHealth();
     }
 }
 

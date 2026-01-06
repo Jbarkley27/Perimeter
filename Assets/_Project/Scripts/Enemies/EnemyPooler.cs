@@ -33,9 +33,19 @@ public class EnemyPooler : MonoBehaviour
     
     private Dictionary<EnemyType, Queue<GameObject>> pools = new Dictionary<EnemyType, Queue<GameObject>>();
 
+    public List<EnemyAI> ActiveEnemies = new List<EnemyAI>();
+
     private void Awake()
     {
+        if (Instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
         Instance = this;
+        DontDestroyOnLoad(gameObject);
+
         InitializePools();
     }
 
@@ -43,6 +53,7 @@ public class EnemyPooler : MonoBehaviour
 
     private void InitializePools()
     {
+        ActiveEnemies.Clear();
         foreach (var type in enemyTypes)
         {
             Queue<GameObject> queue = new Queue<GameObject>();
@@ -75,12 +86,13 @@ public class EnemyPooler : MonoBehaviour
         GameObject enemy = pools[enemyID].Dequeue();
         enemy.transform.SetParent(activeParent);
         enemy.SetActive(true);
+        ActiveEnemies.Add(enemy.GetComponent<EnemyAI>());
         return enemy;
     }
 
 
 
-    public void ReturnEnemy(GameObject enemy, EnemyType enemyID)
+    public void ReturnEnemyToPool(GameObject enemy, EnemyType enemyID)
     {
         if (!pools.ContainsKey(enemyID))
         {
@@ -88,10 +100,18 @@ public class EnemyPooler : MonoBehaviour
             Destroy(enemy);
             return;
         }
+        // EnemyAI enemyAI = enemy.GetComponent<EnemyAI>();
+
+        // if (enemyAI != null)
+        // {
+        //     enemyAI.ResetEnemy();
+        // }
+
 
         enemy.SetActive(false);
         enemy.transform.SetParent(inactiveParent);
         pools[enemyID].Enqueue(enemy);
+        ActiveEnemies.Remove(enemy.GetComponent<EnemyAI>());
     }
 
     
@@ -104,5 +124,18 @@ public class EnemyPooler : MonoBehaviour
         GameObject obj = Instantiate(data.prefab, inactiveParent);
         obj.SetActive(false);
         pools[enemyID].Enqueue(obj);
+    }
+
+
+    public void ClearAllActiveEnemies()
+    {
+        Debug.Log("Clearing all active enemies...");
+        foreach (var enemy in new List<EnemyAI>(ActiveEnemies))
+        {
+            if (enemy != null)
+            {
+                ReturnEnemyToPool(enemy.gameObject, enemy.enemyType);
+            }
+        }
     }
 }

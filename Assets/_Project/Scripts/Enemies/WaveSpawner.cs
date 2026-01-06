@@ -15,11 +15,20 @@ public class WaveSpawner : MonoBehaviour
     private bool isSpawning = false;
 
 
+    Coroutine waveRoutine;
+
+
 
     public IEnumerator StartNextWave()
     {
         Debug.Log("Starting Next Wave...");
-        if (isSpawning) yield return null;
+        if (isSpawning || GameManager.Instance.GamePaused) yield return null;
+
+        if (waveRoutine != null)
+        {
+            StopCoroutine(waveRoutine);
+        }
+
         if (currentWaveIndex >= waves.Count) 
         {
             Debug.Log("All waves completed!");
@@ -27,8 +36,11 @@ public class WaveSpawner : MonoBehaviour
         }
 
         Wave wave = waves[currentWaveIndex];
-        StartCoroutine(ProcessWave(wave));
+        waveRoutine = StartCoroutine(ProcessWave(wave));
     }
+
+
+
 
 
     public IEnumerator ProcessWave(Wave wave)
@@ -38,6 +50,14 @@ public class WaveSpawner : MonoBehaviour
 
         foreach (var enemyID in wave.enemyIDs)
         {
+            if (GameManager.Instance.GamePaused)
+            {
+                // stop spawning if the game is paused
+                isSpawning = false;
+                Debug.Log("Wave spawning paused.");
+                yield break;
+            }
+
             SpawnEnemy(enemyID);
             yield return new WaitForSeconds(wave.spawnDelay);
         }
@@ -46,13 +66,25 @@ public class WaveSpawner : MonoBehaviour
         waves[currentWaveIndex] = wave; // update stored struct state
 
         Debug.Log($"Wave Completed: {wave.waveName}");
+
+        // Disabling for now to just use the same wave repeatedly
         currentWaveIndex++;
         isSpawning = false;
     }
 
 
+    
+
+
     private void SpawnEnemy(EnemyPooler.EnemyType enemyID)
     {
+        if (GameManager.Instance.GamePaused)
+        {
+            Debug.Log("SpawnEnemy called while game is paused. Aborting spawn.");
+            return;
+        }
+
+
         GameObject enemy = EnemyPooler.Instance.GetEnemy(enemyID);
 
         float angle = Random.Range(0f, 360f);
@@ -63,6 +95,21 @@ public class WaveSpawner : MonoBehaviour
         );
 
         enemy.transform.position = pos;
+    }
+
+
+    public void Reset()
+    {
+        currentWaveIndex = 0;
+        waves.ForEach(w => w.isCompleted = false);
+        isSpawning = false;
+
+        if (waveRoutine != null)
+        {
+            StopCoroutine(waveRoutine);
+        }
+
+        StartCoroutine(StartNextWave());
     }
 }
 

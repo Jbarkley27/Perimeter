@@ -52,4 +52,29 @@ public class InputManager : MonoBehaviour
             CurrentDevice = InputDevice.GAMEPAD;
         }
     }
+
+
+    public void Confirm(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            if (GameManager.Instance.GamePaused) return;
+            // Triggered in SkillCaster
+            Debug.Log("Confirm Pressed");
+            GlobalDataStore.Instance.SkillCaster.UseActiveManualSkill();
+        }
+    }
+
+
+
+    public void Cancel(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            if (GameManager.Instance.GamePaused) return;
+            // Triggered in SkillCaster
+            Debug.Log("Cancel Pressed");
+            GlobalDataStore.Instance.SkillCaster.ClearActiveManualSkill();
+        }
+    }
 }

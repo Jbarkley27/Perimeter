@@ -1,21 +1,29 @@
 using System.Collections;
-using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
+using UnityEngine.EventSystems;
 
-public class SkillUISlot : MonoBehaviour
+public class SkillUISlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
+    [Header("UI References")]
     public Image skillSliderBGImage;
     public Image skillIconImage;
     public Slider slider;
-    private SkillData currentSkill;
     public CanvasGroup activeBorderCanvasGroup;
+    public CanvasGroup cooldownOverlayCanvasGroup;
+    public GameObject switchToManulUIRoot;
+    public GameObject cancelManualUIRoot;
+
+
+    [Header("Skill Data")]
+    public SkillData currentSkill;
     public float cooldownTimer;   // Runtime cooldown
     public bool IsReady => cooldownTimer <= 0;
     public bool IsSkillRunning = false;
-    public CanvasGroup cooldownOverlayCanvasGroup;
-    public ParticleSystem SkillTriggeredVFX;
+    public bool IsAutoFireEnabled = true;
+
+
 
     public void Init(SkillData skillData)
     {
@@ -26,10 +34,14 @@ public class SkillUISlot : MonoBehaviour
         slider.value = slider.maxValue; // Assume skill is ready at start
         activeBorderCanvasGroup.alpha = 0f;
         cooldownOverlayCanvasGroup.alpha = 1f;
+        IsAutoFireEnabled = true;
+        switchToManulUIRoot.SetActive(false);
+        cancelManualUIRoot.SetActive(false);
     }
 
     void Update()
     {
+        if (GameManager.Instance.GamePaused) return;
         TickCooldown();
         HandleAutoFire();
         cooldownOverlayCanvasGroup.alpha = IsReadyToFire() ? 1f : .9f;
@@ -42,9 +54,29 @@ public class SkillUISlot : MonoBehaviour
     }
 
 
+    public void SetFireMode(bool isAuto)
+    {
+        if (GameManager.Instance.GamePaused) return;
+
+        IsAutoFireEnabled = isAuto;
+
+        if (isAuto)
+        {
+            activeBorderCanvasGroup.DOFade(0f, 0.2f);
+            cancelManualUIRoot.SetActive(false);
+            switchToManulUIRoot.SetActive(false);
+        }
+        else
+        {
+            activeBorderCanvasGroup.DOFade(1f, 0.2f);
+        }
+    }
+
+
     private void TickCooldown()
     {
         if (IsSkillRunning) return;
+        if (GameManager.Instance.GamePaused) return;
         if (!IsReadyToFire())
         {
             // Lerp/Slerp the slider value towards max
@@ -60,19 +92,23 @@ public class SkillUISlot : MonoBehaviour
     private void HandleAutoFire()
     {
         if (!IsReadyToFire()
-        || !GlobalDataStore.Instance.SkillCaster.HasTarget())
+        || !GlobalDataStore.Instance.SkillCaster.HasTarget()
+        || !IsAutoFireEnabled
+        || GameManager.Instance.GamePaused)
         {
-            Debug.Log("Skill not ready or no target available.");
+            // Debug.Log("Auto-fire conditions not met.");
             return;
         }
+
         StartCoroutine(TriggerSkill());
     }
 
-    public IEnumerator TriggerSkill()
+    public IEnumerator TriggerSkill(bool overrideAutoFire = false)
     {
         if (
             currentSkill == null
             || IsSkillRunning
+            || GameManager.Instance.GamePaused
         )
         {
             Debug.LogWarning("No skill assigned to this slot! OR skill is already running.");
@@ -88,13 +124,18 @@ public class SkillUISlot : MonoBehaviour
 
         if (currentSkill.IsProjectileSkill)
         {
-            // SkillTriggeredVFX.Play();
+            // Get the correct target
+            Transform currentTarget = overrideAutoFire
+                ? WorldCursor.instance.GetTarget()
+                : GlobalDataStore.Instance.SkillCaster.ClosestTarget;
+
+
             gameObject.transform.DOPunchScale(Vector3.one * 0.3f, 0.2f, 1, 0.5f);
             Debug.Log($"Spawn projectile: {currentSkill.projectilePrefab}");
 
             GlobalDataStore.Instance.SkillCaster.FireProjectile(
                 currentSkill,
-                GlobalDataStore.Instance.SkillCaster.ClosestTarget
+                currentTarget
             );
         }
         else
@@ -107,4 +148,58 @@ public class SkillUISlot : MonoBehaviour
     }
 
     
+
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        if (GameManager.Instance.GamePaused) return;
+
+        if (GlobalDataStore.Instance.SkillCaster.GetActiveManualSkillData() == currentSkill)
+        {
+            // Show turn off auto-fire hint
+            cancelManualUIRoot.SetActive(true);
+        }
+        else
+        {
+            // Show turn on auto-fire hint
+            switchToManulUIRoot.SetActive(true);
+            cancelManualUIRoot.SetActive(false);
+        }
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        switchToManulUIRoot.SetActive(false);
+        cancelManualUIRoot.SetActive(false);
+    }
+
+
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (GameManager.Instance.GamePaused) return;
+
+        if (GlobalDataStore.Instance.SkillCaster.GetActiveManualSkillData() == currentSkill)
+        {
+            // Clear active manual skill
+            GlobalDataStore.Instance.SkillCaster.ClearActiveManualSkill();
+            cancelManualUIRoot.SetActive(false);
+            return;
+        }
+
+        // Set this skill as the active manual skill
+        GlobalDataStore.Instance.SkillCaster.AssignActiveManualSkill(this);
+        cancelManualUIRoot.SetActive(false);
+    }
+
+
+    public void ForceCooldownReset()
+    {
+        slider.value = slider.maxValue;
+
+        // Reset UI
+        cooldownOverlayCanvasGroup.alpha = 1f;
+        cancelManualUIRoot.SetActive(false);
+        switchToManulUIRoot.SetActive(false);
+    }
 }

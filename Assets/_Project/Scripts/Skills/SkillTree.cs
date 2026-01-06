@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 public class SkillTree : MonoBehaviour
 {
@@ -14,6 +15,13 @@ public class SkillTree : MonoBehaviour
     [Header("Max Equipped At Once")]
     public int maxEquipped = 3;
 
+
+    [Header("Screens")]
+    public GameObject endRunScreen;
+    public CanvasGroup endRunCanvasGroup;
+    public GameObject skillTreeScreen;
+    public CanvasGroup skillTreeCanvasGroup;
+
     private void Awake()
     {
         if (Instance != null)
@@ -23,6 +31,7 @@ public class SkillTree : MonoBehaviour
         }
 
         Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -40,5 +49,42 @@ public class SkillTree : MonoBehaviour
     public List<SkillData> GetEquippedSkills()
     {
         return equippedSkills;
+    }
+
+
+    public void ShowEndRunScreen()
+    {
+        endRunScreen.SetActive(true);
+        endRunCanvasGroup.DOFade(1, 0.25f);
+    }
+
+
+    public void HideEndRunScreen()
+    {
+        endRunCanvasGroup.DOFade(0, 0.2f).OnComplete(() =>
+        {
+            endRunScreen.SetActive(false);
+        });
+    }
+
+
+    public void OpenSkillTree()
+    {
+        endRunCanvasGroup.DOFade(0, 0.2f).OnComplete(() =>
+        {
+            endRunScreen.SetActive(false);
+        });
+        
+        skillTreeScreen.SetActive(true);
+        skillTreeCanvasGroup.DOFade(1, 0.25f);
+    }
+
+
+    public void CloseSkillTree()
+    {
+        skillTreeCanvasGroup.DOFade(0, 0.2f).OnComplete(() =>
+        {
+            skillTreeScreen.SetActive(false);
+        });
     }
 }

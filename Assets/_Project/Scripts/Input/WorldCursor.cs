@@ -17,6 +17,10 @@ public class WorldCursor : MonoBehaviour
     [SerializeField] private LayerMask enemyLayer;
     [SerializeField] private bool IsHoveringOverEnemy;
 
+    [Header("Cursor Settings")]
+    public GameObject defaultCursorGO;
+    public GameObject singleTargetCursorGO;
+
 
 
     private void Awake()
@@ -29,6 +33,7 @@ public class WorldCursor : MonoBehaviour
         }
         instance = this;
         DontDestroyOnLoad(gameObject);
+        SwitchCursorMode(WorldCursorMode.DEFAULT);
     }
 
 
@@ -150,4 +155,86 @@ public class WorldCursor : MonoBehaviour
     {
         return cursorImage.transform.position;
     }
+
+
+    public void SwitchCursorMode(WorldCursorMode cursorMode)
+    {
+        // Disable all cursor GOs
+        defaultCursorGO.SetActive(false);
+        singleTargetCursorGO.SetActive(false);
+
+        // Enable the correct one
+        switch (cursorMode)
+        {
+            case WorldCursorMode.DEFAULT:
+                defaultCursorGO.SetActive(true);
+                break;
+            case WorldCursorMode.SINGLE_TARGET:
+                singleTargetCursorGO.SetActive(true);
+                break;
+            default:
+                defaultCursorGO.SetActive(true);
+                break;
+        }
+    }
+
+
+
+    public GameObject fakeEnemyTargetGO;
+
+
+
+
+    // Returns the target Transform if hovering over an enemy, otherwise returns a fake target at the world cursor position. Mainly used for manual skill targeting.
+    public Transform GetTarget(float lifetime = 10f)
+    {
+        if (IsHoveringOverEnemy)
+        {
+            // 1. Get the center of the UI Image in screen space
+            Vector3 screenPos = RectTransformUtility.WorldToScreenPoint(null, cursorImage.rectTransform.position);
+
+            // 2. Cast a ray into the world
+            Ray ray = Camera.main.ScreenPointToRay(screenPos);
+
+            // 3. Check if it hits something in your target layer
+            if (Physics.Raycast(ray, out RaycastHit hit, 100000f, enemyLayer))
+            {
+                return hit.transform;
+            }
+        }
+        else
+        {
+            // Spawn a fake target at the world cursor position
+            if (fakeEnemyTargetGO != null)
+            {
+                GameObject fakeTarget = Instantiate(
+                    fakeEnemyTargetGO,
+                    _physicalWorldCursor.transform.position,
+                    Quaternion.identity,
+                    this.transform
+                );
+
+                fakeTarget.AddComponent<AutoDestroy>().lifetime = lifetime;
+                return fakeTarget.transform;
+            }
+        }
+        
+
+        return null;
+    }
+
+
+    public void ResetState()
+    {
+        IsHoveringOverEnemy = false;
+        SwitchCursorMode(WorldCursorMode.DEFAULT);
+    }
+}
+
+
+
+public enum WorldCursorMode
+{
+    DEFAULT,
+    SINGLE_TARGET
 }

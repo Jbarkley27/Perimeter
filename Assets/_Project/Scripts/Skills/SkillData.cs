@@ -32,5 +32,10 @@ public class SkillData : ScriptableObject
 
     [Header("Projectile Accuracy")]
     [Tooltip("Degrees of inaccuracy. 0 = perfect, 60+ = very inaccurate")]
-    public float accuracyAngle = 45f;
+    public float accuracyAngle = 45f;    
+
+    [Header("Cursor Type")]
+    public WorldCursorMode cursorMode = WorldCursorMode.SINGLE_TARGET;
 }
+
+
