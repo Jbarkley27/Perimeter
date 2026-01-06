@@ -56,6 +56,7 @@ public class ConsoleUIManager : MonoBehaviour
                 miningNavElementActiveIndicator.enabled = false;
                 skillTreeNavElementActiveIndicator.enabled = true;
                 prestigeNavElementActiveIndicator.enabled = false;
+                SkillTreeUIManager.Instance.CenterUIOnScreen();
                 break;
 
             case ConsoleUIScreenState.PRESTIGE:
