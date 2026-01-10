@@ -2,9 +2,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 
-public class SkillTree : MonoBehaviour
+public class RunManager : MonoBehaviour
 {
-    public static SkillTree Instance { get; private set; }
+    public static RunManager Instance { get; private set; }
 
     [Header("All Skills The Player Has Unlocked")]
     // public List<SkillData> unlockedSkills = new List<SkillData>();
@@ -54,6 +54,7 @@ public class SkillTree : MonoBehaviour
 
     public void ShowEndRunScreen()
     {
+        Debug.Log("Opening End Run Screen");
         endRunScreen.SetActive(true);
         endRunCanvasGroup.DOFade(1, 0.25f);
     }
@@ -61,6 +62,9 @@ public class SkillTree : MonoBehaviour
 
     public void HideEndRunScreen()
     {
+        if (endRunScreen.activeSelf == false)
+            return;
+
         endRunCanvasGroup.DOFade(0, 0.2f).OnComplete(() =>
         {
             endRunScreen.SetActive(false);
@@ -68,23 +72,23 @@ public class SkillTree : MonoBehaviour
     }
 
 
-    public void OpenSkillTree()
-    {
-        endRunCanvasGroup.DOFade(0, 0.2f).OnComplete(() =>
-        {
-            endRunScreen.SetActive(false);
-        });
+    // public void OpenSkillTree()
+    // {
+    //     endRunCanvasGroup.DOFade(0, 0.2f).OnComplete(() =>
+    //     {
+    //         endRunScreen.SetActive(false);
+    //     });
         
-        skillTreeScreen.SetActive(true);
-        skillTreeCanvasGroup.DOFade(1, 0.25f);
-    }
+    //     skillTreeScreen.SetActive(true);
+    //     skillTreeCanvasGroup.DOFade(1, 0.25f);
+    // }
 
 
-    public void CloseSkillTree()
-    {
-        skillTreeCanvasGroup.DOFade(0, 0.2f).OnComplete(() =>
-        {
-            skillTreeScreen.SetActive(false);
-        });
-    }
+    // public void CloseSkillTree()
+    // {
+    //     skillTreeCanvasGroup.DOFade(0, 0.2f).OnComplete(() =>
+    //     {
+    //         skillTreeScreen.SetActive(false);
+    //     });
+    // }
 }

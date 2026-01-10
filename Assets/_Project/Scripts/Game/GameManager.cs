@@ -61,7 +61,7 @@ public class GameManager : MonoBehaviour
 
 
         // Open End Run Screen
-        SkillTree.Instance.ShowEndRunScreen();
+        RunManager.Instance.ShowEndRunScreen();
     }
 
 
@@ -86,8 +86,9 @@ public class GameManager : MonoBehaviour
         WorldCursor.instance.ResetState();
 
         // Hide Skill Tree Screen
-        SkillTree.Instance.HideEndRunScreen();
-        SkillTree.Instance.CloseSkillTree();
+        RunManager.Instance.HideEndRunScreen();
+        ConsoleUIManager.Instance.CloseConsole();
+        RunManager.Instance.HideEndRunScreen();
 
         // wait a bit before restarting signal
         yield return new WaitForSeconds(startSignalDelay);
@@ -103,15 +104,4 @@ public class GameManager : MonoBehaviour
     }
 
 
-
-
-
-    public void OpenMaintenanceMenu()
-    {
-        // Pause Signal
-        SignalManager.Instance.PauseSignal();
-
-        // Show Maintenance Menu UI
-        SkillTree.Instance.OpenSkillTree();
-    }
 }

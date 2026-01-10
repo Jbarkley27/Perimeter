@@ -35,7 +35,7 @@ public class PlayerHUD : MonoBehaviour
     {
         Debug.Log("Refreshing Player HUD Skills");
 
-        var equipped = SkillTree.Instance.GetEquippedSkills();
+        var equipped = RunManager.Instance.GetEquippedSkills();
 
         // Lets disable all slots first
         foreach (var slot in uiSlots)
