@@ -31,8 +31,6 @@ public class EnemyAI : MonoBehaviour
     private Vector3 currentSlot;
     private float slotTimer;
 
-
-
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();

@@ -1,6 +1,7 @@
 using UnityEngine.UI;
 using UnityEngine;
 using DG.Tweening;
+using System.Collections;
 
 public class ConsoleUIManager : MonoBehaviour
 {
@@ -21,6 +22,8 @@ public class ConsoleUIManager : MonoBehaviour
     public bool OpeningConsole = false;
     public GameObject HUDRoot;
     public GameObject SignalUIRoot;
+    public CanvasGroup consoleTransitionScreen;
+    public CanvasGroup consoleContentGroup;
 
 
     [Header("Mining Screen UI Elements")]
@@ -97,24 +100,72 @@ public class ConsoleUIManager : MonoBehaviour
     }
 
 
-    public void OpenConsole()
+    public void InitiateConsole()
     {
         if (OpeningConsole)
-            return; 
+            return;
 
+        OpeningConsole = true;
+
+        StartCoroutine(OpenConsole());
+    }
+
+
+
+    public float consoleOpenDelay = 0.1f;
+    public float transitionScreenOpenEndScale = 10f;
+
+    public IEnumerator OpenConsole()
+    {
+
+        // Prepare Transition Screen
+        consoleTransitionScreen.gameObject.SetActive(true);
+        consoleTransitionScreen.gameObject.transform.localScale = Vector3.zero;
+
+        consoleContentGroup.gameObject.SetActive(true);
+
+        consoleContentGroup.DOFade(1, 0.15f);
+        
+        consoleCanvasGroup.gameObject.transform.DOShakePosition(0.3f, 0.5f, 10, 90, false)
+            .OnComplete(() =>
+            {
+                consoleCanvasGroup.gameObject.transform.localPosition = Vector3.zero;
+            });
+
+        consoleTransitionScreen.DOFade(1, 0.2f);
+
+        // Scale up transition screen
+        consoleTransitionScreen.gameObject.transform.DOScale(Vector3.one * transitionScreenOpenEndScale,
+             0.2f)
+            .SetEase(Ease.OutQuad);
+
+        yield return new WaitForSeconds(0.2f + consoleOpenDelay);
+
+
+        // Scale Back Down
+        consoleContentGroup.DOFade(0, 0.1f);
+        consoleTransitionScreen.gameObject.transform.DOScale(Vector3.zero, 0.2f)
+            .SetEase(Ease.InQuad)
+            .OnComplete(() =>
+            {
+                consoleTransitionScreen.gameObject.transform.localScale = Vector3.one;
+                consoleCanvasGroup.DOFade(1, 0.2f).OnComplete(() =>
+                {
+                    OpeningConsole = false;
+                });
+
+                consoleTransitionScreen.alpha = 0;
+                consoleTransitionScreen.gameObject.SetActive(false);
+                UpdateScreenUI();
+            });
+
+
+        // Background Stuff while the Transition screen is up
         HUDRoot.SetActive(false);
         SignalUIRoot.SetActive(false);
-        OpeningConsole = true;
-        RunManager.Instance.HideEndRunScreen();
+        SignalManager.Instance.HideEndRunScreen();
         consoleCanvasGroup.alpha = 0;
         consoleUIRoot.SetActive(true);
-
-        consoleCanvasGroup.DOFade(1, 0.2f).OnComplete(() =>
-        {
-            OpeningConsole = false;
-        });
-
-        UpdateScreenUI();
     }
 
 
@@ -124,6 +175,12 @@ public class ConsoleUIManager : MonoBehaviour
         {
             consoleUIRoot.SetActive(false);
         });
+
+
+        consoleContentGroup.alpha = 0;
+        consoleTransitionScreen.alpha = 0;
+        consoleContentGroup.gameObject.SetActive(false);
+        consoleTransitionScreen.gameObject.SetActive(false);
         HUDRoot.SetActive(true);
         SignalUIRoot.SetActive(true);
     }

@@ -497,12 +497,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 43e3d513625ec4e35bcbf72b67b96c27, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyAI
-  minSpeed: 8
-  maxSpeed: 10
-  minAccel: 15
-  maxAccel: 20
-  minStoppingDistance: 3
-  maxStoppingDistance: 8
+  enemyType: 0
+  healthModule: {fileID: 0}
+  minSpeed: 10
+  maxSpeed: 14
+  minAccel: 18
+  maxAccel: 22
+  minStoppingDistance: 2
+  maxStoppingDistance: 7
   statUpdateInterval: 5
   attackRange: 3
   rangePreference: 1
@@ -522,10 +524,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   maxHealth: 6
-  healthBarCanvas: {fileID: 8423791237112352570}
   healthBarSlider: {fileID: 8988490223420303716}
   damageNumberPrefab: {fileID: 2493121109169486425, guid: 3c4cffa6bfcda496c83ef0c1f1fbaac7, type: 3}
   heightOffset: 5
+  enemyType: 0
 --- !u!114 &6966597395574456591
 MonoBehaviour:
   m_ObjectHideFlags: 0

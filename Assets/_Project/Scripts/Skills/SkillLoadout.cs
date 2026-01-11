@@ -1,10 +1,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerHUD : MonoBehaviour
+public class SkillLoadout : MonoBehaviour
 {
     public List<SkillUISlot> uiSlots;
     public Transform uiSlotParent;
+    [Header("Equipped Skills (Displayed In HUD)")]
+    public List<SkillData> equippedSkills = new List<SkillData>();
 
     void Awake()
     {
@@ -35,7 +37,7 @@ public class PlayerHUD : MonoBehaviour
     {
         Debug.Log("Refreshing Player HUD Skills");
 
-        var equipped = RunManager.Instance.GetEquippedSkills();
+        var equipped = equippedSkills;
 
         // Lets disable all slots first
         foreach (var slot in uiSlots)

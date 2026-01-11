@@ -10,6 +10,7 @@ public class GameManager : MonoBehaviour
     public float signalSpawnDelay = 2.0f;
     public float startSignalDelay = 3f;
 
+    public bool autoStartBattlePhase = true;
 
     private void Awake()
     {
@@ -25,7 +26,7 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        StartBattlePhase();
+        if (autoStartBattlePhase) StartBattlePhase();
         RunAttempts = -1;
     }
 
@@ -61,7 +62,7 @@ public class GameManager : MonoBehaviour
 
 
         // Open End Run Screen
-        RunManager.Instance.ShowEndRunScreen();
+        SignalManager.Instance.StartShowEndRunScreen();
     }
 
 
@@ -75,6 +76,10 @@ public class GameManager : MonoBehaviour
         // Broadcast Signal
         StartCoroutine(SignalManager.Instance.BroadcastSignal());
 
+
+        // Sector Reset
+        SectorManager.Instance.ResetSectors();
+
         // Reset Signal UI
         SignalManager.Instance.ResetSignalUI();
 
@@ -86,9 +91,9 @@ public class GameManager : MonoBehaviour
         WorldCursor.instance.ResetState();
 
         // Hide Skill Tree Screen
-        RunManager.Instance.HideEndRunScreen();
+        SignalManager.Instance.HideEndRunScreen();
         ConsoleUIManager.Instance.CloseConsole();
-        RunManager.Instance.HideEndRunScreen();
+        SignalManager.Instance.HideEndRunScreen();
 
         // wait a bit before restarting signal
         yield return new WaitForSeconds(startSignalDelay);

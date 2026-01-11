@@ -20,6 +20,8 @@ public class EnemyHealthModule : MonoBehaviour
 
     public void TakeDamage(float amount)
     {
+        // only send the net damage to SignalManager
+        SignalManager.Instance.AddDamage((int)Mathf.Clamp(currentHealth - amount, 0, amount));
         currentHealth -= amount;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
         UpdateHealthBar();
@@ -43,6 +45,8 @@ public class EnemyHealthModule : MonoBehaviour
         Debug.Log($"{gameObject.name} has died.");
         
         // Add death logic here (e.g., play animation, drop loot, etc.)
+
+        SignalManager.Instance.DefeatEnemy();
 
         EnemyPooler.Instance.ReturnEnemyToPool(
             gameObject,
