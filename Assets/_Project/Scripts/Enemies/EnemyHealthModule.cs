@@ -18,10 +18,15 @@ public class EnemyHealthModule : MonoBehaviour
         UpdateHealthBar();
     }
 
-    public void TakeDamage(float amount)
+    public void TakeDamage(int amount)
     {
         // only send the net damage to SignalManager
-        SignalManager.Instance.AddDamage((int)Mathf.Clamp(currentHealth - amount, 0, amount));
+        int actualDamage = (int)Mathf.Min(currentHealth, amount);
+
+        EnemyManager.Instance.AddDamageDealtToEnemies(actualDamage);
+
+        Debug.Log($"{gameObject.name} took {amount} damage.");
+        Debug.Log("Damage Signal Received" + actualDamage);
         currentHealth -= amount;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
         UpdateHealthBar();
@@ -46,7 +51,9 @@ public class EnemyHealthModule : MonoBehaviour
         
         // Add death logic here (e.g., play animation, drop loot, etc.)
 
-        SignalManager.Instance.DefeatEnemy();
+        EnemyManager.Instance.DefeatEnemy(enemyType);
+
+        GlassManager.Instance.CollectGlass(enemyType);
 
         EnemyPooler.Instance.ReturnEnemyToPool(
             gameObject,

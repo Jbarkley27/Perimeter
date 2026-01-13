@@ -163,7 +163,7 @@ public class ConsoleUIManager : MonoBehaviour
         // Background Stuff while the Transition screen is up
         HUDRoot.SetActive(false);
         SignalUIRoot.SetActive(false);
-        SignalManager.Instance.HideEndRunScreen();
+        RunManager.Instance.HideEndRunScreen();
         consoleCanvasGroup.alpha = 0;
         consoleUIRoot.SetActive(true);
     }
@@ -183,5 +183,8 @@ public class ConsoleUIManager : MonoBehaviour
         consoleTransitionScreen.gameObject.SetActive(false);
         HUDRoot.SetActive(true);
         SignalUIRoot.SetActive(true);
+        miningScreenUIRoot.SetActive(false);
+        skillTreeScreenUIRoot.SetActive(false);
+        prestigeScreenUIRoot.SetActive(false);
     }
 }

@@ -12,7 +12,7 @@ public class Projectile : MonoBehaviour
     private Rigidbody rb;
     private float speed;
     private float baseSpeed;
-    private float damage;
+    private int damage;
 
     [Header("Accuracy / Spread")]
     public float accuracyAngle = 45f;
@@ -71,7 +71,7 @@ public class Projectile : MonoBehaviour
 
     public void Launch(
         Transform targetTransform,
-        float dmg,
+        int dmg,
         float projectileSpeed,
         float accuracyDegrees
     )

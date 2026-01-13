@@ -47,10 +47,10 @@ public class GameManager : MonoBehaviour
 
     public void EndRun()
     {
-        Debug.Log("Run Ended. Returning to Main Menu...");
+        Debug.Log("Run Ended....");
 
         // Pause Signal
-        SignalManager.Instance.PauseSignal();
+        // SignalManager.Instance.PauseSignal();
         
 
         // Clear active enemies
@@ -62,7 +62,7 @@ public class GameManager : MonoBehaviour
 
 
         // Open End Run Screen
-        SignalManager.Instance.StartShowEndRunScreen();
+        RunManager.Instance.StartShowEndRunScreen();
     }
 
 
@@ -73,15 +73,21 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log(RunAttempts == 0 ? "Starting Run" : "Restarting Run...");
 
-        // Broadcast Signal
-        StartCoroutine(SignalManager.Instance.BroadcastSignal());
+        // Restor Barrier Signal
+        GlobalDataStore.Instance.BarrierModule.ResetBarrier();
 
 
         // Sector Reset
         SectorManager.Instance.ResetSectors();
 
         // Reset Signal UI
-        SignalManager.Instance.ResetSignalUI();
+        RunManager.Instance.ResetSignalUI();
+
+        // Reset Enemy Manager
+        EnemyManager.Instance.Reset();
+
+        // Reset Glass Manager
+        GlassManager.Instance.ResetGlassThisRun();
 
         RunAttempts += 1;
 
@@ -91,9 +97,9 @@ public class GameManager : MonoBehaviour
         WorldCursor.instance.ResetState();
 
         // Hide Skill Tree Screen
-        SignalManager.Instance.HideEndRunScreen();
+        RunManager.Instance.HideEndRunScreen();
         ConsoleUIManager.Instance.CloseConsole();
-        SignalManager.Instance.HideEndRunScreen();
+        RunManager.Instance.HideEndRunScreen();
 
         // wait a bit before restarting signal
         yield return new WaitForSeconds(startSignalDelay);
@@ -105,7 +111,7 @@ public class GameManager : MonoBehaviour
         GlobalDataStore.Instance.SkillCaster.ResetAllSkillCooldowns();
 
         // Start Signal Countdown
-        SignalManager.Instance.ResumeSignal();
+        // SignalManager.Instance.ResumeSignal();
     }
 
 

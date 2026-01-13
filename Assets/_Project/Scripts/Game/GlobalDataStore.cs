@@ -9,6 +9,7 @@ public class GlobalDataStore : MonoBehaviour
     public SkillCaster SkillCaster;
     public EnemyPooler EnemyPooler;
     public WaveSpawner WaveSpawner;
+    public BarrierModule BarrierModule;
 
     private void Awake()
     {

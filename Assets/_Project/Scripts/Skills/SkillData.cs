@@ -15,7 +15,7 @@ public class SkillData : ScriptableObject
     [Header("Combat Stats")]
     public float cooldownRate = 1.5f;
     public float cooldownRestartDelay = 1f;
-    public float damage = 10f;
+    public int damage = 10;
 
     [Header("Projectile Settings (If Projectile)")]
     public GameObject projectilePrefab;
