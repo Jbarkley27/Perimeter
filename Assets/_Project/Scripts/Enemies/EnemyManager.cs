@@ -9,24 +9,25 @@ public class EnemyManager : MonoBehaviour
     public double totalDamageDealtToEnemies = 0;
     public double totalDamageDealtToEnemiesThisRun = 0;
     public double requiredDamageToWin = 10.0;
+    public int enemyAttackPool; // used to limit number of enemies that can attack at once
 
-    public Dictionary<EnemyPooler.EnemyType, int> enemiesDefeatedByTypeThisRun = new Dictionary<EnemyPooler.EnemyType, int>()
+    public Dictionary<EnemyDataStore.EnemyType, int> enemiesDefeatedByTypeThisRun = new Dictionary<EnemyDataStore.EnemyType, int>()
     {
-        { EnemyPooler.EnemyType.BASIC, 0 },
-        { EnemyPooler.EnemyType.BOMBER, 0 },
-        { EnemyPooler.EnemyType.HEALER, 0 },
-        { EnemyPooler.EnemyType.SNIPER, 0 },
-        { EnemyPooler.EnemyType.TANK, 0 },
+        { EnemyDataStore.EnemyType.BASIC, 0 },
+        { EnemyDataStore.EnemyType.BOMBER, 0 },
+        { EnemyDataStore.EnemyType.HEALER, 0 },
+        { EnemyDataStore.EnemyType.SNIPER, 0 },
+        { EnemyDataStore.EnemyType.TANK, 0 },
     };
 
 
-    public Dictionary<EnemyPooler.EnemyType, int> enemiesDefeatedByTypeTotal = new Dictionary<EnemyPooler.EnemyType, int>()
+    public Dictionary<EnemyDataStore.EnemyType, int> enemiesDefeatedByTypeTotal = new Dictionary<EnemyDataStore.EnemyType, int>()
     {
-        { EnemyPooler.EnemyType.BASIC, 0 },
-        { EnemyPooler.EnemyType.BOMBER, 0 },
-        { EnemyPooler.EnemyType.HEALER, 0 },
-        { EnemyPooler.EnemyType.SNIPER, 0 },
-        { EnemyPooler.EnemyType.TANK, 0 },
+        [EnemyDataStore.EnemyType.BASIC] = 0,
+        [EnemyDataStore.EnemyType.BOMBER] = 0,
+        [EnemyDataStore.EnemyType.HEALER] = 0,
+        [EnemyDataStore.EnemyType.SNIPER] = 0,
+        [EnemyDataStore.EnemyType.TANK] = 0,
     };
 
     private void Awake()
@@ -41,7 +42,7 @@ public class EnemyManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
-    public void DefeatEnemy(EnemyPooler.EnemyType enemyType)
+    public void DefeatEnemy(EnemyDataStore.EnemyType enemyType)
     {
         totalEnemiesDefeated++;
         totalEnemiesDeafeatedThisRun++;
@@ -72,7 +73,7 @@ public class EnemyManager : MonoBehaviour
         totalEnemiesDeafeatedThisRun = 0;
 
         // loop through keys and reset values to 0
-        List<EnemyPooler.EnemyType> keys = new List<EnemyPooler.EnemyType>(enemiesDefeatedByTypeThisRun.Keys);
+        List<EnemyDataStore.EnemyType> keys = new List<EnemyDataStore.EnemyType>(enemiesDefeatedByTypeThisRun.Keys);
         foreach (var key in keys)
         {
             enemiesDefeatedByTypeThisRun[key] = 0;
@@ -106,4 +107,20 @@ public class EnemyManager : MonoBehaviour
     }
 
 
+    public bool RequestEnemyAttackPermission(EnemyDataStore.EnemyType enemyType)
+    {
+        int attackCost = EnemyDataStore.Instance.GetAttackCostForEnemyType(enemyType);
+        if (enemyAttackPool >= attackCost)
+        {
+            enemyAttackPool -= attackCost;
+            return true;
+        }
+        return false;
+    }
+
+    public void ReturnEnemyAttackPermission(EnemyDataStore.EnemyType enemyType)
+    {
+        int attackCost = EnemyDataStore.Instance.GetAttackCostForEnemyType(enemyType);
+        enemyAttackPool += attackCost;
+    }
 }

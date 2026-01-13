@@ -5,19 +5,10 @@ public class EnemyPooler : MonoBehaviour
 {
     public static EnemyPooler Instance;
 
-    public enum EnemyType
-    {
-        BASIC,
-        BOMBER,
-        SNIPER,
-        TANK,
-        HEALER
-    }
-
     [System.Serializable]
     public class EnemyPoolData
     {
-        public EnemyType enemyID; 
+        public EnemyDataStore.EnemyType enemyID; 
         public GameObject prefab;
         public int initialAmount = 10;
     }
@@ -31,7 +22,7 @@ public class EnemyPooler : MonoBehaviour
     public Transform activeParent;
 
     
-    private Dictionary<EnemyType, Queue<GameObject>> pools = new Dictionary<EnemyType, Queue<GameObject>>();
+    private Dictionary<EnemyDataStore.EnemyType, Queue<GameObject>> pools = new Dictionary<EnemyDataStore.EnemyType, Queue<GameObject>>();
 
     public List<EnemyAI> ActiveEnemies = new List<EnemyAI>();
 
@@ -71,7 +62,7 @@ public class EnemyPooler : MonoBehaviour
 
 
 
-    public GameObject GetEnemy(EnemyType enemyID)
+    public GameObject GetEnemy(EnemyDataStore.EnemyType enemyID)
     {
         if (!pools.ContainsKey(enemyID))
         {
@@ -92,7 +83,7 @@ public class EnemyPooler : MonoBehaviour
 
 
 
-    public void ReturnEnemyToPool(GameObject enemy, EnemyType enemyID)
+    public void ReturnEnemyToPool(GameObject enemy, EnemyDataStore.EnemyType enemyID)
     {
         if (!pools.ContainsKey(enemyID))
         {
@@ -116,7 +107,7 @@ public class EnemyPooler : MonoBehaviour
 
     
 
-    private void ExpandPool(EnemyType enemyID)
+    private void ExpandPool(EnemyDataStore.EnemyType enemyID)
     {
         var data = enemyTypes.Find(t => t.enemyID == enemyID);
         if (data == null) return;

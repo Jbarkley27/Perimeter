@@ -1,5 +1,8 @@
+using System.Collections;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UI;
 
 public class EnemyAI : MonoBehaviour
 {
@@ -7,8 +10,9 @@ public class EnemyAI : MonoBehaviour
     private Transform player;
     private NavMeshAgent agent;
     private PositionRing ring;
-    public EnemyPooler.EnemyType enemyType;
+    public EnemyDataStore.EnemyType enemyType;
     public EnemyHealthModule healthModule;
+    public Transform enemyBodyTransform;
 
     [Header("Randomized Agent Settings")]
     public float minSpeed = 2f;
@@ -23,6 +27,12 @@ public class EnemyAI : MonoBehaviour
     public float attackRange = 3f;
     public bool inAttackRange { get; private set; }
     public AttackRange rangePreference = AttackRange.Mid;
+    public double damage; // TODO: integrate with EnemyDataStore DAMAGE/HEALTH/ETC should come from there which will scale with wave number and the economy
+    public float attackCooldown = 1.5f;
+    public float attackCastTime = 0.5f;
+    public Slider castTimeSlider;
+    public bool isAttacking { get; private set; }
+    public bool isOnCooldown { get; private set; }
 
     [Header("Movement")]
     public float slotReassignInterval = 2f; 
@@ -94,6 +104,11 @@ public class EnemyAI : MonoBehaviour
     }
 
 
+    public bool InAttackRange()
+    {
+        return inAttackRange;
+    }
+
 
     private void PickRandomSlot()
     {
@@ -104,6 +119,15 @@ public class EnemyAI : MonoBehaviour
 
     private void OnDisable()
     {
+        // Check if the agent was attacking, if so return its attack permission
+        if (isAttacking)
+        {
+            EnemyManager.Instance.ReturnEnemyAttackPermission(enemyType);
+            isAttacking = false;
+        }
+
+
+        // Reset NavMeshAgent
         if (agent != null && agent.enabled && agent.isOnNavMesh)
         {
             agent.ResetPath();
@@ -111,12 +135,87 @@ public class EnemyAI : MonoBehaviour
             agent.isStopped = true;
             CancelInvoke(nameof(RandomizeAgentStats));
         }
+
+        // Reset other stuff
+        isOnCooldown = false;
+        castTimeSlider.gameObject.SetActive(false);
     }
 
 
     public void ResetEnemy()
     {
         if (healthModule) healthModule.ResetHealth();
+    }
+
+
+    public void CanAttackPlayer()
+    {
+        if (InAttackRange()
+            && !isAttacking
+            && !isOnCooldown)
+        {
+            // Start attack coroutine
+            if (EnemyManager.Instance.RequestEnemyAttackPermission(enemyType))
+                StartCoroutine(EnemyAttackCoroutine());
+        }
+    }
+
+    private IEnumerator EnemyAttackCoroutine()
+    {
+        isAttacking = true;
+        castTimeSlider.gameObject.SetActive(true);
+        castTimeSlider.value = 0f;
+
+        float elapsed = 0f;
+        while (elapsed < attackCastTime)
+        {
+            elapsed += Time.deltaTime;
+            castTimeSlider.value = Mathf.Clamp01(elapsed / attackCastTime);
+            yield return null;
+        }
+
+        // pause movement briefly to simulate attack impact
+        agent.isStopped = true;
+
+
+
+        // animate slider
+        castTimeSlider.gameObject.transform.DOPunchScale(Vector3.one * 0.2f, 0.3f, 10, 1)
+            .SetEase(Ease.OutCubic)
+            .OnComplete(() =>
+            {
+                castTimeSlider.gameObject.transform.localScale = Vector3.one;
+                castTimeSlider.gameObject.SetActive(false);
+            });
+
+
+        // animate enemy body
+        enemyBodyTransform.DOPunchScale(Vector3.one * 0.15f, 0.2f, 10, 1)
+            .SetEase(Ease.OutCubic)
+            .OnComplete(() =>
+            {
+                enemyBodyTransform.localScale = Vector3.one;
+            });
+
+        // Deal damage to player
+       // later add projectile/attaack system that shoots a new EnemyProjectile toward the player
+        Debug.Log($"{gameObject.name} dealt {damage} damage to the player.");
+
+
+        // wait a bit before allowing movement again
+        yield return new WaitForSeconds(0.2f);
+        agent.isStopped = false;
+
+
+        isAttacking = false;
+        isOnCooldown = true;
+
+        yield return new WaitForSeconds(Random.Range(0.5f, 2f)); // small delay before returning attack permission
+        EnemyManager.Instance.ReturnEnemyAttackPermission(enemyType);
+
+        // Start cooldown
+        yield return new WaitForSeconds(attackCooldown);
+        isOnCooldown = false;
     }
 }
 

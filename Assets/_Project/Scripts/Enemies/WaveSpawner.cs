@@ -76,7 +76,7 @@ public class WaveSpawner : MonoBehaviour
     
 
 
-    private void SpawnEnemy(EnemyPooler.EnemyType enemyID)
+    private void SpawnEnemy(EnemyDataStore.EnemyType enemyID)
     {
         if (GameManager.Instance.GamePaused)
         {
@@ -122,7 +122,7 @@ public struct Wave
     public string waveName;
 
     [Tooltip("Enemy IDs to spawn in order for this wave")]
-    public List<EnemyPooler.EnemyType> enemyIDs;
+    public List<EnemyDataStore.EnemyType> enemyIDs;
 
     [Tooltip("Delay between each enemy spawn in this wave")]
     public float spawnDelay;

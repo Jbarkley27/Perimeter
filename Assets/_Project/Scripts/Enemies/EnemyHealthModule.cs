@@ -10,7 +10,7 @@ public class EnemyHealthModule : MonoBehaviour
     public Slider healthBarSlider;
     public DamageNumber damageNumberPrefab;
     public float heightOffset = 5;
-    public EnemyPooler.EnemyType enemyType;
+    public EnemyDataStore.EnemyType enemyType;
 
     void Start()
     {

@@ -1079,6 +1079,7 @@ MonoBehaviour:
   totalDamageDealtToEnemies: 0
   totalDamageDealtToEnemiesThisRun: 0
   requiredDamageToWin: 10
+  enemyAttackPool: 0
 --- !u!114 &64277017
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4511,14 +4512,19 @@ MonoBehaviour:
   enemyGlassRewards:
   - enemyType: 0
     glassRewardAmount: 1
+    attackCost: 1
   - enemyType: 1
     glassRewardAmount: 2
+    attackCost: 1
   - enemyType: 4
     glassRewardAmount: 4
+    attackCost: 1
   - enemyType: 2
     glassRewardAmount: 3
+    attackCost: 1
   - enemyType: 3
     glassRewardAmount: 5
+    attackCost: 1
 --- !u!1 &359753993
 GameObject:
   m_ObjectHideFlags: 0
@@ -8056,23 +8062,6 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
---- !u!1 &755314039 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 283255088647648453, guid: 19007148c0cb349f4b2a235255dbfc96, type: 3}
-  m_PrefabInstance: {fileID: 2935798584861826456}
-  m_PrefabAsset: {fileID: 0}
---- !u!225 &755314041
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 755314039}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
-  m_IgnoreParentGroups: 0
 --- !u!1 &773424180
 GameObject:
   m_ObjectHideFlags: 0
@@ -32302,10 +32291,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 283255088647648453, guid: 19007148c0cb349f4b2a235255dbfc96, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 755314041}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 19007148c0cb349f4b2a235255dbfc96, type: 3}
 --- !u!1001 &7034864028120851748
 PrefabInstance:

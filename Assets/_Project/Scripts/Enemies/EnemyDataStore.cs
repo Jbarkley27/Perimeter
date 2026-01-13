@@ -3,14 +3,24 @@ using UnityEngine;
 
 public class EnemyDataStore : MonoBehaviour
 {
-    public static EnemyDataStore Instance { get; private set; }
-    public List<EnemyGlassReward> enemyGlassRewards = new List<EnemyGlassReward>()
+     public enum EnemyType
     {
-        new EnemyGlassReward(EnemyPooler.EnemyType.BASIC, 1),
-        new EnemyGlassReward(EnemyPooler.EnemyType.BOMBER, 2),
-        new EnemyGlassReward(EnemyPooler.EnemyType.HEALER, 4),
-        new EnemyGlassReward(EnemyPooler.EnemyType.SNIPER, 3),
-        new EnemyGlassReward(EnemyPooler.EnemyType.TANK, 5),
+        BASIC,
+        BOMBER,
+        SNIPER,
+        TANK,
+        HEALER
+    }
+
+
+    public static EnemyDataStore Instance { get; private set; }
+    public List<EnemyBaseData> enemyGlassRewards = new List<EnemyBaseData>()
+    {
+        new EnemyBaseData(EnemyType.BASIC, 5, 1),
+        new EnemyBaseData(EnemyType.BOMBER, 10, 1),
+        new EnemyBaseData(EnemyType.HEALER, 8, 1),
+        new EnemyBaseData(EnemyType.SNIPER, 12, 1),
+        new EnemyBaseData(EnemyType.TANK, 15, 1),
     };
 
     private void Awake()
@@ -25,7 +35,7 @@ public class EnemyDataStore : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
-    public int GetGlassRewardForEnemyType(EnemyPooler.EnemyType enemyType)
+    public int GetGlassRewardForEnemyType(EnemyType enemyType)
     {
         foreach (var reward in enemyGlassRewards)
         {
@@ -36,17 +46,31 @@ public class EnemyDataStore : MonoBehaviour
         }
         return 0; // Default if not found
     }
+
+    public int GetAttackCostForEnemyType(EnemyType enemyType)
+    {
+        foreach (var reward in enemyGlassRewards)
+        {
+            if (reward.enemyType == enemyType)
+            {
+                return reward.attackCost;
+            }
+        }
+        return 0; // Default if not found
+    }
 }
 
 [System.Serializable]
-public struct EnemyGlassReward
+public struct EnemyBaseData
 {
-    public EnemyPooler.EnemyType enemyType;
+    public EnemyDataStore.EnemyType enemyType;
     public int glassRewardAmount;
+    public int attackCost;
 
-    public EnemyGlassReward(EnemyPooler.EnemyType type, int amount)
+    public EnemyBaseData(EnemyDataStore.EnemyType type, int glassReward, int attackCost)
     {
-        enemyType = type;
-        glassRewardAmount = amount;
+        this.enemyType = type;
+        this.glassRewardAmount = glassReward;
+        this.attackCost = attackCost;
     }
 }

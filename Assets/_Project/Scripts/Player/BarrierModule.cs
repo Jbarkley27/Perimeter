@@ -58,10 +58,18 @@ public class BarrierModule : MonoBehaviour
         // Apply damage to barrier first
         if (barrierStrength > 0)
         {
+
             double damageToBarrier = Mathf.Min((float)amount, (float)barrierStrength);
             barrierStrength -= damageToBarrier;
             amount -= damageToBarrier;
             barrierRoot.transform.DOPunchScale(new Vector3(0.1f, 0.1f, 0.1f), 0.2f, 10, 1);
+
+            // we need to figure out if this is the first time the barrier broke/depleted
+            if (barrierStrength <= 0)
+            {
+                Debug.Log("Barrier depleted!");
+                // You can add additional effects or logic here for when the barrier breaks
+            }
         }
 
         // If there's remaining damage, apply it to health

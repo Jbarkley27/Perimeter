@@ -47,7 +47,7 @@ public class GlassManager : MonoBehaviour
     }
 
 
-    public void CollectGlass(EnemyPooler.EnemyType enemyType)
+    public void CollectGlass(EnemyDataStore.EnemyType enemyType)
     {
         double rewardAmount = EnemyDataStore.Instance.GetGlassRewardForEnemyType(enemyType);
         AddGlass(rewardAmount);
