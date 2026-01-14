@@ -7,11 +7,6 @@ using System.Collections.Generic;
 
 public class RunManager : MonoBehaviour
 {
-    [Header("Damage Values")]
-    // public Slider damageSignalSlider;
-    // public TMP_Text damageSignalText;
-
-
     public static RunManager Instance { get; private set; }
 
     [Header("End Run Screen")]
@@ -31,7 +26,6 @@ public class RunManager : MonoBehaviour
     public TMP_Text currentHeaderSectorText;
     public TMP_Text nextSectorText;
     public TMP_Text currentSectorExtraText;
-    public TMP_Text glassCollectedTextInGame;
 
 
 
@@ -49,86 +43,23 @@ public class RunManager : MonoBehaviour
 
     private void Start()
     {
-        // UpdateUI();
-        // glassCollectedTextInGame.text = "0";
+
     }
 
     private void Update()
     {
-        // if (!isActive) return;
 
-        // DecreaseSignal(Time.deltaTime * decayPerSecond);
     }
 
     // -----------------------------
     // PUBLIC API
     // -----------------------------
 
-    public void ResetSignalUI()
+    public void ResetRun()
     {
-        // maxSignalSeconds = startingMaxSignalSeconds;
-        // signalSeconds = maxSignalSeconds;
-
-
-        // Reset end run stats
-        // totalEnemiesDefeated = 0;
-        // totalDamageDealt = 0;
-
-        
-        // UpdateUI();
-        // PauseSignal();
         HideEndRunScreen();
     }
 
-    // public void PauseSignal()
-    // {
-    //     isActive = false;
-    // }
-
-    // public void ResumeSignal()
-    // {
-    //     isActive = true;
-    // }
-
-
-    // public void DecreaseSignal(double amount)
-    // {
-    //     if (signalSeconds <= 0)
-    //         return;
-
-    //     signalSeconds -= amount;
-    //     signalSeconds = System.Math.Max(signalSeconds, 0);
-    //     UpdateUI();
-
-    //     if (signalSeconds <= 0)
-    //         OnSignalDepleted();
-    // }
-
-    // -----------------------------
-    // INTERNAL
-    // -----------------------------
-
-    // private void OnSignalDepleted()
-    // {
-    //     isActive = false;
-    //     Debug.Log("Signal depleted — run ends");
-
-    //     // End the run
-    //     GameManager.Instance.EndRun();
-
-    //     // Refill signal for next run
-    //     signalSeconds = maxSignalSeconds;
-    //     UpdateUI();
-    // }
-
-    // private void UpdateUI()
-    // {
-    //     // if (damageSignalSlider)
-    //     //     damageSignalSlider.value = (float)(EnemyManager.Instance.GetTotalDamageDealtToEnemiesThisRun() / EnemyManager.Instance.requiredDamageToWin);
-
-    //     // if (damageSignalText)
-    //     //     damageSignalText.text = $"{(int)EnemyManager.Instance.GetTotalDamageDealtToEnemiesThisRun()} / {(int)EnemyManager.Instance.requiredDamageToWin}";
-    // }
 
     public void UpdateEndRunStatsUI()
     {
@@ -137,13 +68,12 @@ public class RunManager : MonoBehaviour
             
 
         if (totalEnemiesDefeatedText)
-            totalEnemiesDefeatedText.DOText(EnemyManager.Instance.GetTotalDamageDealtToEnemiesThisRun().ToString(), 1);
+            totalEnemiesDefeatedText.DOText(EnemyManager.Instance.GetTotalEnemiesDefeatedThisRun().ToString(), 1);
 
         if (glassCollectedText)
             glassCollectedText.DOText(GlassManager.Instance.GetCurrentGlassShards().ToString(), 1);
 
         // End Run Damage Slider Animation to next slider
-
         if (endRunDamageSlider)
             endRunDamageSlider.maxValue = (float)EnemyManager.Instance.requiredDamageToWin;
             endRunDamageSlider.DOValue((float)(EnemyManager.Instance.GetTotalDamageDealtToEnemiesThisRun() / EnemyManager.Instance.requiredDamageToWin), 1).SetEase(Ease.OutCubic);
@@ -158,72 +88,7 @@ public class RunManager : MonoBehaviour
             currentSectorExtraText.text = SectorManager.Instance.GetCurrentSectorIndex() + "";
     }
 
-    // private string FormatSignalTime(double seconds)
-    // {
-    //     if (seconds < 60)
-    //         return $"{seconds:F1}s";
 
-    //     if (seconds < 3600)
-    //     {
-    //         int mins = (int)(seconds / 60);
-    //         int secs = (int)(seconds % 60);
-    //         return $"{mins}m {secs}s";
-    //     }
-
-    //     if (seconds < 86400)
-    //     {
-    //         double hours = seconds / 3600;
-    //         return $"{hours:F1}h";
-    //     }
-
-    //     if (seconds < 86400 * 100)
-    //     {
-    //         double days = seconds / 86400;
-    //         return $"{days:F1}d";
-    //     }
-
-    //     return $"{seconds:E1}s";
-    // }
-
-    // public IEnumerator BroadcastSignal()
-    // {
-    //     if (broadcastSignalEffect != null)
-    //     {
-    //         broadcastSignalEffect.Play();
-    //         // broadcastSignalEffect2.Play();
-    //     }
-
-    //     // Assume the particle effect lasts 3 seconds
-    //     yield return new WaitForSeconds(3f);
-
-    //     if (broadcastSignalEffect != null)
-    //     {
-    //         broadcastSignalEffect.Stop();
-    //         // broadcastSignalEffect2.Stop();
-    //     }
-
-    //     // ResumeSignal();
-    // }
-
-
-    // public void AddDamage(int damageAmount)
-    // {
-    //     totalDamageDealt += damageAmount;
-    //     totalDamageDealt = Mathf.Min(totalDamageDealt, requiredDamageToWin);
-
-    //     if (damageSignalText)
-    //         damageSignalText.text = $"{totalDamageDealt} / {requiredDamageToWin}";
-
-    //     if (damageSignalSlider)
-    //         damageSignalSlider.value = (float)totalDamageDealt / requiredDamageToWin;
-
-    //     if (totalDamageDealt >= requiredDamageToWin)
-    //     {
-    //         // Player has dealt enough damage to win
-    //         Debug.Log("Required damage dealt! You win!");
-    //         GameManager.Instance.EndRun();
-    //     }
-    // }
 
 
     public void StartShowEndRunScreen()

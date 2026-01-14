@@ -91,15 +91,13 @@ public class EnemyManager : MonoBehaviour
     {
         totalDamageDealtToEnemies += amount;
         totalDamageDealtToEnemiesThisRun += amount;
-
-        if (totalDamageDealtToEnemiesThisRun >= requiredDamageToWin)
-        {
-            // Player has dealt enough damage to win
-            Debug.Log("Required damage dealt! You win!");
-            GameManager.Instance.EndRun();
-        }
     }
 
+
+    public int GetTotalEnemiesDefeatedThisRun()
+    {
+        return totalEnemiesDeafeatedThisRun;
+    }
 
     public bool HasPlayerDealtRequiredDamageToWin()
     {

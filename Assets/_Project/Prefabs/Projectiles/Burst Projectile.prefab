@@ -139,7 +139,7 @@ Transform:
   m_GameObject: {fileID: 1998312402739685713}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -16.31, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -187,7 +187,7 @@ Rigidbody:
     m_Bits: 64
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 41
+    m_Bits: 425
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 0

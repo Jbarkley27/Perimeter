@@ -1,3 +1,4 @@
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 
@@ -7,6 +8,7 @@ public class GlassManager : MonoBehaviour
     public double glassShardsThisRun = 0;
     public double totalGlassShardsCollected = 0;
     public TMP_Text glassCollectedTextInGame;
+    public GameObject glassIcon;
 
     private void Awake()
     {
@@ -20,6 +22,14 @@ public class GlassManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
+    void Start()
+    {
+        if (glassCollectedTextInGame)
+        {
+            glassCollectedTextInGame.text = "0";
+        }
+    }
+
     public void AddGlass(double amount)
     {
         glassShardsThisRun += amount;
@@ -29,6 +39,13 @@ public class GlassManager : MonoBehaviour
         {
             glassCollectedTextInGame.text = $"{(int)glassShardsThisRun}";
         }
+
+        glassIcon.transform.DOPunchScale(Vector3.one * 0.2f, 0.3f, 10, 1)
+            .SetEase(Ease.OutCubic)
+            .OnComplete(() =>
+            {
+                glassIcon.transform.localScale = Vector3.one;
+            });
     }
 
     public double GetCurrentGlassShards()

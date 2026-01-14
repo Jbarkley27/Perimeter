@@ -31,16 +31,22 @@ public class BarrierModule : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        barrierSlider.value = (float)(barrierStrength / maxBarrierStrength);
+        // Keep UI updated
+        healthSlider.maxValue = (int)maxHealthStrength;
+        barrierSlider.maxValue = (int)maxBarrierStrength;
+
+
+        barrierSlider.value = (int)barrierStrength;
         barrierText.text = $"{(int)barrierStrength} / {(int)maxBarrierStrength}";
 
-        healthSlider.value = (float)(healthStrength / maxHealthStrength);
+        healthSlider.value = (int)healthStrength;
         healthText.text = $"{(int)healthStrength} / {(int)maxHealthStrength}";
     }
 
     public void ResetBarrier()
     {
         barrierStrength = maxBarrierStrength;
+        healthStrength = maxHealthStrength;
     }
 
     public double GetBarrierStrength()

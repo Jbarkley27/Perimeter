@@ -31,8 +31,9 @@ public class EnemyAI : MonoBehaviour
     public float attackCooldown = 1.5f;
     public float attackCastTime = 0.5f;
     public Slider castTimeSlider;
-    public bool isAttacking { get; private set; }
-    public bool isOnCooldown { get; private set; }
+    public bool isAttacking = false;
+    public bool isOnCooldown = false;
+    public EnemyAttackLibrary.EnemyAttackID enemyAttackID;
 
     [Header("Movement")]
     public float slotReassignInterval = 2f; 
@@ -90,7 +91,8 @@ public class EnemyAI : MonoBehaviour
         // Attack range logic
         float dist = Vector3.Distance(transform.position, player.position);
         inAttackRange = dist <= attackRange;
-        agent.isStopped = inAttackRange;
+        // agent.isStopped = inAttackRange;
+        CanAttackPlayer();
     }
 
 
@@ -100,6 +102,7 @@ public class EnemyAI : MonoBehaviour
         agent.speed = Random.Range(minSpeed, maxSpeed);
         agent.acceleration = Random.Range(minAccel, maxAccel);
         agent.stoppingDistance = Random.Range(minStoppingDistance, maxStoppingDistance);
+
         slotReassignInterval = Random.Range(slotReassignMinInterval, slotReassignMaxInterval);
     }
 
@@ -145,15 +148,21 @@ public class EnemyAI : MonoBehaviour
     public void ResetEnemy()
     {
         if (healthModule) healthModule.ResetHealth();
+        isAttacking = false;
+        isOnCooldown = false;
+        slotTimer = 0f;
+        PickRandomSlot();
     }
 
 
     public void CanAttackPlayer()
     {
+        // Debug.Log("Checking if enemy can attack player...");
         if (InAttackRange()
             && !isAttacking
             && !isOnCooldown)
         {
+            Debug.Log($"{gameObject.name} is attempting to attack the player.");
             // Start attack coroutine
             if (EnemyManager.Instance.RequestEnemyAttackPermission(enemyType))
                 StartCoroutine(EnemyAttackCoroutine());
@@ -189,17 +198,26 @@ public class EnemyAI : MonoBehaviour
             });
 
 
-        // animate enemy body
+
+        // Perform attack
+        StartCoroutine(
+            EnemyAttackLibrary.Instance.PerformAttack(
+                enemyAttackID,
+                this,
+                new Transform[] { enemyBodyTransform } // for now, just use the body transform as the projectile source
+            )
+        );
+
+
+        // Deal damage to player
+       // later add projectile/attaack system that shoots a new EnemyProjectile toward the player
+                // animate enemy body
         enemyBodyTransform.DOPunchScale(Vector3.one * 0.15f, 0.2f, 10, 1)
             .SetEase(Ease.OutCubic)
             .OnComplete(() =>
             {
                 enemyBodyTransform.localScale = Vector3.one;
             });
-
-        // Deal damage to player
-       // later add projectile/attaack system that shoots a new EnemyProjectile toward the player
-        Debug.Log($"{gameObject.name} dealt {damage} damage to the player.");
 
 
         // wait a bit before allowing movement again

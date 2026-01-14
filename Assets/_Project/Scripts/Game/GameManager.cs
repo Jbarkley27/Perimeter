@@ -81,7 +81,7 @@ public class GameManager : MonoBehaviour
         SectorManager.Instance.ResetSectors();
 
         // Reset Signal UI
-        RunManager.Instance.ResetSignalUI();
+        RunManager.Instance.ResetRun();
 
         // Reset Enemy Manager
         EnemyManager.Instance.Reset();

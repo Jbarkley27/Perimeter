@@ -177,8 +177,11 @@ MonoBehaviour:
   rangePreference: 2
   damage: 0
   attackCooldown: 1.5
-  attackCastTime: 0.5
+  attackCastTime: 3
   castTimeSlider: {fileID: 4494676390727346893}
+  isAttacking: 0
+  isOnCooldown: 0
+  enemyAttackID: 0
   slotReassignInterval: 6
   slotReassignMinInterval: 8
   slotReassignMaxInterval: 12
@@ -196,7 +199,7 @@ NavMeshAgent:
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
-  m_StoppingDistance: 0
+  m_StoppingDistance: 70
   m_AutoTraverseOffMeshLink: 0
   m_AutoBraking: 1
   m_AutoRepath: 1

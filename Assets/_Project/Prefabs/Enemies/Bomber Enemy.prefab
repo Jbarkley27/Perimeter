@@ -258,12 +258,15 @@ MonoBehaviour:
   minStoppingDistance: 1
   maxStoppingDistance: 7
   statUpdateInterval: 5
-  attackRange: 3
+  attackRange: 40
   rangePreference: 0
   damage: 0
   attackCooldown: 1.5
-  attackCastTime: 0.5
+  attackCastTime: 1
   castTimeSlider: {fileID: 3692321451665290439}
+  isAttacking: 0
+  isOnCooldown: 0
+  enemyAttackID: 0
   slotReassignInterval: 6
   slotReassignMinInterval: 8
   slotReassignMaxInterval: 12
