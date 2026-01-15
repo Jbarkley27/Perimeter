@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class WaveSpawner : MonoBehaviour
 {
@@ -14,8 +15,8 @@ public class WaveSpawner : MonoBehaviour
     private int currentWaveIndex = 0;
     private bool isSpawning = false;
 
-
     Coroutine waveRoutine;
+
 
 
 
@@ -73,7 +74,11 @@ public class WaveSpawner : MonoBehaviour
     }
 
 
-    
+    public int GetCurrentCountOfEnemiesInWave()
+    {
+        if (currentWaveIndex >= waves.Count) return 0;
+        return waves[currentWaveIndex].enemyIDs.Count;
+    }
 
 
     private void SpawnEnemy(EnemyDataStore.EnemyType enemyID)

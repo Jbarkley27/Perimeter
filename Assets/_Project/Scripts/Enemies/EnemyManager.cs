@@ -1,15 +1,20 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class EnemyManager : MonoBehaviour
 {
     public static EnemyManager Instance;
+    public WaveSpawner waveSpawner;
     public int totalEnemiesDefeated = 0;
     public int totalEnemiesDeafeatedThisRun = 0;
     public double totalDamageDealtToEnemies = 0;
     public double totalDamageDealtToEnemiesThisRun = 0;
     public double requiredDamageToWin = 10.0;
     public int enemyAttackPool; // used to limit number of enemies that can attack at once
+    [Header("Delta Bar")]
+    public Slider deltaBarSlider; // based on how many defeated enemies in the current wave
+
 
     public Dictionary<EnemyDataStore.EnemyType, int> enemiesDefeatedByTypeThisRun = new Dictionary<EnemyDataStore.EnemyType, int>()
     {
@@ -40,6 +45,11 @@ public class EnemyManager : MonoBehaviour
         }
         Instance = this;
         DontDestroyOnLoad(gameObject);
+    }
+
+    void Update()
+    {
+        deltaBarSlider.value = totalEnemiesDeafeatedThisRun;
     }
 
     public void DefeatEnemy(EnemyDataStore.EnemyType enemyType)
@@ -80,6 +90,10 @@ public class EnemyManager : MonoBehaviour
         }
 
         totalDamageDealtToEnemiesThisRun = 0;
+
+        deltaBarSlider.maxValue = waveSpawner.GetCurrentCountOfEnemiesInWave();
+
+        deltaBarSlider.value = totalEnemiesDeafeatedThisRun;
     }
 
     public double GetTotalDamageDealtToEnemiesThisRun()
