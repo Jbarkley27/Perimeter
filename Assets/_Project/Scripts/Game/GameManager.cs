@@ -9,8 +9,8 @@ public class GameManager : MonoBehaviour
     public bool GamePaused = false;
     public float signalSpawnDelay = 2.0f;
     public float startSignalDelay = 3f;
-
     public bool autoStartBattlePhase = true;
+    public bool RoundOver = false;
 
     private void Awake()
     {
@@ -26,6 +26,7 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        RoundOver = false;
         if (autoStartBattlePhase) StartBattlePhase();
         RunAttempts = -1;
     }
@@ -47,6 +48,10 @@ public class GameManager : MonoBehaviour
 
     public void EndRun()
     {
+        // Just in case multiple run ender calls happen
+        if (RoundOver) return;
+        RoundOver = true;
+
         Debug.Log("Run Ended....");
 
         // Pause Signal
@@ -63,6 +68,8 @@ public class GameManager : MonoBehaviour
 
         // Open End Run Screen
         RunManager.Instance.StartShowEndRunScreen();
+
+    
     }
 
 
@@ -71,6 +78,7 @@ public class GameManager : MonoBehaviour
 
     public IEnumerator RestartRun()
     {
+        RoundOver = false;
         Debug.Log(RunAttempts == 0 ? "Starting Run" : "Restarting Run...");
 
         // Restor Barrier Signal

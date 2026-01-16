@@ -6,17 +6,51 @@ using DamageNumbersPro;
 public class EnemyHealthModule : MonoBehaviour
 {
     public float maxHealth = 100f;
-    private float currentHealth;
+    public float currentHealth;
     public Slider healthBarSlider;
     public DamageNumber damageNumberPrefab;
     public float heightOffset = 5;
     public EnemyDataStore.EnemyType enemyType;
+    public Slider castTimeSlider;
+    public GameObject assignedEnemy;
 
     void Start()
     {
         currentHealth = maxHealth;
         UpdateHealthBar();
     }
+
+
+    void Update()
+    {
+        if (assignedEnemy)
+        {
+            FollowWorldSpaceEnemyPosition(assignedEnemy.transform);
+            UpdateHealthBar();
+        }
+
+    }
+
+
+    public void FollowWorldSpaceEnemyPosition(Transform enemyTransform)
+    {
+        // This is on a UI Canvas NOT in world space, so we need to convert the world position to screen position
+        Vector3 worldPosition = enemyTransform.position + new Vector3(0, heightOffset, 0);
+        Debug.Log("Enemy World Position: " + worldPosition);
+        Vector3 screenPosition = Camera.main.WorldToScreenPoint(worldPosition);
+        transform.position = screenPosition;
+    }
+
+
+    public void Initialize(EnemyDataStore.EnemyType type, float health)
+    {
+        enemyType = type;
+        maxHealth = health;
+        currentHealth = health;
+        healthBarSlider.maxValue = maxHealth;
+        healthBarSlider.value = currentHealth;
+    }
+
 
     public void TakeDamage(int amount)
     {
@@ -29,7 +63,6 @@ public class EnemyHealthModule : MonoBehaviour
         Debug.Log("Damage Signal Received" + actualDamage);
         currentHealth -= amount;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
-        UpdateHealthBar();
 
         if (currentHealth <= 0)
         {
@@ -39,11 +72,12 @@ public class EnemyHealthModule : MonoBehaviour
 
     private void UpdateHealthBar()
     {
-        if (healthBarSlider != null)
-        {
-            healthBarSlider.value = currentHealth / maxHealth;
-        }
+        if (healthBarSlider == null)
+            return;
+
+        healthBarSlider.value = currentHealth;
     }
+
 
     private void Die()
     {
@@ -71,6 +105,5 @@ public class EnemyHealthModule : MonoBehaviour
     public void ResetHealth()
     {
         currentHealth = maxHealth;
-        UpdateHealthBar();
     }
 }

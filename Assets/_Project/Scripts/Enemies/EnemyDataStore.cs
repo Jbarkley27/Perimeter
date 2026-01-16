@@ -58,6 +58,26 @@ public class EnemyDataStore : MonoBehaviour
         }
         return 0; // Default if not found
     }
+
+
+    public double GetEnemyHealthMultiplier(EnemyType enemyType)
+    {
+        switch (enemyType)
+        {
+            case EnemyType.BASIC:
+                return 1.0;
+            case EnemyType.BOMBER:
+                return 1.5;
+            case EnemyType.HEALER:
+                return 1.2;
+            case EnemyType.SNIPER:
+                return 1.3;
+            case EnemyType.TANK:
+                return 2.0;
+            default:
+                return 1.0;
+        }
+    }
 }
 
 [System.Serializable]

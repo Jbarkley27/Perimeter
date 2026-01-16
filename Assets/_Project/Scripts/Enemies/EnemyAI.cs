@@ -34,6 +34,7 @@ public class EnemyAI : MonoBehaviour
     public bool isAttacking = false;
     public bool isOnCooldown = false;
     public EnemyAttackLibrary.EnemyAttackID enemyAttackID;
+    public double BaseHealth;
 
     [Header("Movement")]
     public float slotReassignInterval = 2f; 
@@ -62,11 +63,44 @@ public class EnemyAI : MonoBehaviour
     }
 
 
+    public void SetupHealthModule()
+    {
+        // Debug.Log(EnemyManager.Instance + "Enemy Manager");
+        // Debug.Log(EnemyManager.Instance.EnemyHealthModulePrefab + "Prefab");
+        // Debug.Log(EnemyManager.Instance.EnemyHealthModuleParent + "Parent");
+        // Debug.Log(healthModule + "Current Module");
+
+
+        if (!healthModule && EnemyManager.Instance.EnemyHealthModulePrefab != null
+            && EnemyManager.Instance.EnemyHealthModuleParent != null
+            && EnemyManager.Instance) 
+        {
+            Debug.Log("Setting up health module...");
+            GameObject healthModuleGO = Instantiate(
+                EnemyManager.Instance.EnemyHealthModulePrefab,
+                EnemyManager.Instance.EnemyHealthModuleParent
+            );
+
+            healthModule = healthModuleGO.GetComponent<EnemyHealthModule>();
+            castTimeSlider = healthModule.castTimeSlider;
+            healthModule.assignedEnemy = this.gameObject;
+            castTimeSlider.gameObject.SetActive(false);
+            healthModule.Initialize(enemyType, (int)BaseHealth);
+        }
+    }
+
+
 
     private void Update()
     {
         if (!player) return;
         if (GameManager.Instance.GamePaused) return;
+
+        if (healthModule == null)
+        {
+            Debug.Log("Health module missing, setting up...");
+            SetupHealthModule();
+        }
 
         // Move toward current slot
         agent.SetDestination(currentSlot);
@@ -141,17 +175,19 @@ public class EnemyAI : MonoBehaviour
 
         // Reset other stuff
         isOnCooldown = false;
-        castTimeSlider.gameObject.SetActive(false);
+        if (castTimeSlider) castTimeSlider.gameObject.SetActive(false);
+        if (healthModule) Destroy(healthModule.gameObject);
+        healthModule = null;
     }
 
 
     public void ResetEnemy()
     {
-        if (healthModule) healthModule.ResetHealth();
         isAttacking = false;
         isOnCooldown = false;
         slotTimer = 0f;
         PickRandomSlot();
+        SetupHealthModule();
     }
 
 

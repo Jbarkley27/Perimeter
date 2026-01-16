@@ -14,6 +14,9 @@ public class EnemyManager : MonoBehaviour
     public int enemyAttackPool; // used to limit number of enemies that can attack at once
     [Header("Delta Bar")]
     public Slider deltaBarSlider; // based on how many defeated enemies in the current wave
+    public bool PlayerWonBySwarmDefeated = false;
+    public GameObject EnemyHealthModulePrefab;
+    public Transform EnemyHealthModuleParent;
 
 
     public Dictionary<EnemyDataStore.EnemyType, int> enemiesDefeatedByTypeThisRun = new Dictionary<EnemyDataStore.EnemyType, int>()
@@ -49,7 +52,17 @@ public class EnemyManager : MonoBehaviour
 
     void Update()
     {
+        if (GameManager.Instance.RoundOver) return;
         deltaBarSlider.value = totalEnemiesDeafeatedThisRun;
+
+        // check if player has defeated all enemies in the wave
+        if (waveSpawner.GetCurrentCountOfEnemiesInWave() == totalEnemiesDeafeatedThisRun
+            && GameManager.Instance.RoundOver == false)
+        {
+            // we don't want to trigger this multiple times even when the round is already over
+            PlayerWonBySwarmDefeated = true;
+            GameManager.Instance.EndRun();
+        }
     }
 
     public void DefeatEnemy(EnemyDataStore.EnemyType enemyType)
@@ -81,6 +94,7 @@ public class EnemyManager : MonoBehaviour
     public void Reset()
     {
         totalEnemiesDeafeatedThisRun = 0;
+        PlayerWonBySwarmDefeated = false;
 
         // loop through keys and reset values to 0
         List<EnemyDataStore.EnemyType> keys = new List<EnemyDataStore.EnemyType>(enemiesDefeatedByTypeThisRun.Keys);
@@ -93,7 +107,7 @@ public class EnemyManager : MonoBehaviour
 
         deltaBarSlider.maxValue = waveSpawner.GetCurrentCountOfEnemiesInWave();
 
-        deltaBarSlider.value = totalEnemiesDeafeatedThisRun;
+        deltaBarSlider.value = 0;
     }
 
     public double GetTotalDamageDealtToEnemiesThisRun()

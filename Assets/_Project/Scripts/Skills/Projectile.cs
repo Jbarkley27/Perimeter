@@ -167,7 +167,7 @@ public class Projectile : MonoBehaviour
         // Apply damage logic here
         // Try to get an EnemyHealthModule from the hit object
         Debug.Log($"Projectile hit: {collision.gameObject.name}");
-        EnemyHealthModule healthModule = collision.gameObject.GetComponent<EnemyHealthModule>();
+        EnemyHealthModule healthModule = collision.gameObject.GetComponent<EnemyAI>().healthModule;
         if (healthModule != null)
         {
             healthModule.TakeDamage(damage);

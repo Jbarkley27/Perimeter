@@ -68,7 +68,12 @@ public class BarrierModule : MonoBehaviour
             double damageToBarrier = Mathf.Min((float)amount, (float)barrierStrength);
             barrierStrength -= damageToBarrier;
             amount -= damageToBarrier;
-            barrierRoot.transform.DOPunchScale(new Vector3(0.1f, 0.1f, 0.1f), 0.2f, 10, 1);
+            barrierRoot.transform.DOPunchScale(Vector3.one * .15f, 0.15f, 10, 1)
+                .SetEase(Ease.OutCubic)
+                .OnComplete(() =>
+                {
+                    barrierRoot.transform.localScale = Vector3.one;
+                });
 
             // we need to figure out if this is the first time the barrier broke/depleted
             if (barrierStrength <= 0)
@@ -83,7 +88,12 @@ public class BarrierModule : MonoBehaviour
         {
             healthStrength -= amount;
             healthStrength = Mathf.Max((float)healthStrength, 0f);
-            healthRoot.transform.DOPunchScale(new Vector3(0.1f, 0.1f, 0.1f), 0.2f, 10, 1);
+            healthRoot.transform.DOPunchScale(Vector3.one * .15f, 0.15f, 10, 1)
+                .SetEase(Ease.OutCubic)
+                .OnComplete(() =>
+                {
+                    healthRoot.transform.localScale = Vector3.one;
+                });
         }
 
         // Clamp values to not exceed max
@@ -94,6 +104,7 @@ public class BarrierModule : MonoBehaviour
         if (healthStrength <= 0)
         {
             Debug.Log("Player health depleted! Ending run.");
+            EnemyManager.Instance.PlayerWonBySwarmDefeated = false;
             GameManager.Instance.EndRun();
         }
 

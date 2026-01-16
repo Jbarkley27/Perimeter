@@ -2,15 +2,15 @@ using UnityEngine;
 
 public class UILookAtCamera : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    Camera cam;
+
+    void Awake()
     {
-        
+        cam = Camera.main;
     }
 
-   public void Update()
+    void LateUpdate()
     {
-        Camera camera = Camera.main;
-        transform.LookAt(transform.position + camera.transform.rotation * Vector3.forward, camera.transform.rotation * Vector3.up);
+        transform.rotation = cam.transform.rotation;
     }
 }

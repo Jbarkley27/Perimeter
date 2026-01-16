@@ -37,7 +37,7 @@ public class GlassManager : MonoBehaviour
         Debug.Log($"Collected {amount} glass shards. Total: {glassShardsThisRun}");
         if (glassCollectedTextInGame)
         {
-            glassCollectedTextInGame.text = $"{(int)glassShardsThisRun}";
+            glassCollectedTextInGame.text = $"{(int)totalGlassShardsCollected}";
         }
 
         glassIcon.transform.DOPunchScale(Vector3.one * 0.2f, 0.3f, 10, 1)
