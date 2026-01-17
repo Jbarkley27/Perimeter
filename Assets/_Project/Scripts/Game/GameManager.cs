@@ -99,8 +99,6 @@ public class GameManager : MonoBehaviour
 
         RunAttempts += 1;
 
-        GamePaused = false;
-
         // Reset world cursor state
         WorldCursor.instance.ResetState();
 
@@ -111,6 +109,9 @@ public class GameManager : MonoBehaviour
 
         // wait a bit before restarting signal
         yield return new WaitForSeconds(startSignalDelay);
+
+
+        GamePaused = false;
 
         // Reset Enemy Waves
         GlobalDataStore.Instance.WaveSpawner.Reset();

@@ -142,11 +142,13 @@ public class RunManager : MonoBehaviour
             if (child == rootViewParent.GetChild(rootViewParent.childCount - 1))
             {
                 // only display if the user has dealt enough damage to WIN
-                if (EnemyManager.Instance.HasPlayerDealtRequiredDamageToWin())
+                if (EnemyManager.Instance.GetPercentOfEnemiesDefeatedInCurrentWave() >= 1f)
                 {
                     yield return new WaitForSeconds(0.1f);
 
                     // enable this child
+                    child.gameObject.SetActive(true);
+                    cg.alpha = 0;
                     cg.DOFade(1, 0.15f).SetDelay(0.5f).SetEase(Ease.OutCubic);
                     Vector3 baseScale = child.localScale;
 
@@ -162,6 +164,8 @@ public class RunManager : MonoBehaviour
                 }
                 else
                 {
+                    // Turn off Rewards
+                    child.gameObject.SetActive(false);
                     restartRunButton.SetActive(true);
                 }
             }

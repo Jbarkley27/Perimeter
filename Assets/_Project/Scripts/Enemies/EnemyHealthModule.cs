@@ -90,7 +90,7 @@ public class EnemyHealthModule : MonoBehaviour
         GlassManager.Instance.CollectGlass(enemyType);
 
         EnemyPooler.Instance.ReturnEnemyToPool(
-            gameObject,
+            assignedEnemy,
             enemyType
         );
     }

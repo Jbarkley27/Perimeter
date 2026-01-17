@@ -110,6 +110,14 @@ public class EnemyManager : MonoBehaviour
         deltaBarSlider.value = 0;
     }
 
+
+    public int GetPercentOfEnemiesDefeatedInCurrentWave()
+    {
+        int totalInWave = waveSpawner.GetCurrentCountOfEnemiesInWave();
+        if (totalInWave == 0) return 0;
+        return (int)((totalEnemiesDeafeatedThisRun / (float)totalInWave) * 100);
+    }
+
     public double GetTotalDamageDealtToEnemiesThisRun()
     {
         return totalDamageDealtToEnemiesThisRun;
