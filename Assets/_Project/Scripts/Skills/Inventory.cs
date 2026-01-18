@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class Inventory : MonoBehaviour
@@ -8,6 +9,10 @@ public class Inventory : MonoBehaviour
     public Transform inventorySlotParent;
     public InventorySlot activeSlot;
     public List<SkillData> allSkills = new List<SkillData>();
+    public List<SkillData> startingSkills = new List<SkillData>();
+    public CanvasGroup skillTreeRoot;
+    public TMP_Text activeSkillNameText;
+    public TMP_Text SkillCountText;
 
     private void Awake()
     {
@@ -19,6 +24,34 @@ public class Inventory : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
+    }
+
+
+    void Start()
+    {
+        SetupInventorySlots();
+    }
+
+
+    void Update()
+    {
+        skillTreeRoot.alpha = (activeSlot != null) ? 1 : 0;
+        activeSkillNameText.text = (activeSlot != null && activeSlot.skillData != null) ? activeSlot.skillData.skillName : "No Skill Selected";
+        SkillCountText.text = $"{GetUnlockedSkillCount()} / {allSkills.Count} Skills Unlocked";
+    }
+
+
+    public int GetUnlockedSkillCount()
+    {
+        int count = 0;
+        foreach (var slot in inventorySlots)
+        {
+            if (slot.slotState == InventorySlot.SlotState.Unlocked)
+            {
+                count++;
+            }
+        }
+        return count;
     }
 
 
@@ -46,6 +79,21 @@ public class Inventory : MonoBehaviour
                 inventorySlots[i].gameObject.SetActive(false);
             }
         }
+
+        // Unlock starting skills
+        foreach (var startingSkill in startingSkills)
+        {
+            Debug.Log($"Checking for starting skill to unlock: {startingSkill.skillName}");
+            foreach (var slot in inventorySlots)
+            {
+                if (slot.skillData.skillName == startingSkill.skillName)
+                {
+                    Debug.Log($"Unlocking starting skill: {startingSkill.skillName}");
+                    slot.SetSlotState(InventorySlot.SlotState.Unlocked);
+                    break;
+                }   
+            }
+        }
     }
 
 
@@ -57,15 +105,29 @@ public class Inventory : MonoBehaviour
             return;
         }
 
-        if (activeSlot != null)
-        {
-            activeSlot.SetAsInactiveSlot();
-        }
+        // if (activeSlot != null)
+        // {
+        //     activeSlot.SetAsInactiveSlot();
+        // }
 
         activeSlot = selectedSlot;
         foreach (var slot in inventorySlots)
         {
-            slot.SetAsActiveSlot();
+            if (slot != selectedSlot)
+                slot.SetAsInactiveSlot();
+            else
+                slot.SetAsActiveSlot();
         }
+
+        skillTreeRoot.alpha = 0;
+        // skillTreeActiveSkillSelectedUI.SetActive(true);
+    }
+
+    public bool IsActiveSkill(InventorySlot slot)
+    {
+        if (activeSlot == null || activeSlot.skillData == null)
+            return false;
+
+        return activeSlot.skillData.skillName == slot.skillData.skillName;
     }
 }

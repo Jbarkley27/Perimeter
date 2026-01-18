@@ -119,8 +119,8 @@ public class SkillUISlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         IsSkillRunning = true;
         slider.value = 0f; // Reset cooldown
 
-        Debug.Log($"<color=cyan>FIRE:</color> {currentSkill.skillName} | " +
-                  $"Damage:{currentSkill.damage} | Cooldown:{currentSkill.cooldownRate}");
+        // Debug.Log($"<color=cyan>FIRE:</color> {currentSkill.skillName} | " +
+        //           $"Damage:{currentSkill.damage} | Cooldown:{currentSkill.cooldownRate}");
 
         if (currentSkill.IsProjectileSkill)
         {
@@ -131,7 +131,7 @@ public class SkillUISlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 
 
             gameObject.transform.DOPunchScale(Vector3.one * 0.3f, 0.2f, 1, 0.5f);
-            Debug.Log($"Spawn projectile: {currentSkill.projectilePrefab}");
+            // Debug.Log($"Spawn projectile: {currentSkill.projectilePrefab}");
 
             GlobalDataStore.Instance.SkillCaster.FireProjectile(
                 currentSkill,

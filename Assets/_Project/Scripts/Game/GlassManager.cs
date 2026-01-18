@@ -34,7 +34,7 @@ public class GlassManager : MonoBehaviour
     {
         glassShardsThisRun += amount;
         totalGlassShardsCollected += amount;
-        Debug.Log($"Collected {amount} glass shards. Total: {glassShardsThisRun}");
+        // Debug.Log($"Collected {amount} glass shards. Total: {glassShardsThisRun}");
         if (glassCollectedTextInGame)
         {
             glassCollectedTextInGame.text = $"{(int)totalGlassShardsCollected}";

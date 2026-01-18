@@ -75,7 +75,7 @@ public class EnemyAI : MonoBehaviour
             && EnemyManager.Instance.EnemyHealthModuleParent != null
             && EnemyManager.Instance) 
         {
-            Debug.Log("Setting up health module...");
+            // Debug.Log("Setting up health module...");
             GameObject healthModuleGO = Instantiate(
                 EnemyManager.Instance.EnemyHealthModulePrefab,
                 EnemyManager.Instance.EnemyHealthModuleParent
@@ -198,7 +198,7 @@ public class EnemyAI : MonoBehaviour
             && !isAttacking
             && !isOnCooldown)
         {
-            Debug.Log($"{gameObject.name} is attempting to attack the player.");
+            // Debug.Log($"{gameObject.name} is attempting to attack the player.");
             // Start attack coroutine
             if (EnemyManager.Instance.RequestEnemyAttackPermission(enemyType))
                 StartCoroutine(EnemyAttackCoroutine());

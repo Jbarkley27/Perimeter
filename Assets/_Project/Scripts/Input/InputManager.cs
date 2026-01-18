@@ -60,7 +60,7 @@ public class InputManager : MonoBehaviour
         {
             if (GameManager.Instance.GamePaused) return;
             // Triggered in SkillCaster
-            Debug.Log("Confirm Pressed");
+            // Debug.Log("Confirm Pressed");
             GlobalDataStore.Instance.SkillCaster.UseActiveManualSkill();
         }
     }
@@ -73,7 +73,7 @@ public class InputManager : MonoBehaviour
         {
             if (GameManager.Instance.GamePaused) return;
             // Triggered in SkillCaster
-            Debug.Log("Cancel Pressed");
+            // Debug.Log("Cancel Pressed");
             GlobalDataStore.Instance.SkillCaster.ClearActiveManualSkill();
         }
     }

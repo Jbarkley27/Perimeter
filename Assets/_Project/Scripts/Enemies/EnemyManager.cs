@@ -56,13 +56,15 @@ public class EnemyManager : MonoBehaviour
         deltaBarSlider.value = totalEnemiesDeafeatedThisRun;
 
         // check if player has defeated all enemies in the wave
-        if (waveSpawner.GetCurrentCountOfEnemiesInWave() == totalEnemiesDeafeatedThisRun
-            && GameManager.Instance.RoundOver == false)
-        {
-            // we don't want to trigger this multiple times even when the round is already over
-            PlayerWonBySwarmDefeated = true;
-            GameManager.Instance.EndRun();
-        }
+        // if (waveSpawner.GetCurrentCountOfEnemiesInWave() == totalEnemiesDeafeatedThisRun
+        //     && GameManager.Instance.RoundOver == false)
+        // {
+        //     // we don't want to trigger this multiple times even when the round is already over
+        //     PlayerWonBySwarmDefeated = true;
+        //     GameManager.Instance.EndRun();
+        // }
+
+
     }
 
     public void DefeatEnemy(EnemyDataStore.EnemyType enemyType)
@@ -88,6 +90,15 @@ public class EnemyManager : MonoBehaviour
         else
         {
             enemiesDefeatedByTypeTotal[enemyType] = 1;
+        }
+
+        // check if player has defeated all enemies in the wave
+        if (deltaBarSlider.value >= deltaBarSlider.maxValue
+            && GameManager.Instance.RoundOver == false)
+        {
+            // we don't want to trigger this multiple times even when the round is already over
+            PlayerWonBySwarmDefeated = true;
+            GameManager.Instance.EndRun();
         }
     }
 
@@ -135,10 +146,10 @@ public class EnemyManager : MonoBehaviour
         return totalEnemiesDeafeatedThisRun;
     }
 
-    public bool HasPlayerDealtRequiredDamageToWin()
-    {
-        return totalDamageDealtToEnemiesThisRun >= requiredDamageToWin;
-    }
+    // public bool HasPlayerDealtRequiredDamageToWin()
+    // {
+    //     return totalDamageDealtToEnemiesThisRun >= requiredDamageToWin;
+    // }
 
 
     public bool RequestEnemyAttackPermission(EnemyDataStore.EnemyType enemyType)

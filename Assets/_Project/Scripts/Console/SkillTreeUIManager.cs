@@ -20,11 +20,11 @@ public class SkillTreeUIManager : MonoBehaviour
     }
 
 
-    public void CenterUIOnScreen()
-    {
-        // Implement centering logic if needed
-        scrollRect.normalizedPosition = new Vector2(0.5f, 0.5f);
+    // public void CenterUIOnScreen()
+    // {
+    //     // Implement centering logic if needed
+    //     scrollRect.normalizedPosition = new Vector2(0.5f, 0.5f);
 
-    }
+    // }
 
 }

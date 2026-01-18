@@ -20,11 +20,19 @@ public class InventorySlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        throw new System.NotImplementedException();
+        if (Inventory.Instance.IsActiveSkill(this))
+            return;
+
+
+        if (slotState == SlotState.Unlocked)
+        {
+            Inventory.Instance.SetSlotAsSelected(this);
+        }
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
+        // Debug.Log("Pointer Entered Slot");
         if (slotState == SlotState.Unlocked && !isSelected)
         {
             hoveredHighlight.alpha = .6f;
@@ -34,7 +42,11 @@ public class InventorySlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        throw new System.NotImplementedException();
+        if (slotState == SlotState.Unlocked && !isSelected)
+        {
+            hoveredHighlight.alpha = 0f;
+            hoveredHighlight.gameObject.SetActive(false);
+        }
     }
 
     public void SetSlotState(SlotState newState)
@@ -83,7 +95,9 @@ public class InventorySlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
 
         // default to locked for now
         SetSlotState(SlotState.Locked);
-        
+
+        hoveredHighlight.gameObject.SetActive(false);
+
         skillData = newSkillData;
         if (skillIconImage != null && skillData != null)
         {

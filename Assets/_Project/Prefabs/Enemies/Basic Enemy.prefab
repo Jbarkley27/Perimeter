@@ -227,7 +227,7 @@ MonoBehaviour:
   statUpdateInterval: 5
   attackRange: 40
   rangePreference: 1
-  damage: 0
+  damage: 10
   attackCooldown: 1.5
   attackCastTime: 2
   castTimeSlider: {fileID: 0}

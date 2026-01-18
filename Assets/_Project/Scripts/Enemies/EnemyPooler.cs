@@ -85,7 +85,7 @@ public class EnemyPooler : MonoBehaviour
 
     public void ReturnEnemyToPool(GameObject enemy, EnemyDataStore.EnemyType enemyID)
     {
-        Debug.Log($"Returning enemy of type {enemyID} to pool.");
+        // Debug.Log($"Returning enemy of type {enemyID} to pool.");
         if (!pools.ContainsKey(enemyID))
         {
             Debug.LogError($"EnemyPooler: Trying to return enemy to non-existent pool '{enemyID}'");

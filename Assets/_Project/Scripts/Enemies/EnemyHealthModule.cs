@@ -36,7 +36,7 @@ public class EnemyHealthModule : MonoBehaviour
     {
         // This is on a UI Canvas NOT in world space, so we need to convert the world position to screen position
         Vector3 worldPosition = enemyTransform.position + new Vector3(0, heightOffset, 0);
-        Debug.Log("Enemy World Position: " + worldPosition);
+        // Debug.Log("Enemy World Position: " + worldPosition);
         Vector3 screenPosition = Camera.main.WorldToScreenPoint(worldPosition);
         transform.position = screenPosition;
     }
@@ -59,8 +59,8 @@ public class EnemyHealthModule : MonoBehaviour
 
         EnemyManager.Instance.AddDamageDealtToEnemies(actualDamage);
 
-        Debug.Log($"{gameObject.name} took {amount} damage.");
-        Debug.Log("Damage Signal Received" + actualDamage);
+        // Debug.Log($"{gameObject.name} took {amount} damage.");
+        // Debug.Log("Damage Signal Received" + actualDamage);
         currentHealth -= amount;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
 
@@ -81,7 +81,7 @@ public class EnemyHealthModule : MonoBehaviour
 
     private void Die()
     {
-        Debug.Log($"{gameObject.name} has died.");
+        // Debug.Log($"{gameObject.name} has died.");
         
         // Add death logic here (e.g., play animation, drop loot, etc.)
 
