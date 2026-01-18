@@ -55,6 +55,8 @@ public class ConsoleUIManager : MonoBehaviour
 
     void Start()
     {
+        // Start with Skill Tree Screen
+        CurrentScreenState = ConsoleUIScreenState.SKILL_TREE;
         UpdateScreenUI();
     }
 
