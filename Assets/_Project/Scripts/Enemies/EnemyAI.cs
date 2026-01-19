@@ -71,9 +71,8 @@ public class EnemyAI : MonoBehaviour
         // Debug.Log(healthModule + "Current Module");
 
 
-        if (!healthModule && EnemyManager.Instance.EnemyHealthModulePrefab != null
-            && EnemyManager.Instance.EnemyHealthModuleParent != null
-            && EnemyManager.Instance) 
+        if (EnemyManager.Instance.EnemyHealthModulePrefab != null
+            && EnemyManager.Instance.EnemyHealthModuleParent != null) 
         {
             // Debug.Log("Setting up health module...");
             GameObject healthModuleGO = Instantiate(

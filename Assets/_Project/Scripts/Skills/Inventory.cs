@@ -94,6 +94,9 @@ public class Inventory : MonoBehaviour
                 }   
             }
         }
+
+
+        SortInventorySlotByUnlocked();
     }
 
 
@@ -129,5 +132,24 @@ public class Inventory : MonoBehaviour
             return false;
 
         return activeSlot.skillData.skillName == slot.skillData.skillName;
+    }
+
+
+    public void SortInventorySlotByUnlocked()
+    {
+        inventorySlots.Sort((a, b) =>
+        {
+            if (a.slotState == InventorySlot.SlotState.Unlocked && b.slotState != InventorySlot.SlotState.Unlocked)
+                return -1;
+            if (a.slotState != InventorySlot.SlotState.Unlocked && b.slotState == InventorySlot.SlotState.Unlocked)
+                return 1;
+            return 0;
+        });
+
+        // Reassign the slots in the hierarchy
+        for (int i = 0; i < inventorySlots.Count; i++)
+        {
+            inventorySlots[i].transform.SetSiblingIndex(i);
+        }
     }
 }

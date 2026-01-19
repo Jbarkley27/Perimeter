@@ -29,6 +29,8 @@ public class GameManager : MonoBehaviour
         RoundOver = false;
         if (autoStartBattlePhase) StartBattlePhase();
         RunAttempts = -1;
+
+        Invoke("EndRun", 5.0f);
     }
 
 

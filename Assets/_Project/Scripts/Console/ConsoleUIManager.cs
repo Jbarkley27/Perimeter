@@ -141,7 +141,7 @@ public class ConsoleUIManager : MonoBehaviour
              0.2f)
             .SetEase(Ease.OutQuad);
 
-        yield return new WaitForSeconds(0.2f + consoleOpenDelay);
+        yield return new WaitForSeconds(0.1f + consoleOpenDelay);
 
 
         // Scale Back Down

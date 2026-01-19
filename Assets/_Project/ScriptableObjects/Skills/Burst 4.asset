@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d9e03e74924b417497dfb11b31dc422, type: 3}
   m_Name: Burst 4
   m_EditorClassIdentifier: Assembly-CSharp::SkillData
-  skillName: Burst
+  skillName: Slow
   icon: {fileID: 21300000, guid: ccf75095ece7b4b45aa50437f806a4d3, type: 3}
-  element: 0
+  element: 4
   type: 0
   isProjectile: 1
   cooldownRate: 3

@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using DG.Tweening;
 
 public class InventorySlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
@@ -10,12 +11,18 @@ public class InventorySlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     public Image skillIconImage;
     public CanvasGroup hoveredHighlight;
     public bool isSelected = false;
+    public Image selectedBGImage;
 
     public enum SlotState
     {
         Unlocked,
         Locked,
         Empty,
+    }
+
+    void Start()
+    {
+        selectedBGImage.enabled = false;
     }
 
     public void OnPointerClick(PointerEventData eventData)
@@ -68,8 +75,17 @@ public class InventorySlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     {
         // Highlight this slot as active
         isSelected = true;
-        hoveredHighlight.alpha = 1f;
-        hoveredHighlight.gameObject.SetActive(true);
+
+        // Show BG highlight
+        TurnOnBGHighlight();
+
+        // Animation
+        gameObject.transform.DOPunchScale(Vector3.one * 0.1f, 0.2f, 1, 0.5f)
+            .SetEase(Ease.OutCubic)
+            .OnComplete(() =>
+            {
+                gameObject.transform.localScale = Vector3.one;
+            });
     }
 
 
@@ -79,6 +95,7 @@ public class InventorySlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
         isSelected = false;
         hoveredHighlight.alpha = 0f;
         hoveredHighlight.gameObject.SetActive(false);
+        TurnOffBGHighlight();
     }
 
 
@@ -103,5 +120,16 @@ public class InventorySlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
         {
             skillIconImage.sprite = skillData.icon;
         }
+    }
+
+    public void TurnOnBGHighlight()
+    {
+        selectedBGImage.enabled = true;
+        selectedBGImage.color = GlobalDataStore.Instance.SkillElementLibrary.GetElementColor(skillData.element);
+    }
+
+    public void TurnOffBGHighlight()
+    {
+        selectedBGImage.enabled = false;
     }
 }
