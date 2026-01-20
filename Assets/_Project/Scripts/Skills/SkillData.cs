@@ -7,6 +7,12 @@ public class SkillData : ScriptableObject
     public string skillName = "New Skill";
     public Sprite icon;
     public Element element = Element.Kinetic;
+    [TextArea(3, 10)]
+    public string description = "Skill Description";
+    public int cost = 1;
+    public int currentLevel = 0;
+    public int maxLevel = 5;
+    public bool isPassive = false;
 
     [Header("Skill Classification")]
     public SkillType type = SkillType.Projectile;

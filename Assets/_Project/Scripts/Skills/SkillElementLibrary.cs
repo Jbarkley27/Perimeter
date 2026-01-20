@@ -15,6 +15,18 @@ public class SkillElementLibrary : MonoBehaviour
 
         return Color.white; // Default color if element not found
     }
+
+
+    public Sprite GetElementIcon(Element element)
+    {
+        foreach (var elemData in elements)
+        {
+            if (elemData.element == element)
+                return elemData.icon;
+        }
+
+        return null; // Default icon if element not found
+    }
 }
 
 public enum Element
@@ -41,4 +53,5 @@ public struct SkillElementData
 {
     public Element element;
     public Color color;
+    public Sprite icon;
 }
