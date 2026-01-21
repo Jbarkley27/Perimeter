@@ -10,13 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7d9e03e74924b417497dfb11b31dc422, type: 3}
-  m_Name: Burst 2
+  m_Name: Critical Hit
   m_EditorClassIdentifier: Assembly-CSharp::SkillData
-  skillName: Fireball
+  skillName: Sharpen
   icon: {fileID: 21300000, guid: ccf75095ece7b4b45aa50437f806a4d3, type: 3}
-  element: 1
-  type: 0
-  isProjectile: 1
+  element: 0
+  description: Increase Critical Hit Chance by +10%
+  cost: 1
+  currentLevel: 0
+  maxLevel: 5
+  isPassive: 1
+  type: 3
+  isProjectile: 0
   cooldownRate: 3
   cooldownRestartDelay: 1
   damage: 6
@@ -25,4 +30,4 @@ MonoBehaviour:
   isUnlocked: 1
   arcHeight: 50
   accuracyAngle: 150
-  cursorMode: 1
+  cursorMode: 0
