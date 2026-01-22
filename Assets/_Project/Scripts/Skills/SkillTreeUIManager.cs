@@ -47,6 +47,7 @@ public class SkillTreeUIManager : MonoBehaviour
     
 public void ShowSkillUIPanel(SkillData skillData)
 {
+    Debug.Log($"Showing Skill UI Panel for: {skillData.skillName}");
     isHovering = true;
 
     skillHoverCanvasGroup.DOKill();

@@ -95,11 +95,11 @@ public class EnemyAI : MonoBehaviour
         if (!player) return;
         if (GameManager.Instance.GamePaused) return;
 
-        if (healthModule == null)
-        {
-            Debug.Log("Health module missing, setting up...");
-            SetupHealthModule();
-        }
+        // if (healthModule == null)
+        // {
+        //     Debug.Log("Health module missing, setting up...");
+        //     SetupHealthModule();
+        // }
 
         // Move toward current slot
         agent.SetDestination(currentSlot);
@@ -186,7 +186,7 @@ public class EnemyAI : MonoBehaviour
         isOnCooldown = false;
         slotTimer = 0f;
         PickRandomSlot();
-        SetupHealthModule();
+        // SetupHealthModule();
     }
 
 

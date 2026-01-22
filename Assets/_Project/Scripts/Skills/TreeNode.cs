@@ -25,6 +25,11 @@ public class TreeNode: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     public CanvasGroup hoverHighlightCanvasGroup;
 
 
+    void Start()
+    {
+        if (hoverHighlightCanvasGroup) hoverHighlightCanvasGroup.gameObject.SetActive(false);
+    }
+
     public void OnPointerClick(PointerEventData eventData)
     {
         // nothing for now
@@ -35,7 +40,8 @@ public class TreeNode: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     {
         if (nodeState != NodeState.Locked)
         {
-            hoverHighlightCanvasGroup.alpha = 1f;
+            Debug.Log($"Pointer Entered Node: {skillData.skillName}");
+            if (hoverHighlightCanvasGroup) hoverHighlightCanvasGroup.gameObject.SetActive(true);
             SkillTreeUIManager.Instance.ShowSkillUIPanel(skillData);
         }
 
@@ -44,7 +50,7 @@ public class TreeNode: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        hoverHighlightCanvasGroup.alpha = 0f;
+        if (hoverHighlightCanvasGroup) hoverHighlightCanvasGroup.gameObject.SetActive(false);
         SkillTreeUIManager.Instance.HideSkillUIPanel();
     }
 
@@ -56,6 +62,13 @@ public class TreeNode: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         {
             connectionLine.alpha = isActive ? 1f : 0f;
         }
+    }
+
+
+    public void SetNodeState(NodeState newState)
+    {
+        nodeState = newState;
+        UpdateNodeUI();
     }
 
 
