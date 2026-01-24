@@ -20,6 +20,9 @@ public class SkillTreeUIManager : MonoBehaviour
     public TMP_Text currentLevelText;
     public TMP_Text purchaseOrUpgradeText;
 
+    [Header("Follow Mouse Settings")]
+    public Vector3 mouseOffset = new Vector3(15f, -15f, 0f);
+
 
     private void Awake()
     {
@@ -39,56 +42,72 @@ public class SkillTreeUIManager : MonoBehaviour
         CenterUIOnScreen();
     }
 
+    void Update()
+    {
+        if (isHovering)
+        {
+            FollowMousePosition(WorldCursor.instance.GetCursorPosition());
+        }
+    }
+
     public void CenterUIOnScreen()
     {
         // Implement centering logic if needed
         scrollRect.normalizedPosition = new Vector2(0.5f, 0.5f);
     }
     
-public void ShowSkillUIPanel(SkillData skillData)
-{
-    Debug.Log($"Showing Skill UI Panel for: {skillData.skillName}");
-    isHovering = true;
+    public void ShowSkillUIPanel(SkillData skillData)
+    {
+        Debug.Log($"Showing Skill UI Panel for: {skillData.skillName}");
+        isHovering = true;
 
-    skillHoverCanvasGroup.DOKill();
+        skillHoverCanvasGroup.DOKill();
 
-    skillHoverCanvasGroup.alpha = 0f;
-    skillHoverNameText.text = skillData.skillName;
-    skillHoverDescriptionText.text = skillData.description;
-    skillHoverElementImage.sprite =
-        GlobalDataStore.Instance.SkillElementLibrary.GetElementIcon(skillData.element);
+        skillHoverCanvasGroup.alpha = 0f;
+        skillHoverNameText.text = skillData.skillName;
+        skillHoverDescriptionText.text = skillData.description;
+        skillHoverElementImage.sprite =
+            GlobalDataStore.Instance.SkillElementLibrary.GetElementIcon(skillData.element);
 
-    costText.text = $"Cost: {skillData.cost} Glass";
+        costText.text = $"Cost: {skillData.cost} Glass";
 
-    if (skillData.isPassive)
-        currentLevelText.text = $"Level: {skillData.currentLevel}/{skillData.maxLevel}";
-    else
-        currentLevelText.text = $"Unlocked";
+        if (skillData.isPassive)
+            currentLevelText.text = $"Level: {skillData.currentLevel}/{skillData.maxLevel}";
+        else
+            currentLevelText.text = $"Unlocked";
 
-    purchaseOrUpgradeText.text = !skillData.isPassive ? "Unlock" : "Upgrade";
+        purchaseOrUpgradeText.text = !skillData.isPassive ? "Unlock" : "Upgrade";
 
-    skillHoverCanvasGroup.gameObject.SetActive(true);
+        skillHoverCanvasGroup.gameObject.SetActive(true);
 
-    skillHoverCanvasGroup
-        .DOFade(1f, 0.15f)
-        .SetEase(Ease.OutQuad);
-}
+        skillHoverCanvasGroup
+            .DOFade(1f, 0.15f)
+            .SetEase(Ease.OutQuad);
+    }
 
-public void HideSkillUIPanel()
-{
-    isHovering = false;
+    public void HideSkillUIPanel()
+    {
+        isHovering = false;
 
-    skillHoverCanvasGroup.DOKill();
+        skillHoverCanvasGroup.DOKill();
 
-    skillHoverCanvasGroup
-        .DOFade(0f, 0.2f)
-        .SetEase(Ease.OutQuad)
-        .OnComplete(() =>
-        {
-            // Prevent old tweens from hiding a newly shown panel
-            if (!isHovering)
-                skillHoverCanvasGroup.gameObject.SetActive(false);
-        });
-}
+        skillHoverCanvasGroup
+            .DOFade(0f, 0.2f)
+            .SetEase(Ease.OutQuad)
+            .OnComplete(() =>
+            {
+                // Prevent old tweens from hiding a newly shown panel
+                if (!isHovering)
+                    skillHoverCanvasGroup.gameObject.SetActive(false);
+            });
+    }
+
+    public void FollowMousePosition(Vector3 mousePosition)
+    {
+        if (!isHovering) return;
+
+        Vector3 targetPosition = mousePosition + mouseOffset;
+        skillHoverCanvasGroup.gameObject.transform.position = targetPosition;
+    }
 
 }

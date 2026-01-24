@@ -64,6 +64,12 @@ public class GlassManager : MonoBehaviour
     }
 
 
+    public bool CanAffordNodePurchase(int cost)
+    {
+        return glassShardsThisRun >= cost;
+    }
+
+
     public void CollectGlass(EnemyDataStore.EnemyType enemyType)
     {
         double rewardAmount = EnemyDataStore.Instance.GetGlassRewardForEnemyType(enemyType);

@@ -14,7 +14,7 @@ public class TreeNode: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     {
         Locked,
         Unlocked,
-        Active
+        Active,
     }
     public NodeState nodeState = NodeState.Locked;
 
@@ -23,11 +23,17 @@ public class TreeNode: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     public Image nodeBackground;
     public CanvasGroup nodeCanvasGroup;
     public CanvasGroup hoverHighlightCanvasGroup;
+    public Image canAffordImage;
 
 
     void Start()
     {
         if (hoverHighlightCanvasGroup) hoverHighlightCanvasGroup.gameObject.SetActive(false);
+    }
+
+    void Update()
+    {
+        UpdateNodeUI();
     }
 
     public void OnPointerClick(PointerEventData eventData)
@@ -38,6 +44,7 @@ public class TreeNode: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
 
     public void OnPointerEnter(PointerEventData eventData)
     {
+        Debug.Log("GameObject Name: " + gameObject.name);
         if (nodeState != NodeState.Locked)
         {
             Debug.Log($"Pointer Entered Node: {skillData.skillName}");
@@ -101,14 +108,34 @@ public class TreeNode: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         switch (nodeState)
         {
             case NodeState.Locked:
-                nodeCanvasGroup.alpha = 0.3f;
+                nodeCanvasGroup.alpha = 0.8f;
                 break;
             case NodeState.Unlocked:
-                nodeCanvasGroup.alpha = 0.8f;
+                nodeCanvasGroup.alpha = 0.9f;
                 break;
             case NodeState.Active:
                 nodeCanvasGroup.alpha = 1f;
                 break;
+        }
+
+        if (canAffordImage != null)
+        {
+            // Example logic: highlight if player has enough currency to unlock/upgrade
+            bool canAfford = false;
+            if (skillData != null)
+            {
+                canAfford = GlassManager.Instance.CanAffordNodePurchase(skillData.cost);
+            }
+
+            // Change color based on affordability
+            if (canAfford)
+            {
+                canAffordImage.gameObject.SetActive(true);
+            }
+            else
+            {
+                canAffordImage.gameObject.SetActive(false);
+            }
         }
     }
 }
