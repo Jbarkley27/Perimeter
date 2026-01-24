@@ -19,7 +19,11 @@ public class SkillTreeUIManager : MonoBehaviour
     public TMP_Text equippedText;
     public TMP_Text currentLevelText;
     public TMP_Text purchaseOrUpgradeText;
-    public UnityEngine.UI.ScrollRect parentScrollRect;
+    public ScrollRect parentScrollRect;
+    public GameObject skillLoadoutIcon;
+    public Button purchaseOrUpgradeButton;
+    public Color canAffordColor = Color.white;
+    public Color cannotAffordColor = Color.red;
 
     [Header("Follow Mouse Settings")]
     public Vector3 mouseOffset = new Vector3(15f, -15f, 0f);
@@ -78,13 +82,38 @@ public class SkillTreeUIManager : MonoBehaviour
         else
             currentLevelText.text = $"Unlocked";
 
-        purchaseOrUpgradeText.text = !skillData.isPassive ? "Unlock" : "Upgrade";
+        
 
         skillHoverCanvasGroup.gameObject.SetActive(true);
 
         skillHoverCanvasGroup
             .DOFade(1f, 0.15f)
             .SetEase(Ease.OutQuad);
+
+        // update button
+        if (SkillLoadout.Instance.IsSkillEquipped(skillData))
+        {
+            purchaseOrUpgradeButton.gameObject.SetActive(false);
+        }
+        else
+        {
+            purchaseOrUpgradeButton.gameObject.SetActive(true);
+        }
+
+
+        if (GlassManager.Instance.CanAffordNodePurchase(skillData.cost) &&
+            (skillData.isPassive ? skillData.currentLevel < skillData.maxLevel : true))
+        {
+            purchaseOrUpgradeButton.interactable = true;
+            purchaseOrUpgradeText.color = canAffordColor;
+            purchaseOrUpgradeText.text = !skillData.isPassive ? "Unlock" : "Upgrade";
+        }
+        else
+        {
+            purchaseOrUpgradeButton.interactable = false;
+            purchaseOrUpgradeText.color = cannotAffordColor;
+            purchaseOrUpgradeText.text = skillData.isPassive && skillData.currentLevel >= skillData.maxLevel ? "Max Level" : "Cannot Afford";
+        }
     }
 
     public void HideSkillUIPanel()
@@ -112,4 +141,5 @@ public class SkillTreeUIManager : MonoBehaviour
         skillHoverCanvasGroup.gameObject.transform.position = targetPosition;
     }
 
+    
 }

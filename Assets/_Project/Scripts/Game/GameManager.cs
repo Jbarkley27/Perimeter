@@ -35,12 +35,6 @@ public class GameManager : MonoBehaviour
 
 
 
-    // public IEnumerator PrepareBattlePhase()
-    // {
-    //     yield return null;
-    // }
-
-
     public void StartBattlePhase()
     {
         StartCoroutine(RestartRun());
@@ -55,9 +49,6 @@ public class GameManager : MonoBehaviour
         RoundOver = true;
 
         Debug.Log("Run Ended....");
-
-        // Pause Signal
-        // SignalManager.Instance.PauseSignal();
         
 
         // Clear active enemies
@@ -70,8 +61,6 @@ public class GameManager : MonoBehaviour
 
         // Open End Run Screen
         RunManager.Instance.StartShowEndRunScreen();
-
-    
     }
 
 
@@ -86,7 +75,6 @@ public class GameManager : MonoBehaviour
         // Restor Barrier Signal
         GlobalDataStore.Instance.BarrierModule.ResetBarrier();
 
-
         // Sector Reset
         SectorManager.Instance.ResetSectors();
 
@@ -99,7 +87,7 @@ public class GameManager : MonoBehaviour
         // Reset Glass Manager
         GlassManager.Instance.ResetGlassThisRun();
 
-        RunAttempts += 1;
+        CompleteRun();
 
         // Reset world cursor state
         WorldCursor.instance.ResetState();
@@ -120,10 +108,10 @@ public class GameManager : MonoBehaviour
 
         // Reset all skill cooldowns
         GlobalDataStore.Instance.SkillCaster.ResetAllSkillCooldowns();
-
-        // Start Signal Countdown
-        // SignalManager.Instance.ResumeSignal();
     }
 
-
+    public void CompleteRun()
+    {
+        RunAttempts += 1;
+    }
 }

@@ -24,6 +24,7 @@ public class SkillDraggable : MonoBehaviour,
     private LoadoutDropTarget currentSlot;
     public bool IsSlotted => currentSlot != null;
     public bool IsDragging { get; private set; } = false;
+    public SkillData skillData;
 
 
 
@@ -32,6 +33,7 @@ public class SkillDraggable : MonoBehaviour,
         rectTransform = GetComponent<RectTransform>();
         canvasGroup = GetComponent<CanvasGroup>();
         canvas = GetComponentInParent<Canvas>();
+        skillData = GetComponent<TreeNode>()?.skillData;
     }
 
     public void OnBeginDrag(PointerEventData eventData)
@@ -58,6 +60,9 @@ public class SkillDraggable : MonoBehaviour,
         rectTransform.DOKill();
 
         IsDragging = true;
+
+        // Remove skill from loadout manager
+        if (skillData) SkillLoadout.Instance.UnequipSkill(skillData);
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -96,6 +101,16 @@ public class SkillDraggable : MonoBehaviour,
         rectTransform.DOKill();
         rectTransform.DOAnchorPos(Vector2.zero, snapDuration)
             .SetEase(snapEase);
+
+        // equip skill in loadout manager
+        if (skillData) SkillLoadout.Instance.EquipSkill(skillData);
+
+        SkillTreeUIManager.Instance.skillLoadoutIcon.transform.DOPunchScale(Vector3.one * 1.2f, 0.4f, 1, 0.5f)
+            .SetEase(Ease.OutCubic)
+            .OnComplete(() =>
+            {
+                SkillTreeUIManager.Instance.skillLoadoutIcon.transform.localScale = Vector3.one;
+            });
     }
 
     public void ReturnToOriginalPosition()

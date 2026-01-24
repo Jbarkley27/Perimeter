@@ -186,13 +186,40 @@ public class TreeNode: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     }
 
 
-    // Drag and Drop Handlers (if needed in future)
-    public void OnBeginDrag(PointerEventData eventData)
+    public void PurchaseOrUpgradeNode()
     {
-        // Implement drag start logic if needed
-        if (nodeState != NodeState.Locked && !skillData.isPassive)
+        if (nodeState == NodeState.Locked)
         {
-            Debug.Log($"Begin Dragging Node: {skillData.skillName}");
+            // Purchase logic
+            if (GlassManager.Instance.SpendGlass(skillData.cost))
+            {
+                SetNodeState(NodeState.Unlocked);
+                Debug.Log($"Purchased skill node: {skillData.skillName}");
+            }
+            else
+            {
+                Debug.Log("Not enough Glass to purchase this skill.");
+            }
+        }
+        else if (nodeState == NodeState.Unlocked && skillData.isPassive)
+        {
+            // Upgrade logic for passive skills
+            if (skillData.currentLevel < skillData.maxLevel)
+            {
+                if (GlassManager.Instance.SpendGlass(skillData.cost))
+                {
+                    skillData.currentLevel += 1;
+                    Debug.Log($"Upgraded skill node: {skillData.skillName} to level {skillData.currentLevel}");
+                }
+                else
+                {
+                    Debug.Log("Not enough Glass to upgrade this skill.");
+                }
+            }
+            else
+            {
+                Debug.Log("Skill is already at max level.");
+            }
         }
     }
 }

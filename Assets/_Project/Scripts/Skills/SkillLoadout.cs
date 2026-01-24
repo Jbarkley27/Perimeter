@@ -8,6 +8,8 @@ public class SkillLoadout : MonoBehaviour
     [Header("Equipped Skills (Displayed In HUD)")]
     public List<SkillData> equippedSkills = new List<SkillData>();
 
+    public static SkillLoadout Instance { get; private set; }
+
     void Awake()
     {
         // Auto-populate uiSlots from children if not set
@@ -70,5 +72,10 @@ public class SkillLoadout : MonoBehaviour
             uiSlots[i].gameObject.SetActive(true);
             uiSlots[i].Init(equipped[i]);
         }
+    }
+
+    public bool IsSkillEquipped(SkillData skill)
+    {
+        return equippedSkills.Contains(skill);
     }
 }

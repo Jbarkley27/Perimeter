@@ -26,4 +26,16 @@ public class SkillTreeData : MonoBehaviour
             rootNode.InitializeNode();
         }
     }
+
+    public TreeNode FindNodeBySkill(SkillData skill)
+    {
+        foreach (var node in allNodes)
+        {
+            if (node.skillData == skill)
+            {
+                return node;
+            }
+        }
+        return null;
+    }
 }

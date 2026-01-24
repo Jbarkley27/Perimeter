@@ -77,4 +77,18 @@ public class GlassManager : MonoBehaviour
         double rewardAmount = EnemyDataStore.Instance.GetGlassRewardForEnemyType(enemyType);
         AddGlass(rewardAmount);
     }
+
+    public bool SpendGlass(double amount)
+    {
+        if (totalGlassShardsCollected >= amount)
+        {
+            totalGlassShardsCollected -= amount;
+            if (glassCollectedTextInGame)
+            {
+                glassCollectedTextInGame.text = $"{(int)totalGlassShardsCollected}";
+            }
+            return true;
+        }
+        return false;
+    }
 }
