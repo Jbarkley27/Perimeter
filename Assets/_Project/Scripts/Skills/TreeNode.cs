@@ -21,9 +21,12 @@ public class TreeNode: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     [Header("UI Elements")]
     public Image nodeIcon;
     public Image nodeBackground;
+    public Image nodeBorderImageRoot;
     public CanvasGroup nodeCanvasGroup;
     public CanvasGroup hoverHighlightCanvasGroup;
     public Image canAffordImage;
+    public Color activatedColor = Color.gold;
+    public SkillDraggable draggableComponent;
 
 
     void Start()
@@ -34,6 +37,33 @@ public class TreeNode: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     void Update()
     {
         UpdateNodeUI();
+
+        if (draggableComponent != null)
+        {
+            // disable dragging for locked nodes or passive skills
+            if (nodeState == NodeState.Locked || (skillData != null && skillData.isPassive))
+            {
+                draggableComponent.enabled = false;
+            }
+            else
+            {
+                draggableComponent.enabled = true;
+            }
+
+            // Disabled all hover effects while dragging
+            if (draggableComponent.IsDragging)
+            {
+                if (hoverHighlightCanvasGroup) hoverHighlightCanvasGroup.gameObject.SetActive(false);
+                SkillTreeUIManager.Instance.HideSkillUIPanel();
+                canAffordImage.gameObject.SetActive(false);
+            }
+        }
+
+        // turn off the canAffordImage if the skill slotted
+        if (draggableComponent != null && draggableComponent.IsSlotted)
+        {
+            canAffordImage.gameObject.SetActive(false);
+        }
     }
 
     public void OnPointerClick(PointerEventData eventData)
@@ -109,17 +139,30 @@ public class TreeNode: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         {
             case NodeState.Locked:
                 nodeCanvasGroup.alpha = 0.8f;
+                nodeBorderImageRoot.color = Color.gray;
                 break;
             case NodeState.Unlocked:
-                nodeCanvasGroup.alpha = 0.9f;
+                nodeCanvasGroup.alpha = 0.98f;
+                nodeBorderImageRoot.color = Color.lightGray;
                 break;
             case NodeState.Active:
                 nodeCanvasGroup.alpha = 1f;
+                nodeBorderImageRoot.color = activatedColor;
                 break;
         }
 
+        // we dont want to show affordability for locked nodes, only
+        // nodes that can be purchased or upgraded, in the final game
+        // locked nodes may not even exist in the skill tree UI
+        // TODO: why show the player something they cant interact with?
         if (canAffordImage != null)
         {
+            if (nodeState == NodeState.Locked && draggableComponent != null && !draggableComponent.IsSlotted)
+            {
+                canAffordImage.gameObject.SetActive(false);
+                return;
+            }
+
             // Example logic: highlight if player has enough currency to unlock/upgrade
             bool canAfford = false;
             if (skillData != null)
@@ -136,6 +179,20 @@ public class TreeNode: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             {
                 canAffordImage.gameObject.SetActive(false);
             }
+        }
+
+
+        // update background color based on 
+    }
+
+
+    // Drag and Drop Handlers (if needed in future)
+    public void OnBeginDrag(PointerEventData eventData)
+    {
+        // Implement drag start logic if needed
+        if (nodeState != NodeState.Locked && !skillData.isPassive)
+        {
+            Debug.Log($"Begin Dragging Node: {skillData.skillName}");
         }
     }
 }

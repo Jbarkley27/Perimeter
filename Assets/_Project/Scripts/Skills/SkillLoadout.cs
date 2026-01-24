@@ -33,6 +33,24 @@ public class SkillLoadout : MonoBehaviour
         RefreshHUD();
     }
 
+    public void EquipSkill(SkillData skill)
+    {
+        if (!equippedSkills.Contains(skill))
+        {
+            equippedSkills.Add(skill);
+            RefreshHUD();
+        }
+    }
+
+    public void UnequipSkill(SkillData skill)
+    {
+        if (equippedSkills.Contains(skill))
+        {
+            equippedSkills.Remove(skill);
+            RefreshHUD();
+        }
+    }
+
     public void RefreshHUD()
     {
         Debug.Log("Refreshing Player HUD Skills");

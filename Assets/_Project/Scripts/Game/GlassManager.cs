@@ -28,6 +28,8 @@ public class GlassManager : MonoBehaviour
         {
             glassCollectedTextInGame.text = "0";
         }
+
+        totalGlassShardsCollected = Random.Range(10, 50); // For testing purposes
     }
 
     public void AddGlass(double amount)
@@ -66,7 +68,7 @@ public class GlassManager : MonoBehaviour
 
     public bool CanAffordNodePurchase(int cost)
     {
-        return glassShardsThisRun >= cost;
+        return totalGlassShardsCollected >= cost;
     }
 
 

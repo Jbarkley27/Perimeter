@@ -19,9 +19,11 @@ public class SkillTreeUIManager : MonoBehaviour
     public TMP_Text equippedText;
     public TMP_Text currentLevelText;
     public TMP_Text purchaseOrUpgradeText;
+    public UnityEngine.UI.ScrollRect parentScrollRect;
 
     [Header("Follow Mouse Settings")]
     public Vector3 mouseOffset = new Vector3(15f, -15f, 0f);
+    public Vector3 equippedOffset = new Vector3(15f, -45f, 0f);
 
 
     private void Awake()

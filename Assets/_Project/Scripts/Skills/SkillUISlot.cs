@@ -38,6 +38,7 @@ public class SkillUISlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         switchToManulUIRoot.SetActive(false);
         cancelManualUIRoot.SetActive(false);
     }
+    
 
     void Update()
     {
