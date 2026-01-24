@@ -25,6 +25,7 @@ public class SkillDraggable : MonoBehaviour,
     public bool IsSlotted => currentSlot != null;
     public bool IsDragging { get; private set; } = false;
     public SkillData skillData;
+    public TreeNode treeNode;
 
 
 
@@ -33,16 +34,23 @@ public class SkillDraggable : MonoBehaviour,
         rectTransform = GetComponent<RectTransform>();
         canvasGroup = GetComponent<CanvasGroup>();
         canvas = GetComponentInParent<Canvas>();
-        skillData = GetComponent<TreeNode>()?.skillData;
+        originalParent = transform.parent;
+        originalAnchoredPosition = rectTransform.anchoredPosition;
     }
+
 
     public void OnBeginDrag(PointerEventData eventData)
     {
+        // Only non passive skills can be dragged
+        if (skillData == null || skillData.isPassive
+            || treeNode == null || treeNode.nodeState == TreeNode.NodeState.Locked)
+            return;
+
         // Store ORIGINAL position (before slot)
         if (currentSlot == null)
         {
-            originalParent = transform.parent;
-            originalAnchoredPosition = rectTransform.anchoredPosition;
+            // originalParent = transform.parent;
+            // originalAnchoredPosition = rectTransform.anchoredPosition;
         }
         else
         {
@@ -100,7 +108,11 @@ public class SkillDraggable : MonoBehaviour,
 
         rectTransform.DOKill();
         rectTransform.DOAnchorPos(Vector2.zero, snapDuration)
-            .SetEase(snapEase);
+            .SetEase(snapEase)
+            .OnComplete(() =>
+            {
+                slot.CollapseHover();
+            });
 
         // equip skill in loadout manager
         if (skillData) SkillLoadout.Instance.EquipSkill(skillData);

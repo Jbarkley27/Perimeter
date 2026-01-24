@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using DG.Tweening;
 
 [System.Serializable]
 public class TreeNode: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
@@ -14,7 +15,7 @@ public class TreeNode: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     {
         Locked,
         Unlocked,
-        Active,
+
     }
     public NodeState nodeState = NodeState.Locked;
 
@@ -27,11 +28,26 @@ public class TreeNode: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     public Image canAffordImage;
     public Color activatedColor = Color.gold;
     public SkillDraggable draggableComponent;
+    public GameObject originalPosition;
+    public Slider passiveLevelSlider;
 
 
     void Start()
     {
         if (hoverHighlightCanvasGroup) hoverHighlightCanvasGroup.gameObject.SetActive(false);
+        if (passiveLevelSlider != null)
+        {
+            if (skillData != null && skillData.isPassive)
+            {
+                passiveLevelSlider.gameObject.SetActive(true);
+                passiveLevelSlider.maxValue = skillData.maxLevel;
+                passiveLevelSlider.value = skillData.currentLevel;
+            }
+            else
+            {
+                passiveLevelSlider.gameObject.SetActive(false);
+            }
+        }
     }
 
     void Update()
@@ -55,34 +71,21 @@ public class TreeNode: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             {
                 if (hoverHighlightCanvasGroup) hoverHighlightCanvasGroup.gameObject.SetActive(false);
                 SkillTreeUIManager.Instance.HideSkillUIPanel();
-                canAffordImage.gameObject.SetActive(false);
             }
         }
 
         // turn off the canAffordImage if the skill slotted
-        if (draggableComponent != null && draggableComponent.IsSlotted)
-        {
-            canAffordImage.gameObject.SetActive(false);
-        }
     }
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        // nothing for now
-        // will add skill purchase logic later
+        PurchaseOrUpgradeNode();
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        Debug.Log("GameObject Name: " + gameObject.name);
-        if (nodeState != NodeState.Locked)
-        {
-            Debug.Log($"Pointer Entered Node: {skillData.skillName}");
-            if (hoverHighlightCanvasGroup) hoverHighlightCanvasGroup.gameObject.SetActive(true);
-            SkillTreeUIManager.Instance.ShowSkillUIPanel(skillData);
-        }
-
-        // add logic to show a locked skill info later
+        if (hoverHighlightCanvasGroup) hoverHighlightCanvasGroup.gameObject.SetActive(true);
+        if (skillData != null && !SkillLoadout.Instance.IsSkillEquipped(skillData)) SkillTreeUIManager.Instance.ShowSkillUIPanel(skillData);
     }
 
     public void OnPointerExit(PointerEventData eventData)
@@ -138,26 +141,21 @@ public class TreeNode: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         switch (nodeState)
         {
             case NodeState.Locked:
-                nodeCanvasGroup.alpha = 0.8f;
+                nodeCanvasGroup.alpha = 0.95f;
                 nodeBorderImageRoot.color = Color.gray;
                 break;
             case NodeState.Unlocked:
-                nodeCanvasGroup.alpha = 0.98f;
-                nodeBorderImageRoot.color = Color.lightGray;
-                break;
-            case NodeState.Active:
                 nodeCanvasGroup.alpha = 1f;
-                nodeBorderImageRoot.color = activatedColor;
+                nodeBorderImageRoot.color = Color.white;
                 break;
         }
 
         // we dont want to show affordability for locked nodes, only
         // nodes that can be purchased or upgraded, in the final game
-        // locked nodes may not even exist in the skill tree UI
-        // TODO: why show the player something they cant interact with?
         if (canAffordImage != null)
         {
-            if (nodeState == NodeState.Locked && draggableComponent != null && !draggableComponent.IsSlotted)
+            if (draggableComponent != null && draggableComponent.IsSlotted
+                || skillData.isUnlocked)
             {
                 canAffordImage.gameObject.SetActive(false);
                 return;
@@ -182,7 +180,18 @@ public class TreeNode: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         }
 
 
-        // update background color based on 
+        // Level slider
+        if (skillData != null && skillData.isPassive == false && passiveLevelSlider != null)
+        {
+            passiveLevelSlider.gameObject.SetActive(false);
+        }
+        else if (passiveLevelSlider != null && skillData != null && skillData.isPassive)
+        {
+            passiveLevelSlider.gameObject.SetActive(true);
+            passiveLevelSlider.value = skillData.currentLevel;
+        }
+
+
     }
 
 
@@ -194,6 +203,7 @@ public class TreeNode: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             if (GlassManager.Instance.SpendGlass(skillData.cost))
             {
                 SetNodeState(NodeState.Unlocked);
+                skillData.isUnlocked = true;
                 Debug.Log($"Purchased skill node: {skillData.skillName}");
             }
             else
@@ -209,6 +219,16 @@ public class TreeNode: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
                 if (GlassManager.Instance.SpendGlass(skillData.cost))
                 {
                     skillData.currentLevel += 1;
+                    if (passiveLevelSlider != null)
+                    {
+                        passiveLevelSlider.value = skillData.currentLevel;
+                        passiveLevelSlider.gameObject.transform.DOPunchScale(Vector3.one * 0.2f, 0.3f, 10, 1)
+                            .SetEase(Ease.OutCubic)
+                            .OnComplete(() =>
+                            {
+                                passiveLevelSlider.gameObject.transform.localScale = Vector3.one;
+                            });
+                    }
                     Debug.Log($"Upgraded skill node: {skillData.skillName} to level {skillData.currentLevel}");
                 }
                 else
@@ -221,5 +241,9 @@ public class TreeNode: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
                 Debug.Log("Skill is already at max level.");
             }
         }
+
+        SkillTreeUIManager.Instance.UpdateSkillUIPanel(skillData);
+
+
     }
 }

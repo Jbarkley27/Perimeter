@@ -75,6 +75,9 @@ public class SkillTreeUIManager : MonoBehaviour
         skillHoverElementImage.sprite =
             GlobalDataStore.Instance.SkillElementLibrary.GetElementIcon(skillData.element);
 
+        skillHoverElementImage.color =
+            GlobalDataStore.Instance.SkillElementLibrary.GetElementColor(skillData.element);
+
         costText.text = $"Cost: {skillData.cost} Glass";
 
         if (skillData.isPassive)
@@ -91,7 +94,12 @@ public class SkillTreeUIManager : MonoBehaviour
             .SetEase(Ease.OutQuad);
 
         // update button
-        if (SkillLoadout.Instance.IsSkillEquipped(skillData))
+        // Debug.Log($"Skill is Passive: {skillData.isPassive}");
+        // Debug.Log($"Is Skill Equipped: {SkillLoadout.Instance.IsSkillEquipped(skillData)}");
+
+        // If its equipped or unlocked (for non-passive), hide the button
+        if (SkillLoadout.Instance.IsSkillEquipped(skillData)
+            || (!skillData.isPassive && skillData.isUnlocked))
         {
             purchaseOrUpgradeButton.gameObject.SetActive(false);
         }
@@ -105,14 +113,40 @@ public class SkillTreeUIManager : MonoBehaviour
             (skillData.isPassive ? skillData.currentLevel < skillData.maxLevel : true))
         {
             purchaseOrUpgradeButton.interactable = true;
-            purchaseOrUpgradeText.color = canAffordColor;
+            purchaseOrUpgradeButton.GetComponent<Image>().color = canAffordColor;
             purchaseOrUpgradeText.text = !skillData.isPassive ? "Unlock" : "Upgrade";
         }
         else
         {
             purchaseOrUpgradeButton.interactable = false;
-            purchaseOrUpgradeText.color = cannotAffordColor;
+            purchaseOrUpgradeButton.GetComponent<Image>().color = cannotAffordColor;
             purchaseOrUpgradeText.text = skillData.isPassive && skillData.currentLevel >= skillData.maxLevel ? "Max Level" : "Cannot Afford";
+        }
+    }
+
+
+    public void UpdateSkillUIPanel(SkillData skillData)
+    {
+        if (!isHovering) return;
+
+        Debug.Log($"Updating Skill UI Panel for: {skillData.skillName}");
+
+        costText.text = $"Cost: {skillData.cost} Glass";
+
+        if (skillData.isPassive)
+            currentLevelText.text = $"Level: {skillData.currentLevel}/{skillData.maxLevel}";
+        else
+            currentLevelText.text = $"Unlocked";
+
+        // update button
+        if (SkillLoadout.Instance.IsSkillEquipped(skillData)
+            || (!skillData.isPassive && skillData.isUnlocked))
+        {
+            purchaseOrUpgradeButton.gameObject.SetActive(false);
+        }
+        else
+        {
+            purchaseOrUpgradeButton.gameObject.SetActive(true);
         }
     }
 
@@ -141,5 +175,5 @@ public class SkillTreeUIManager : MonoBehaviour
         skillHoverCanvasGroup.gameObject.transform.position = targetPosition;
     }
 
-    
+
 }

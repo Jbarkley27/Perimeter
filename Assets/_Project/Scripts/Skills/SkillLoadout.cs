@@ -8,10 +8,22 @@ public class SkillLoadout : MonoBehaviour
     [Header("Equipped Skills (Displayed In HUD)")]
     public List<SkillData> equippedSkills = new List<SkillData>();
 
-    public static SkillLoadout Instance { get; private set; }
+    public static SkillLoadout Instance;
 
     void Awake()
     {
+        if (Instance != null)
+        {
+            Debug.LogError("Found a SkillLoadout object, destroying new one");
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+
+        
+
         // Auto-populate uiSlots from children if not set
         if (uiSlots == null || uiSlots.Count == 0)
         {

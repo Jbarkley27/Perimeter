@@ -2,6 +2,7 @@ using UnityEngine.UI;
 using UnityEngine;
 using DG.Tweening;
 using System.Collections;
+using System.Collections.Generic;
 
 public class ConsoleUIManager : MonoBehaviour
 {
@@ -40,6 +41,9 @@ public class ConsoleUIManager : MonoBehaviour
     public GameObject prestigeScreenUIRoot;
     public Image prestigeNavElementActiveIndicator;
 
+    [Header("Skill Tree Ring UI Elements")]
+    public Transform skillTreeRingRoot;
+
 
     void Awake()
     {
@@ -67,6 +71,24 @@ public class ConsoleUIManager : MonoBehaviour
         UpdateScreenUI();
     }
 
+    public IEnumerator AnimateSkillTreeRing()
+    {
+        // loop through root children and turn their canvas groups on and off in sequence
+        foreach (Transform child in skillTreeRingRoot)
+        {
+            CanvasGroup cg = child.GetComponent<CanvasGroup>();
+            if (cg != null)
+            {
+                cg.alpha = 0;
+                cg.DOFade(1, 0.2f).OnComplete(() =>
+                {
+                    cg.DOFade(2, 0.2f);
+                });
+                yield return new WaitForSeconds(0.1f);
+            }
+        }
+    }
+
 
     public void UpdateScreenUI()
     {
@@ -88,8 +110,9 @@ public class ConsoleUIManager : MonoBehaviour
                 miningNavElementActiveIndicator.enabled = false;
                 skillTreeNavElementActiveIndicator.enabled = true;
                 prestigeNavElementActiveIndicator.enabled = false;
-                // SkillTreeUIManager.Instance.CenterUIOnScreen();
+                SkillTreeUIManager.Instance.CenterUIOnScreen();
                 consoleBackgroundImage.enabled = true;
+                StartCoroutine(AnimateSkillTreeRing());
                 break;
 
             case ConsoleUIScreenState.PRESTIGE:

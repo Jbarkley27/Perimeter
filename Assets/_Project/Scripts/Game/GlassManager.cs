@@ -24,12 +24,15 @@ public class GlassManager : MonoBehaviour
 
     void Start()
     {
+        totalGlassShardsCollected = Random.Range(10, 50); // For testing purposes
+    }
+
+    void Update()
+    {
         if (glassCollectedTextInGame)
         {
-            glassCollectedTextInGame.text = "0";
+            glassCollectedTextInGame.text = totalGlassShardsCollected.ToString();
         }
-
-        totalGlassShardsCollected = Random.Range(10, 50); // For testing purposes
     }
 
     public void AddGlass(double amount)

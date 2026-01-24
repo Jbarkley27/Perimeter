@@ -15,7 +15,8 @@ public class LoadoutDropTarget : MonoBehaviour, IDropHandler
     public Ease hoverEase = Ease.OutBack;
 
     private SkillDraggable occupiedItem;
-    private Vector3 hoverOriginalScale;
+    public Vector3 hoverOriginalScale;
+    public Vector3 hoverOccupiedScale;
 
     void Awake()
     {
@@ -81,15 +82,15 @@ public class LoadoutDropTarget : MonoBehaviour, IDropHandler
         CollapseHover();
     }
 
-    private void CollapseHover()
+    public void CollapseHover()
     {
         if (hoverVisual == null)
             return;
 
         hoverVisual.transform.DOKill();
         hoverVisual.transform.DOScale(
-            hoverOriginalScale,
+            IsOccupied ? hoverOccupiedScale : hoverOriginalScale,
             hoverAnimDuration
-        ).SetEase(Ease.OutQuad);
+        ).SetEase(hoverEase);
     }
 }
