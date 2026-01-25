@@ -18,8 +18,6 @@ public class SkillUISlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 
     [Header("Skill Data")]
     public SkillData currentSkill;
-    public float cooldownTimer;   // Runtime cooldown
-    public bool IsReady => cooldownTimer <= 0;
     public bool IsSkillRunning = false;
     public bool IsAutoFireEnabled = true;
 
@@ -97,7 +95,6 @@ public class SkillUISlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         || !IsAutoFireEnabled
         || GameManager.Instance.GamePaused)
         {
-            // Debug.Log("Auto-fire conditions not met.");
             return;
         }
 
@@ -120,8 +117,6 @@ public class SkillUISlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         IsSkillRunning = true;
         slider.value = 0f; // Reset cooldown
 
-        // Debug.Log($"<color=cyan>FIRE:</color> {currentSkill.skillName} | " +
-        //           $"Damage:{currentSkill.damage} | Cooldown:{currentSkill.cooldownRate}");
 
         if (currentSkill.IsProjectileSkill)
         {
@@ -132,7 +127,6 @@ public class SkillUISlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 
 
             gameObject.transform.DOPunchScale(Vector3.one * 0.3f, 0.2f, 1, 0.5f);
-            // Debug.Log($"Spawn projectile: {currentSkill.projectilePrefab}");
 
             GlobalDataStore.Instance.SkillCaster.FireProjectile(
                 currentSkill,
@@ -150,6 +144,7 @@ public class SkillUISlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 
     
 
+    #region Pointer Event Handlers
 
     public void OnPointerEnter(PointerEventData eventData)
     {
@@ -192,6 +187,9 @@ public class SkillUISlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         GlobalDataStore.Instance.SkillCaster.AssignActiveManualSkill(this);
         cancelManualUIRoot.SetActive(false);
     }
+
+    #endregion
+
 
 
     public void ForceCooldownReset()

@@ -8,6 +8,7 @@ public class SkillTreeUIManager : MonoBehaviour
     public static SkillTreeUIManager Instance;
     public bool isHovering = false;
     public ScrollRect scrollRect;
+    public SkillData hoveredSkillData;
     
     // Skill Hover For More Info
     [Header("Skill Hover UI Elements")]
@@ -16,7 +17,6 @@ public class SkillTreeUIManager : MonoBehaviour
     public TMP_Text skillHoverDescriptionText;
     public Image skillHoverElementImage;
     public TMP_Text costText;
-    public TMP_Text equippedText;
     public TMP_Text currentLevelText;
     public TMP_Text purchaseOrUpgradeText;
     public ScrollRect parentScrollRect;
@@ -53,22 +53,37 @@ public class SkillTreeUIManager : MonoBehaviour
         if (isHovering)
         {
             FollowMousePosition(WorldCursor.instance.GetCursorPosition());
+
+            if (hoveredSkillData != null)
+            {
+                UpdateSkillUIPanel(hoveredSkillData);
+            }
         }
+
+
     }
+
+
 
     public void CenterUIOnScreen()
     {
         // Implement centering logic if needed
         scrollRect.normalizedPosition = new Vector2(0.5f, 0.5f);
     }
+
+
     
     public void ShowSkillUIPanel(SkillData skillData)
     {
-        Debug.Log($"Showing Skill UI Panel for: {skillData.skillName}");
+        if (skillData == null) return;
+
+        hoveredSkillData = skillData;
+
         isHovering = true;
 
         skillHoverCanvasGroup.DOKill();
 
+        // Populate UI Elements
         skillHoverCanvasGroup.alpha = 0f;
         skillHoverNameText.text = skillData.skillName;
         skillHoverDescriptionText.text = skillData.description;
@@ -100,24 +115,18 @@ public class SkillTreeUIManager : MonoBehaviour
             }
         }
 
-        
+    
 
-        skillHoverCanvasGroup.gameObject.SetActive(true);
 
-        skillHoverCanvasGroup
-            .DOFade(1f, 0.15f)
-            .SetEase(Ease.OutQuad);
-
-        // update button
-        // Debug.Log($"Skill is Passive: {skillData.isPassive}");
-        // Debug.Log($"Is Skill Equipped: {SkillLoadout.Instance.IsSkillEquipped(skillData)}");
-
+        // UPGRADE/PURCHASE BUTTON
         // If its equipped or unlocked (for non-passive), hide the button
         if (SkillLoadout.Instance.IsSkillEquipped(skillData)
             || (!skillData.isPassive && skillData.isUnlocked))
         {
+            // since it's already equipped or unlocked, hide the button
             purchaseOrUpgradeButton.gameObject.SetActive(false);
         }
+        // Otherwise, show the button
         else
         {
             purchaseOrUpgradeButton.gameObject.SetActive(true);
@@ -137,6 +146,13 @@ public class SkillTreeUIManager : MonoBehaviour
             purchaseOrUpgradeButton.GetComponent<Image>().color = cannotAffordColor;
             purchaseOrUpgradeText.text = skillData.isPassive && skillData.currentLevel >= skillData.maxLevel ? "Max Level" : "Cannot Afford";
         }
+
+
+        // Show skill hover panel
+        skillHoverCanvasGroup.gameObject.SetActive(true);
+        skillHoverCanvasGroup
+            .DOFade(1f, 0.15f)
+            .SetEase(Ease.OutQuad);
     }
 
 
@@ -144,12 +160,9 @@ public class SkillTreeUIManager : MonoBehaviour
     {
         if (!isHovering) return;
 
-        Debug.Log($"Updating Skill UI Panel for: {skillData.skillName}");
-
         if(skillData.currentLevel >= skillData.maxLevel && skillData.isPassive)
         {
             purchaseOrUpgradeButton.interactable = false;
-            // purchaseOrUpgradeButton.GetComponent<Image>().color = cannotAffordColor;
             purchaseOrUpgradeText.text = "Max Level";
             costText.gameObject.SetActive(false);
             currentLevelText.text = $"Level: {skillData.currentLevel}/{skillData.maxLevel}";
@@ -175,6 +188,7 @@ public class SkillTreeUIManager : MonoBehaviour
         }
     }
 
+
     public void HideSkillUIPanel()
     {
         isHovering = false;
@@ -192,11 +206,15 @@ public class SkillTreeUIManager : MonoBehaviour
             });
     }
 
+
+
     public void FollowMousePosition(Vector3 mousePosition)
     {
         if (!isHovering) return;
 
-        Vector3 targetPosition = mousePosition + mouseOffset;
+        Vector3 targetPosition = mousePosition + (SkillLoadout.Instance.IsSkillEquipped(hoveredSkillData)
+            ? equippedOffset
+            : mouseOffset);
         skillHoverCanvasGroup.gameObject.transform.position = targetPosition;
     }
 

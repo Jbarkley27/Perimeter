@@ -270,6 +270,12 @@ public class TreeNode: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             if (GlassManager.Instance.SpendGlass(skillData.cost))
             {
                 SetNodeState(NodeState.Unlocked);
+                gameObject.transform.DOPunchScale(Vector3.one * 0.3f, 0.2f, 1, 0.5f)
+                    .SetEase(Ease.OutCubic)
+                    .OnComplete(() =>
+                    {
+                        gameObject.transform.localScale = Vector3.one;
+                    });
                 Debug.Log($"Purchased skill node: {skillData.skillName}");
             }
             else
