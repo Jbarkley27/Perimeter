@@ -80,10 +80,25 @@ public class SkillTreeUIManager : MonoBehaviour
 
         costText.text = $"Cost: {skillData.cost} Glass";
 
+
+        // Handle Current Level Text
         if (skillData.isPassive)
             currentLevelText.text = $"Level: {skillData.currentLevel}/{skillData.maxLevel}";
         else
-            currentLevelText.text = $"Unlocked";
+        {
+            if (SkillLoadout.Instance.IsSkillEquipped(skillData))
+            {
+                currentLevelText.text = $"Equipped";
+            }
+            else if (skillData.isUnlocked)
+            {
+                currentLevelText.text = $"Unlocked";
+            }
+            else
+            {
+                currentLevelText.text = $"Locked";
+            }
+        }
 
         
 
@@ -131,7 +146,17 @@ public class SkillTreeUIManager : MonoBehaviour
 
         Debug.Log($"Updating Skill UI Panel for: {skillData.skillName}");
 
-        costText.text = $"Cost: {skillData.cost} Glass";
+        if(skillData.currentLevel >= skillData.maxLevel && skillData.isPassive)
+        {
+            purchaseOrUpgradeButton.interactable = false;
+            // purchaseOrUpgradeButton.GetComponent<Image>().color = cannotAffordColor;
+            purchaseOrUpgradeText.text = "Max Level";
+            costText.gameObject.SetActive(false);
+            currentLevelText.text = $"Level: {skillData.currentLevel}/{skillData.maxLevel}";
+            return;
+        }
+
+        costText.gameObject.SetActive(true);
 
         if (skillData.isPassive)
             currentLevelText.text = $"Level: {skillData.currentLevel}/{skillData.maxLevel}";

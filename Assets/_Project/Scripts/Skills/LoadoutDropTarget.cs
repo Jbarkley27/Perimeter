@@ -3,7 +3,7 @@ using UnityEngine.EventSystems;
 using DG.Tweening;
 
 
-public class LoadoutDropTarget : MonoBehaviour, IDropHandler
+public class LoadoutDropTarget : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerExitHandler
 {
     [Header("Slot Settings")]
     public Transform snapParent;
@@ -15,8 +15,8 @@ public class LoadoutDropTarget : MonoBehaviour, IDropHandler
     public Ease hoverEase = Ease.OutBack;
 
     private SkillDraggable occupiedItem;
-    public Vector3 hoverOriginalScale;
-    public Vector3 hoverOccupiedScale;
+    public Vector3 hoverOriginalScale = Vector3.one * .5f;
+    public Vector3 hoverOccupiedScale = Vector3.one * 1.0f;
 
     void Awake()
     {
@@ -67,6 +67,7 @@ public class LoadoutDropTarget : MonoBehaviour, IDropHandler
         if (hoverVisual == null)
             return;
 
+        Debug.Log("Pointer Entered Drop Target");
         hoverVisual.transform.DOKill();
         hoverVisual.transform.DOScale(
             hoverOriginalScale * hoverScale,

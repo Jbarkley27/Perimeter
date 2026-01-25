@@ -76,7 +76,7 @@ public class SkillUISlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 
     private void TickCooldown()
     {
-        if (IsSkillRunning) return;
+        if (IsSkillRunning || currentSkill == null) return;
         if (GameManager.Instance.GamePaused) return;
         if (!IsReadyToFire())
         {
@@ -113,7 +113,7 @@ public class SkillUISlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         )
         {
             Debug.LogWarning("No skill assigned to this slot! OR skill is already running.");
-            yield return null;
+            yield break;
         }
 
 

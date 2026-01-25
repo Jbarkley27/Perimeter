@@ -19,6 +19,11 @@ public class SkillTreeData : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
+    void Start()
+    {
+        InitializeTree();
+    }
+
     public void InitializeTree()
     {
         if (rootNode != null)

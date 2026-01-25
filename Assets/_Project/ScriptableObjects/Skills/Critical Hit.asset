@@ -16,7 +16,7 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: ccf75095ece7b4b45aa50437f806a4d3, type: 3}
   element: 0
   description: Increase Critical Hit Chance by +10%
-  cost: 1
+  cost: 2
   currentLevel: 0
   maxLevel: 5
   isPassive: 1

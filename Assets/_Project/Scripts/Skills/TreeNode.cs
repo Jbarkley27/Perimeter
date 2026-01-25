@@ -8,7 +8,6 @@ using DG.Tweening;
 public class TreeNode: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
     public SkillData skillData;
-    // public TreeNode center;
     public List<TreeNode> children = new List<TreeNode>();
     public CanvasGroup connectionLine;
     public enum NodeState
@@ -26,9 +25,7 @@ public class TreeNode: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     public CanvasGroup nodeCanvasGroup;
     public CanvasGroup hoverHighlightCanvasGroup;
     public Image canAffordImage;
-    public Color activatedColor = Color.gold;
     public SkillDraggable draggableComponent;
-    public GameObject originalPosition;
     public Slider passiveLevelSlider;
 
 
@@ -85,7 +82,7 @@ public class TreeNode: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     public void OnPointerEnter(PointerEventData eventData)
     {
         if (hoverHighlightCanvasGroup) hoverHighlightCanvasGroup.gameObject.SetActive(true);
-        if (skillData != null && !SkillLoadout.Instance.IsSkillEquipped(skillData)) SkillTreeUIManager.Instance.ShowSkillUIPanel(skillData);
+        if (skillData != null) SkillTreeUIManager.Instance.ShowSkillUIPanel(skillData);
     }
 
     public void OnPointerExit(PointerEventData eventData)
@@ -93,7 +90,6 @@ public class TreeNode: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         if (hoverHighlightCanvasGroup) hoverHighlightCanvasGroup.gameObject.SetActive(false);
         SkillTreeUIManager.Instance.HideSkillUIPanel();
     }
-
 
 
     public void SetConnectionLineActive(bool isActive)
@@ -120,6 +116,12 @@ public class TreeNode: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             child.InitializeNode();
         }
 
+        // Sync node state with saved skill data on startup.
+        if (skillData != null)
+        {
+            nodeState = skillData.isUnlocked ? NodeState.Unlocked : NodeState.Locked;
+        }
+
         // Set initial UI state
         UpdateNodeUI();
 
@@ -138,6 +140,10 @@ public class TreeNode: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
 
     public void UpdateNodeUI()
     {
+        if (skillData == null)
+            return;
+            
+        // Update the locked/unlocked visual state
         switch (nodeState)
         {
             case NodeState.Locked:
@@ -197,8 +203,14 @@ public class TreeNode: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
 
     public void PurchaseOrUpgradeNode()
     {
-        if (nodeState == NodeState.Locked)
+        if (skillData.isPassive == false)
         {
+            if (skillData.isUnlocked)
+            {
+                Debug.Log("Skill already unlocked.");
+                return;
+            }
+            
             // Purchase logic
             if (GlassManager.Instance.SpendGlass(skillData.cost))
             {
@@ -211,8 +223,15 @@ public class TreeNode: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
                 Debug.Log("Not enough Glass to purchase this skill.");
             }
         }
-        else if (nodeState == NodeState.Unlocked && skillData.isPassive)
+        else if (skillData.isPassive)
         {
+            if (skillData.isUnlocked == false)
+            {
+               // Unlock then allow the first upgrade
+                SetNodeState(NodeState.Unlocked);
+                skillData.isUnlocked = true;   
+            }
+
             // Upgrade logic for passive skills
             if (skillData.currentLevel < skillData.maxLevel)
             {
