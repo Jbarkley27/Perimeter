@@ -2,7 +2,6 @@ using UnityEngine.UI;
 using UnityEngine;
 using DG.Tweening;
 using System.Collections;
-using System.Collections.Generic;
 
 public class ConsoleUIManager : MonoBehaviour
 {
@@ -13,6 +12,7 @@ public class ConsoleUIManager : MonoBehaviour
         PRESTIGE = 2
     }
 
+    [Header("General Console UI Elements")]
     public ConsoleUIScreenState CurrentScreenState = ConsoleUIScreenState.SKILL_TREE;
 
     public static ConsoleUIManager Instance { get; private set; }
@@ -22,9 +22,10 @@ public class ConsoleUIManager : MonoBehaviour
     public CanvasGroup consoleCanvasGroup;
     public bool OpeningConsole = false;
     public GameObject HUDRoot;
-    public GameObject SignalUIRoot;
+    public GameObject DeltaBarRoot;
     public CanvasGroup consoleTransitionScreen;
-    public CanvasGroup consoleContentGroup;
+    public float consoleOpenDelay = 0.1f;
+    public float transitionScreenOpenEndScale = 10f;
 
 
     [Header("Mining Screen UI Elements")]
@@ -40,6 +41,7 @@ public class ConsoleUIManager : MonoBehaviour
     [Header("Prestige Screen UI Elements")]
     public GameObject prestigeScreenUIRoot;
     public Image prestigeNavElementActiveIndicator;
+
 
     [Header("Skill Tree Ring UI Elements")]
     public Transform skillTreeRingRoot;
@@ -73,6 +75,9 @@ public class ConsoleUIManager : MonoBehaviour
 
     public IEnumerator AnimateSkillTreeRing()
     {
+        // small delay before starting animation
+        yield return new WaitForSeconds(0.2f);
+
         // loop through root children and turn their canvas groups on and off in sequence
         foreach (Transform child in skillTreeRingRoot)
         {
@@ -80,11 +85,8 @@ public class ConsoleUIManager : MonoBehaviour
             if (cg != null)
             {
                 cg.alpha = 0;
-                cg.DOFade(1, 0.2f).OnComplete(() =>
-                {
-                    cg.DOFade(2, 0.2f);
-                });
-                yield return new WaitForSeconds(0.1f);
+                cg.DOFade(1, 0.25f).SetEase(Ease.OutQuad);
+                yield return new WaitForSeconds(0.15f);
             }
         }
     }
@@ -137,38 +139,41 @@ public class ConsoleUIManager : MonoBehaviour
 
 
 
-    public float consoleOpenDelay = 0.1f;
-    public float transitionScreenOpenEndScale = 10f;
 
     public IEnumerator OpenConsole()
     {
+        // Prepare Transition Screen Animation
 
-        // Prepare Transition Screen
-        consoleTransitionScreen.gameObject.SetActive(true);
+        // Set initial states
         consoleTransitionScreen.gameObject.transform.localScale = Vector3.zero;
+        consoleTransitionScreen.gameObject.SetActive(true);
 
-        consoleContentGroup.gameObject.SetActive(true);
-
-        consoleContentGroup.DOFade(1, 0.15f);
-        
-        consoleCanvasGroup.gameObject.transform.DOShakePosition(0.3f, 0.5f, 10, 90, false)
-            .OnComplete(() =>
-            {
-                consoleCanvasGroup.gameObject.transform.localPosition = Vector3.zero;
-            });
-
-        consoleTransitionScreen.DOFade(1, 0.2f);
+        // Animate In Transition Screen
+        consoleTransitionScreen.DOFade(1, 0.2f).SetEase(Ease.OutQuad);
 
         // Scale up transition screen
         consoleTransitionScreen.gameObject.transform.DOScale(Vector3.one * transitionScreenOpenEndScale,
              0.2f)
-            .SetEase(Ease.OutQuad);
+            .SetEase(Ease.OutQuad)
+            .OnComplete(() =>
+            {
+                // Background Stuff while the Transition screen is up
+                HUDRoot.SetActive(false);
+                DeltaBarRoot.SetActive(false);
+                RunManager.Instance.HideEndRunScreen();
+                consoleCanvasGroup.alpha = 0;
+                consoleUIRoot.SetActive(true);
+            });
 
+
+
+        // Wait a moment while background stuff happens
         yield return new WaitForSeconds(0.1f + consoleOpenDelay);
+  
 
+    
 
-        // Scale Back Down
-        consoleContentGroup.DOFade(0, 0.1f);
+        // Scale Back Down to show Console Content
         consoleTransitionScreen.gameObject.transform.DOScale(Vector3.zero, 0.2f)
             .SetEase(Ease.InQuad)
             .OnComplete(() =>
@@ -184,14 +189,8 @@ public class ConsoleUIManager : MonoBehaviour
                 UpdateScreenUI();
             });
 
-
-        // Background Stuff while the Transition screen is up
-        HUDRoot.SetActive(false);
-        SignalUIRoot.SetActive(false);
-        RunManager.Instance.HideEndRunScreen();
-        consoleCanvasGroup.alpha = 0;
-        consoleUIRoot.SetActive(true);
     }
+
 
 
     public void CloseConsole()
@@ -202,12 +201,10 @@ public class ConsoleUIManager : MonoBehaviour
         });
 
 
-        consoleContentGroup.alpha = 0;
         consoleTransitionScreen.alpha = 0;
-        consoleContentGroup.gameObject.SetActive(false);
         consoleTransitionScreen.gameObject.SetActive(false);
         HUDRoot.SetActive(true);
-        SignalUIRoot.SetActive(true);
+        DeltaBarRoot.SetActive(true);
         miningScreenUIRoot.SetActive(false);
         skillTreeScreenUIRoot.SetActive(false);
         prestigeScreenUIRoot.SetActive(false);
