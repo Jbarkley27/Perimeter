@@ -78,11 +78,9 @@ public class SkillCaster : MonoBehaviour
         || !activeManualSkillSlot.IsReadyToFire()
         || GameManager.Instance.GamePaused)
         {
-            // Debug.Log("[SkillCaster] No active manual skill to use.");
             return;
         }
 
-        // Debug.Log("[SkillCaster] Using active manual skill.");
         StartCoroutine(activeManualSkillSlot.TriggerSkill(true));
     }
     
@@ -115,8 +113,6 @@ public class SkillCaster : MonoBehaviour
             .First()
             .transform;
     }
-
-
 
 
 

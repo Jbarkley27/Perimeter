@@ -3,11 +3,12 @@ using UnityEngine;
 
 public class SkillLoadout : MonoBehaviour
 {
+    [Header("UI Skill Slots")]
     public List<SkillUISlot> uiSlots;
     public Transform uiSlotParent;
+
     [Header("Equipped Skills (Displayed In HUD)")]
     public List<SkillData> equippedSkills = new List<SkillData>();
-
     public static SkillLoadout Instance;
 
     void Awake()
@@ -22,7 +23,7 @@ public class SkillLoadout : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
-        
+
 
         // Auto-populate uiSlots from children if not set
         if (uiSlots == null || uiSlots.Count == 0)

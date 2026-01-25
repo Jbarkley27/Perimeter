@@ -14,9 +14,14 @@ public class LoadoutDropTarget : MonoBehaviour, IDropHandler, IPointerEnterHandl
     public float hoverAnimDuration = 0.15f;
     public Ease hoverEase = Ease.OutBack;
 
+
+    [Header("Runtime State")]
     private SkillDraggable occupiedItem;
     public Vector3 hoverOriginalScale = Vector3.one * .5f;
     public Vector3 hoverOccupiedScale = Vector3.one * 1.0f;
+    public bool IsOccupied => occupiedItem != null;
+
+
 
     void Awake()
     {
@@ -27,7 +32,7 @@ public class LoadoutDropTarget : MonoBehaviour, IDropHandler, IPointerEnterHandl
             hoverOriginalScale = hoverVisual.transform.localScale;
     }
 
-    public bool IsOccupied => occupiedItem != null;
+
 
     public void Assign(SkillDraggable draggable)
     {
@@ -35,11 +40,15 @@ public class LoadoutDropTarget : MonoBehaviour, IDropHandler, IPointerEnterHandl
         CollapseHover();
     }
 
+
+
     public void ClearSlot()
     {
         occupiedItem = null;
         CollapseHover();
     }
+
+
 
     public void OnDrop(PointerEventData eventData)
     {
@@ -67,7 +76,6 @@ public class LoadoutDropTarget : MonoBehaviour, IDropHandler, IPointerEnterHandl
         if (hoverVisual == null)
             return;
 
-        Debug.Log("Pointer Entered Drop Target");
         hoverVisual.transform.DOKill();
         hoverVisual.transform.DOScale(
             hoverOriginalScale * hoverScale,
@@ -82,6 +90,8 @@ public class LoadoutDropTarget : MonoBehaviour, IDropHandler, IPointerEnterHandl
 
         CollapseHover();
     }
+
+    
 
     public void CollapseHover()
     {

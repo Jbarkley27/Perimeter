@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
 using DG.Tweening;
 
 [RequireComponent(typeof(CanvasGroup))]
@@ -13,15 +12,15 @@ public class SkillDraggable : MonoBehaviour,
     public float snapDuration = 0.25f;
     public Ease snapEase = Ease.OutBack;
 
+    [Header("UI References")]
     private RectTransform rectTransform;
     private Canvas canvas;
     private CanvasGroup canvasGroup;
-
     private Transform originalParent;
     private Vector2 originalAnchoredPosition;
-
     private LoadoutDropTarget currentSlot;
-    public bool IsSlotted => currentSlot != null;
+
+    [Header("Skill Data")]
     public bool IsDragging { get; private set; } = false;
     public SkillData skillData;
     public TreeNode treeNode;
@@ -30,6 +29,7 @@ public class SkillDraggable : MonoBehaviour,
 
     void Awake()
     {
+        // Cache references
         rectTransform = GetComponent<RectTransform>();
         canvasGroup = GetComponent<CanvasGroup>();
         canvas = GetComponentInParent<Canvas>();
@@ -38,6 +38,8 @@ public class SkillDraggable : MonoBehaviour,
     }
 
 
+    #region Drag Handlers
+
     public void OnBeginDrag(PointerEventData eventData)
     {
         // Only non passive skills can be dragged
@@ -45,24 +47,24 @@ public class SkillDraggable : MonoBehaviour,
             || treeNode == null || treeNode.nodeState == TreeNode.NodeState.Locked)
             return;
 
-        // Store ORIGINAL position (before slot)
-        if (currentSlot == null)
-        {
-            // originalParent = transform.parent;
-            // originalAnchoredPosition = rectTransform.anchoredPosition;
-        }
-        else
+        // Clear slot if assigned. This allows the skill to be returned to original position
+        // since and not be stuck in the slot.
+        if (currentSlot)
         {
             currentSlot.ClearSlot();
             currentSlot = null;
         }
 
+
+        // Disable parent scroll rect so that when dragging the skill it 
+        // doesn't drag the background scroll rect.
         if (SkillTreeUIManager.Instance.parentScrollRect != null)
             SkillTreeUIManager.Instance.parentScrollRect.enabled = false;
 
+
+        // Adjust canvas group for dragging
         canvasGroup.blocksRaycasts = false;
         canvasGroup.alpha = 0.8f;
-
         transform.SetParent(canvas.transform);
         rectTransform.DOKill();
 
@@ -72,17 +74,21 @@ public class SkillDraggable : MonoBehaviour,
         if (skillData) SkillLoadout.Instance.UnequipSkill(skillData);
     }
 
+
     public void OnDrag(PointerEventData eventData)
     {
         rectTransform.anchoredPosition += eventData.delta / canvas.scaleFactor;
     }
 
+
+
     public void OnEndDrag(PointerEventData eventData)
     {
+        // Restore canvas group
         canvasGroup.blocksRaycasts = true;
         canvasGroup.alpha = 1f;
 
-        // If still parented to canvas → invalid drop
+        // If still parented to canvas invalid drop
         if (transform.parent == canvas.transform)
         {
             ReturnToOriginalPosition();
@@ -90,9 +96,14 @@ public class SkillDraggable : MonoBehaviour,
 
         IsDragging = false;
 
+        // Re-enable parent scroll rect
         if (SkillTreeUIManager.Instance.parentScrollRect != null)
             SkillTreeUIManager.Instance.parentScrollRect.enabled = true;
     }
+
+    #endregion
+
+    
 
     public void SnapToSlot(LoadoutDropTarget slot)
     {
@@ -100,11 +111,14 @@ public class SkillDraggable : MonoBehaviour,
         if (currentSlot != null)
             currentSlot.ClearSlot();
 
+        // Assign new slot
         currentSlot = slot;
         slot.Assign(this);
 
+        // Assign to slot parent
         transform.SetParent(slot.snapParent);
 
+        // Animate to slot position
         rectTransform.DOKill();
         rectTransform.DOAnchorPos(Vector2.zero, snapDuration)
             .SetEase(snapEase)
@@ -116,6 +130,7 @@ public class SkillDraggable : MonoBehaviour,
         // equip skill in loadout manager
         if (skillData) SkillLoadout.Instance.EquipSkill(skillData);
 
+        // Animate loadout icon to give feedback
         SkillTreeUIManager.Instance.skillLoadoutIcon.transform.DOPunchScale(Vector3.one * 1.2f, 0.4f, 1, 0.5f)
             .SetEase(Ease.OutCubic)
             .OnComplete(() =>
@@ -126,15 +141,17 @@ public class SkillDraggable : MonoBehaviour,
 
     public void ReturnToOriginalPosition()
     {
-        // Leaving slot
+        // Leaving slot, clear it
         if (currentSlot != null)
         {
             currentSlot.ClearSlot();
             currentSlot = null;
         }
 
+        // Return to original parent and position
         transform.SetParent(originalParent);
 
+        // Animate back to original position
         rectTransform.DOKill();
         rectTransform.DOAnchorPos(originalAnchoredPosition, snapDuration)
             .SetEase(snapEase);

@@ -14,18 +14,28 @@ public class SkillData : ScriptableObject
     public int maxLevel = 5;
     public bool isPassive = false;
 
+
+
+
     [Header("Skill Classification")]
     public SkillType type = SkillType.Projectile;
     public bool isProjectile = true;
+
+
+
 
     [Header("Combat Stats")]
     public float cooldownRate = 1.5f;
     public float cooldownRestartDelay = 1f;
     public int damage = 10;
 
+
+
     [Header("Projectile Settings (If Projectile)")]
     public GameObject projectilePrefab;
     public float projectileSpeed = 10f;
+
+    
 
     public bool IsProjectileSkill => isProjectile && projectilePrefab != null;
     public bool IsInstantSkill => !isProjectile;
