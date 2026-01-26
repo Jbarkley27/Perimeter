@@ -44,7 +44,7 @@ public class SkillDraggable : MonoBehaviour,
     {
         // Only non passive skills can be dragged
         if (skillData == null || skillData.isPassive
-            || treeNode == null || treeNode.nodeState == TreeNode.NodeState.Locked)
+            || treeNode == null || !SkillTreeData.Instance.IsNodeActive(treeNode))
             return;
 
         // Clear slot if assigned. This allows the skill to be returned to original position

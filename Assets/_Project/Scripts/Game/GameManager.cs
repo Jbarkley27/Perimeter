@@ -73,7 +73,7 @@ public class GameManager : MonoBehaviour
         Debug.Log(RunAttempts == 0 ? "Starting Run" : "Restarting Run...");
 
         // Restor Barrier Signal
-        GlobalDataStore.Instance.BarrierModule.ResetBarrier();
+        GlobalDataStore.Instance.BarrierModule.ResetHealthBarrier();
 
         // Sector Reset
         SectorManager.Instance.ResetSectors();
@@ -86,6 +86,8 @@ public class GameManager : MonoBehaviour
 
         // Reset Glass Manager
         GlassManager.Instance.ResetGlassThisRun();
+
+        SkillTreeData.Instance.ResetTree();
 
         CompleteRun();
 

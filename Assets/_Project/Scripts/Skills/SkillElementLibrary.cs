@@ -32,10 +32,14 @@ public class SkillElementLibrary : MonoBehaviour
 public enum Element
 {
     Kinetic,
-    Fire,
+    Scorch,
     Acid,
-    Jolt,
-    Gravity
+    Gravity,
+
+    // Other types
+    Barrier,
+    Healing,
+    Critical
 }
 
 public enum SkillType

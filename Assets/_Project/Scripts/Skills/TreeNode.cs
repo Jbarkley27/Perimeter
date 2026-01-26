@@ -26,13 +26,45 @@ public class TreeNode: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     public Image canAffordImage;
     public SkillDraggable draggableComponent;
     public Slider passiveLevelSlider;
+    public CanvasGroup exclusiveInactiveIndicatorCanvasGroup;
+
+    [Header("Tree Gating")]
+    public TreeNode parentNode;
+    public int requiredParentLevel = 1;
+
+    [Header("State Visuals")]
+    public GameObject lockedOverlay;
+    public GameObject availableVisual;
+    public GameObject exclusiveInactiveVisual;
+    public Color passiveMaxLevelBorderColor = Color.yellow;
+
+    [Header("Line Visuals")]
+    public CanvasGroup parentLineCanvasGroup;
+
+    [Header("Unlock Animation")]
+    public Transform unlockPunchTarget;
+    public float unlockPunchScale = 0.15f;
+    public float unlockPunchDuration = 0.25f;
+    public int unlockPunchVibrato = 10;
+    public float unlockPunchElasticity = 0.8f;
+
+    private bool wasAvailable;
+
+
+    void Awake()
+    {
+        if (SkillTreeData.Instance != null)
+            SkillTreeData.Instance.AddToAllNodes(this);
+    }
+
 
 
     void Start()
     {
         // Turn off hover highlight at start
+        // SkillTreeData.Instance.AddToAllNodes(this);
         if (hoverHighlightCanvasGroup) hoverHighlightCanvasGroup.gameObject.SetActive(false);
-
+        if (exclusiveInactiveIndicatorCanvasGroup) exclusiveInactiveIndicatorCanvasGroup.gameObject.SetActive(false);
         
     }
 
@@ -40,12 +72,29 @@ public class TreeNode: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
 
     void Update()
     {
+        bool isAvailable = IsAvailable();
+        nodeState = isAvailable ? NodeState.Unlocked : NodeState.Locked;
+
+        if (!wasAvailable && isAvailable)
+            PlayUnlockPunch();
+        
+        wasAvailable = isAvailable;
+
         UpdateNodeUI();
         ManageDraggableState();
     }
 
 
 
+    private void PlayUnlockPunch()
+    {
+        // var target = unlockPunchTarget != null ? unlockPunchTarget : transform;
+
+        // target.DOKill();
+        // target.DOPunchScale(Vector3.one * unlockPunchScale, unlockPunchDuration, unlockPunchVibrato, unlockPunchElasticity)
+        //     .SetEase(Ease.OutCubic)
+        //     .OnComplete(() => target.localScale = Vector3.one);
+    }
 
 
     public void ManageDraggableState()
@@ -53,17 +102,13 @@ public class TreeNode: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         // Manage draggable state
         if (draggableComponent != null)
         {
-            // disable dragging for locked nodes or passive skills
-            if (nodeState == NodeState.Locked || (skillData != null && skillData.isPassive))
-            {
-                draggableComponent.enabled = false;
-            }
-            else
-            {
-                draggableComponent.enabled = true;
-            }
+            bool isActive = SkillTreeData.Instance.IsNodeActive(this);
 
-            // Disabled all hover effects while dragging
+            if (nodeState == NodeState.Locked || skillData == null || skillData.isPassive || !isActive)
+                draggableComponent.enabled = false;
+            else
+                draggableComponent.enabled = true;
+
             if (draggableComponent.IsDragging)
             {
                 if (hoverHighlightCanvasGroup) hoverHighlightCanvasGroup.gameObject.SetActive(false);
@@ -85,7 +130,7 @@ public class TreeNode: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     public void OnPointerEnter(PointerEventData eventData)
     {
         if (hoverHighlightCanvasGroup) hoverHighlightCanvasGroup.gameObject.SetActive(true);
-        if (skillData != null) SkillTreeUIManager.Instance.ShowSkillUIPanel(skillData);
+        if (skillData != null) SkillTreeUIManager.Instance.ShowSkillUIPanel(this);
     }
 
 
@@ -102,13 +147,6 @@ public class TreeNode: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     public void SetNodeState(NodeState newState)
     {
         nodeState = newState;
-
-        // Update skill data accordingly
-        if (skillData != null)
-        {
-            skillData.isUnlocked = (newState == NodeState.Unlocked);
-        }
-
         UpdateNodeUI();
     }
 
@@ -118,35 +156,23 @@ public class TreeNode: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     // Initialize node and its children
     public void InitializeNode()
     {
-        // Initialize children nodes
         foreach (var child in children)
         {
+            if (child != null && child.parentNode == null)
+                child.parentNode = this;
+
             child.InitializeNode();
         }
 
-        // Sync node state with saved skill data on startup
-        // This ensures the UI reflects the correct state since 
-        // skills are scriptable objects that persist between sessions
-        if (skillData != null)
-        {
-            nodeState = skillData.isUnlocked ? NodeState.Unlocked : NodeState.Locked;
-        }
+        // Node state is now driven by availability
+        nodeState = IsAvailable() ? NodeState.Unlocked : NodeState.Locked;
 
-
-        // Set Node Icon
         if (skillData != null && nodeIcon != null)
-        {
             nodeIcon.sprite = skillData.icon;
-        }
 
-        // change background color based on element
         if (skillData != null && nodeBackground != null)
-        {
             nodeBackground.color = GlobalDataStore.Instance.SkillElementLibrary.GetElementColor(skillData.element);
-        }
 
-        // Update slider max value for passive skills
-        // Setup passive level slider
         if (passiveLevelSlider != null)
         {
             if (skillData != null && skillData.isPassive)
@@ -160,7 +186,11 @@ public class TreeNode: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
                 passiveLevelSlider.gameObject.SetActive(false);
             }
         }
+
+         wasAvailable = IsAvailable();
+         UpdateNodeUI();
     }
+
 
 
 
@@ -170,151 +200,156 @@ public class TreeNode: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         if (skillData == null)
             return;
 
+        bool isAvailable = IsAvailable();
+        bool isActive = SkillTreeData.Instance.IsNodeActive(this);
 
-        // Update the locked/unlocked visual state
-        switch (nodeState)
+        bool isExclusive = !string.IsNullOrEmpty(skillData.exclusiveGroupId);
+
+        if (parentLineCanvasGroup)
         {
-            case NodeState.Locked:
-                nodeCanvasGroup.alpha = 0.95f;
-                nodeBorderImageRoot.color = Color.gray;
-                break;
-            case NodeState.Unlocked:
-                nodeCanvasGroup.alpha = 1f;
-                nodeBorderImageRoot.color = Color.white;
-                break;
+            
+            if (!isAvailable)
+                parentLineCanvasGroup.alpha = 0.1f;
+            else if (isActive)
+                parentLineCanvasGroup.alpha = 1f;
+            else
+                parentLineCanvasGroup.alpha = 0.4f;
+
+
+            if (isExclusive && !skillData.isExclusiveActive)
+            {
+                // Dim the line more for exclusive inactive nodes
+                parentLineCanvasGroup.alpha = 0.1f;
+            }
+            
         }
 
+        bool isExclusiveInactive = isExclusive && !skillData.isExclusiveActive;
+        bool isPassiveMax = skillData.isPassive && skillData.currentLevel >= skillData.maxLevel;
+        bool isPassive = skillData.isPassive;
 
-        // Level slider for passive skills
-        // hide for active skills
-        if (skillData != null && skillData.isPassive == false && passiveLevelSlider != null)
+        bool hasPurchased = isExclusive || isPassive
+            ? skillData.currentLevel > 0
+            : skillData.isUnlocked;
+
+        // Locked overlay
+        if (lockedOverlay)
+            lockedOverlay.SetActive(!isAvailable);
+
+        // Available visual (only when available AND not active)
+        if (availableVisual)
+            availableVisual.SetActive(isAvailable && !hasPurchased);
+
+        // Exclusive inactive overlay
+        if (exclusiveInactiveVisual)
+            exclusiveInactiveVisual.SetActive(isExclusiveInactive);
+
+        // Passive max level border color
+        if (nodeBorderImageRoot)
+            nodeBorderImageRoot.color = isPassiveMax ? passiveMaxLevelBorderColor : Color.white;
+
+        // Passive level slider
+        if (passiveLevelSlider != null)
         {
-            passiveLevelSlider.gameObject.SetActive(false);
-        }
-
-        // show and update for passive skills
-        else if (passiveLevelSlider != null && skillData != null && skillData.isPassive)
-        {
-            passiveLevelSlider.gameObject.SetActive(true);
-            passiveLevelSlider.value = skillData.currentLevel;
-        }
-
-
-
-        // AFFORDABILITY INDICATOR LOGIC
-        // we dont want to show affordability for locked nodes, only
-        // nodes that can be purchased or upgraded, in the final game
-        if (canAffordImage != null)
-        {
-            // split logic for passive vs active skills
             if (skillData.isPassive)
             {
-                // Passive skill logic: only show if not max level
-                if (skillData.currentLevel >= skillData.maxLevel)
-                {
-                    canAffordImage.gameObject.SetActive(false);
-                    return;
-                }
+                passiveLevelSlider.gameObject.SetActive(true);
+                passiveLevelSlider.value = skillData.currentLevel;
             }
             else
             {
-                // Active skill logic: only show if not unlocked
-                if (skillData.isUnlocked)
-                {
-                    canAffordImage.gameObject.SetActive(false);
-                    return;
-                }
-            }
-
-
-
-
-            // This check should only run if the node is purchasable or upgradable
-            // Now we check if the player can afford it
-            bool canAfford = false;
-
-            // Check affordability
-            if (skillData != null)
-            {
-                canAfford = GlassManager.Instance.CanAffordNodePurchase(skillData.cost);
-            }
-
-            // Change visibility based on affordability
-            if (canAfford)
-            {
-                canAffordImage.gameObject.SetActive(true);
-            }
-            else
-            {
-                canAffordImage.gameObject.SetActive(false);
+                passiveLevelSlider.gameObject.SetActive(false);
             }
         }
+
+        // Affordability icon only when available AND not max level
+        if (canAffordImage != null)
+        {
+            bool isMaxLevel = isPassive && skillData.currentLevel >= skillData.maxLevel;
+            bool canAfford = GlassManager.Instance.CanAffordNodePurchase(skillData.cost);
+            bool showAfford = isAvailable && !hasPurchased && !isMaxLevel && canAfford;
+            canAffordImage.gameObject.SetActive(showAfford);
+
+        }
     }
+
 
 
 
 
     public void PurchaseOrUpgradeNode()
     {
-        // IF ACTIVE, HANDLE UPGRADE LOGIC
+        if (skillData == null)
+            return;
+
+        if (!IsAvailable())
+        {
+            Debug.Log("Node locked by parent requirement.");
+            return;
+        }
+
+        // Exclusive group nodes: pay only on first unlock, switching is free
+        if (!string.IsNullOrEmpty(skillData.exclusiveGroupId))
+        {
+            bool isMaxLevel = skillData.currentLevel >= skillData.maxLevel;
+
+            if (!isMaxLevel)
+            {
+                if (!GlassManager.Instance.SpendGlass(skillData.cost))
+                {
+                    Debug.Log("Not enough Glass to purchase this skill.");
+                    return;
+                }
+
+                SetNodeState(NodeState.Unlocked);
+                skillData.currentLevel = Mathf.Max(1, skillData.currentLevel);
+            }
+
+            SkillTreeData.Instance.SetExclusiveState(skillData);
+            return;
+        }
+
+        // Active skill purchase
         if (!skillData.isPassive)
         {
-            // Already unlocked
+            Debug.Log("Attempting to purchase active skill node.");
             if (skillData.isUnlocked)
-            {
-                Debug.Log("Skill already unlocked.");
                 return;
-            }
-            
-            // Purchase logic
-            if (GlassManager.Instance.SpendGlass(skillData.cost))
-            {
-                SetNodeState(NodeState.Unlocked);
-                gameObject.transform.DOPunchScale(Vector3.one * 0.3f, 0.2f, 1, 0.5f)
-                    .SetEase(Ease.OutCubic)
-                    .OnComplete(() =>
-                    {
-                        gameObject.transform.localScale = Vector3.one;
-                    });
-                Debug.Log($"Purchased skill node: {skillData.skillName}");
-            }
-            else
+
+            if (!GlassManager.Instance.SpendGlass(skillData.cost))
             {
                 Debug.Log("Not enough Glass to purchase this skill.");
+                return;
             }
+
+            SetNodeState(NodeState.Unlocked);
+            skillData.isUnlocked = true;
+            SkillTreeData.Instance.RebuildAll();
+            return;
         }
 
-        // IF PASSIVE, HANDLE UPGRADE LOGIC
-        else if (skillData.isPassive)
+        // Passive skill upgrade
+        if (!skillData.isUnlocked)
+            SetNodeState(NodeState.Unlocked);
+
+        if (skillData.currentLevel < skillData.maxLevel)
         {
-            if (!skillData.isUnlocked)
+            if (GlassManager.Instance.SpendGlass(skillData.cost))
             {
-                // Unlock then allow the first upgrade
-                // This ensures when the player first unlocks the passive skill,
-                // it is marked as unlocked in the skill data and reaches level 1
-                SetNodeState(NodeState.Unlocked);
-            }
-
-
-            // Upgrade logic for passive skills
-            if (skillData.currentLevel < skillData.maxLevel)
-            {
-                // If we can afford the upgrade, then purchase it and increase level
-                if (GlassManager.Instance.SpendGlass(skillData.cost))
-                {
-                    IncreaseSkillLevel();
-                }
-                else
-                {
-                    Debug.Log("Not enough Glass to upgrade this skill.");
-                }
+                IncreaseSkillLevel();
+                SkillTreeData.Instance.RebuildAll();
             }
             else
             {
-                Debug.Log("Skill is already at max level.");
+                Debug.Log("Not enough Glass to upgrade this skill.");
             }
         }
+        else
+        {
+            Debug.Log("Skill is already at max level.");
+        }
     }
+
 
     public void IncreaseSkillLevel()
     {
@@ -331,5 +366,30 @@ public class TreeNode: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
                             });
 
         Debug.Log($"Upgraded skill node: {skillData.skillName} to level {skillData.currentLevel}");
+    }
+
+
+    public bool IsAvailable()
+    {
+        if (parentNode == null || parentNode.skillData == null)
+            return true;
+
+        return GetNodeProgress(parentNode) >= requiredParentLevel;
+    }
+
+    private int GetNodeProgress(TreeNode node)
+    {
+        if (node == null || node.skillData == null)
+            return 0;
+
+        var data = node.skillData;
+
+        if (!string.IsNullOrEmpty(data.exclusiveGroupId))
+            return data.currentLevel; // exclusive nodes are 0/1
+
+        if (data.isPassive)
+            return data.currentLevel;
+
+        return data.isUnlocked ? 1 : 0;
     }
 }

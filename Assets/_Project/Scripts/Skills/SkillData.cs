@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "NewSkill", menuName = "Skills/Skill Data")]
@@ -52,6 +53,47 @@ public class SkillData : ScriptableObject
 
     [Header("Cursor Type")]
     public WorldCursorMode cursorMode = WorldCursorMode.SINGLE_TARGET;
+
+
+
+    [Header("Upgrade Effects")]
+    public List<SkillUpgrade> upgrades = new List<SkillUpgrade>();
+
+    [Header("Exclusive Grouping")]
+    public string exclusiveGroupId; // empty = not exclusive
+    public bool isExclusiveActive;  // runtime state
+
+    [Header("Base Values (for rebuild)")]
+    public int baseDamage;
+    public float baseCooldownRate;
+    public Element baseElement;
+    public float baseAccuracyAngle;
+    public float cooldownRestartDelayBase;
+
+    public void ResetRuntimeStats()
+    {
+        damage = baseDamage;
+        cooldownRate = baseCooldownRate;
+        element = baseElement;
+        accuracyAngle = baseAccuracyAngle;
+        cooldownRestartDelay = cooldownRestartDelayBase;
+    }
+
+    public void ResetProgress()
+    {
+        isExclusiveActive = false;
+        currentLevel = 0;
+        isUnlocked = false;
+    }
+    
+}
+
+
+[System.Serializable]
+public class SkillUpgrade
+{
+    public int level;
+    public List<SkillEffect> effects;
 }
 
 

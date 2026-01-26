@@ -9,6 +9,7 @@ public class SkillTreeUIManager : MonoBehaviour
     public bool isHovering = false;
     public ScrollRect scrollRect;
     public SkillData hoveredSkillData;
+    public TreeNode hoveredNode;
     
     // Skill Hover For More Info
     [Header("Skill Hover UI Elements")]
@@ -50,17 +51,11 @@ public class SkillTreeUIManager : MonoBehaviour
 
     void Update()
     {
-        if (isHovering)
+        if (isHovering && hoveredNode != null)
         {
             FollowMousePosition(WorldCursor.instance.GetCursorPosition());
-
-            if (hoveredSkillData != null)
-            {
-                UpdateSkillUIPanel(hoveredSkillData);
-            }
+            UpdateSkillUIPanel(hoveredNode);
         }
-
-
     }
 
 
@@ -73,11 +68,13 @@ public class SkillTreeUIManager : MonoBehaviour
 
 
     
-    public void ShowSkillUIPanel(SkillData skillData)
+    public void ShowSkillUIPanel(TreeNode node)
     {
-        if (skillData == null) return;
+        if (node == null || node.skillData == null) return;
 
-        hoveredSkillData = skillData;
+        hoveredNode = node;
+        hoveredSkillData = node.skillData;
+        SkillData skillData = node.skillData;
 
         isHovering = true;
 
@@ -95,60 +92,84 @@ public class SkillTreeUIManager : MonoBehaviour
 
         costText.text = $"Cost: {skillData.cost} Glass";
 
+        bool isAvailable = node.IsAvailable();
+        bool isActive = SkillTreeData.Instance.IsNodeActive(node);
+        bool isExclusive = !string.IsNullOrEmpty(skillData.exclusiveGroupId);
+        bool isPassive = skillData.isPassive;
+        bool isMaxLevel = isPassive && skillData.currentLevel >= skillData.maxLevel;
+        bool isExclusiveMax = isExclusive && skillData.currentLevel >= skillData.maxLevel;
 
-        // Handle Current Level Text
-        if (skillData.isPassive)
-            currentLevelText.text = $"Level: {skillData.currentLevel}/{skillData.maxLevel}";
+        if (!isAvailable)
+        {
+            currentLevelText.text = "Locked";
+            purchaseOrUpgradeButton.gameObject.SetActive(false);
+            costText.gameObject.SetActive(false);
+        }
         else
         {
-            if (SkillLoadout.Instance.IsSkillEquipped(skillData))
+            costText.gameObject.SetActive(true);
+
+            if (isPassive)
+                currentLevelText.text = $"Level: {skillData.currentLevel}/{skillData.maxLevel}";
+            else if (isExclusive)
+                currentLevelText.text = skillData.isExclusiveActive ? "Active" : "Inactive";
+            else
+                currentLevelText.text = isActive ? "Active" : "Unlocked";
+
+            if (isExclusive)
             {
-                currentLevelText.text = $"Equipped";
+                purchaseOrUpgradeButton.gameObject.SetActive(true);
+
+                if (isExclusiveMax)
+                    costText.gameObject.SetActive(false);
+
+                purchaseOrUpgradeButton.interactable = !skillData.isExclusiveActive;
+                purchaseOrUpgradeText.text = skillData.isExclusiveActive ? "Active" : "Activate";
+                purchaseOrUpgradeButton.GetComponent<Image>().color =
+                    purchaseOrUpgradeButton.interactable ? canAffordColor : cannotAffordColor;
             }
-            else if (skillData.isUnlocked)
+            else if (isPassive)
             {
-                currentLevelText.text = $"Unlocked";
+                purchaseOrUpgradeButton.gameObject.SetActive(true);
+
+                if (isMaxLevel)
+                {
+                    purchaseOrUpgradeButton.interactable = false;
+                    purchaseOrUpgradeText.text = "Max Level";
+                    purchaseOrUpgradeButton.GetComponent<Image>().color = cannotAffordColor;
+                    costText.gameObject.SetActive(false);
+                }
+                else if (GlassManager.Instance.CanAffordNodePurchase(skillData.cost))
+                {
+                    purchaseOrUpgradeButton.interactable = true;
+                    purchaseOrUpgradeButton.GetComponent<Image>().color = canAffordColor;
+                    purchaseOrUpgradeText.text = "Upgrade";
+                }
+                else
+                {
+                    purchaseOrUpgradeButton.interactable = false;
+                    purchaseOrUpgradeButton.GetComponent<Image>().color = cannotAffordColor;
+                    purchaseOrUpgradeText.text = "Cannot Afford";
+                }
             }
             else
             {
-                currentLevelText.text = $"Locked";
+                if (skillData.isUnlocked)
+                {
+                    purchaseOrUpgradeButton.gameObject.SetActive(false);
+                    costText.gameObject.SetActive(false);
+                }
+                else
+                {
+                    purchaseOrUpgradeButton.gameObject.SetActive(true);
+                    bool canAfford = GlassManager.Instance.CanAffordNodePurchase(skillData.cost);
+                    purchaseOrUpgradeButton.interactable = canAfford;
+                    purchaseOrUpgradeButton.GetComponent<Image>().color = canAfford ? canAffordColor : cannotAffordColor;
+                    purchaseOrUpgradeText.text = canAfford ? "Unlock" : "Cannot Afford";
+                }
             }
         }
 
-    
-
-
-        // UPGRADE/PURCHASE BUTTON
-        // If its equipped or unlocked (for non-passive), hide the button
-        if (SkillLoadout.Instance.IsSkillEquipped(skillData)
-            || (!skillData.isPassive && skillData.isUnlocked))
-        {
-            // since it's already equipped or unlocked, hide the button
-            purchaseOrUpgradeButton.gameObject.SetActive(false);
-        }
-        // Otherwise, show the button
-        else
-        {
-            purchaseOrUpgradeButton.gameObject.SetActive(true);
-        }
-
-
-        if (GlassManager.Instance.CanAffordNodePurchase(skillData.cost) &&
-            (skillData.isPassive ? skillData.currentLevel < skillData.maxLevel : true))
-        {
-            purchaseOrUpgradeButton.interactable = true;
-            purchaseOrUpgradeButton.GetComponent<Image>().color = canAffordColor;
-            purchaseOrUpgradeText.text = !skillData.isPassive ? "Unlock" : "Upgrade";
-        }
-        else
-        {
-            purchaseOrUpgradeButton.interactable = false;
-            purchaseOrUpgradeButton.GetComponent<Image>().color = cannotAffordColor;
-            purchaseOrUpgradeText.text = skillData.isPassive && skillData.currentLevel >= skillData.maxLevel ? "Max Level" : "Cannot Afford";
-        }
-
-
-        // Show skill hover panel
         skillHoverCanvasGroup.gameObject.SetActive(true);
         skillHoverCanvasGroup
             .DOFade(1f, 0.15f)
@@ -156,37 +177,94 @@ public class SkillTreeUIManager : MonoBehaviour
     }
 
 
-    public void UpdateSkillUIPanel(SkillData skillData)
-    {
-        if (!isHovering) return;
 
-        if(skillData.currentLevel >= skillData.maxLevel && skillData.isPassive)
+    public void UpdateSkillUIPanel(TreeNode node)
+    {
+        if (!isHovering || node == null || node.skillData == null) return;
+
+        SkillData skillData = node.skillData;
+
+        bool isAvailable = node.IsAvailable();
+        bool isActive = SkillTreeData.Instance.IsNodeActive(node);
+        bool isExclusive = !string.IsNullOrEmpty(skillData.exclusiveGroupId);
+        bool isPassive = skillData.isPassive;
+        bool isMaxLevel = isPassive && skillData.currentLevel >= skillData.maxLevel;
+        bool isExclusiveMax = isExclusive && skillData.currentLevel >= skillData.maxLevel;
+
+        if (!isAvailable)
         {
-            purchaseOrUpgradeButton.interactable = false;
-            purchaseOrUpgradeText.text = "Max Level";
+            currentLevelText.text = "Locked";
+            purchaseOrUpgradeButton.gameObject.SetActive(false);
             costText.gameObject.SetActive(false);
-            currentLevelText.text = $"Level: {skillData.currentLevel}/{skillData.maxLevel}";
             return;
         }
 
         costText.gameObject.SetActive(true);
 
-        if (skillData.isPassive)
+        if (isPassive)
             currentLevelText.text = $"Level: {skillData.currentLevel}/{skillData.maxLevel}";
+        else if (isExclusive)
+            currentLevelText.text = skillData.isExclusiveActive ? "Active" : "Inactive";
         else
-            currentLevelText.text = $"Unlocked";
+            currentLevelText.text = isActive ? "Active" : "Unlocked";
 
-        // update button
-        if (SkillLoadout.Instance.IsSkillEquipped(skillData)
-            || (!skillData.isPassive && skillData.isUnlocked))
-        {
-            purchaseOrUpgradeButton.gameObject.SetActive(false);
-        }
-        else
+        if (isExclusive)
         {
             purchaseOrUpgradeButton.gameObject.SetActive(true);
+            purchaseOrUpgradeButton.interactable = !skillData.isExclusiveActive;
+            purchaseOrUpgradeText.text = skillData.isExclusiveActive ? "Active" : "Activate";
+            purchaseOrUpgradeButton.GetComponent<Image>().color =
+                purchaseOrUpgradeButton.interactable ? canAffordColor : cannotAffordColor;
+
+            if (isExclusiveMax)
+                costText.gameObject.SetActive(false);
+
+            return;
+        }
+
+        if (isPassive)
+        {
+            purchaseOrUpgradeButton.gameObject.SetActive(true);
+
+            if (isMaxLevel)
+            {
+                purchaseOrUpgradeButton.interactable = false;
+                purchaseOrUpgradeText.text = "Max Level";
+                purchaseOrUpgradeButton.GetComponent<Image>().color = cannotAffordColor;
+                costText.gameObject.SetActive(false);
+            }
+            else if (GlassManager.Instance.CanAffordNodePurchase(skillData.cost))
+            {
+                purchaseOrUpgradeButton.interactable = true;
+                purchaseOrUpgradeButton.GetComponent<Image>().color = canAffordColor;
+                purchaseOrUpgradeText.text = "Upgrade";
+            }
+            else
+            {
+                purchaseOrUpgradeButton.interactable = false;
+                purchaseOrUpgradeButton.GetComponent<Image>().color = cannotAffordColor;
+                purchaseOrUpgradeText.text = "Cannot Afford";
+            }
+
+            return;
+        }
+
+        // Active (non-passive) skill
+        if (skillData.isUnlocked)
+        {
+            purchaseOrUpgradeButton.gameObject.SetActive(false);
+            costText.gameObject.SetActive(false);
+        }
+        else
+        {
+            bool canAfford = GlassManager.Instance.CanAffordNodePurchase(skillData.cost);
+            purchaseOrUpgradeButton.gameObject.SetActive(true);
+            purchaseOrUpgradeButton.interactable = canAfford;
+            purchaseOrUpgradeButton.GetComponent<Image>().color = canAfford ? canAffordColor : cannotAffordColor;
+            purchaseOrUpgradeText.text = canAfford ? "Unlock" : "Cannot Afford";
         }
     }
+
 
 
     public void HideSkillUIPanel()

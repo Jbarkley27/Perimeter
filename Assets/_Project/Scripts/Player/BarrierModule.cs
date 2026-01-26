@@ -6,16 +6,14 @@ using TMPro;
 public class BarrierModule : MonoBehaviour
 {
     [Header("Barrier Values")]
-    public double barrierStrength;
-    public double maxBarrierStrength;
+    public double currentBarrier;
     public Slider barrierSlider;
     public GameObject barrierRoot;
     public TMP_Text barrierText;
 
 
     [Header("Health Values")]
-    public double healthStrength;
-    public double maxHealthStrength;
+    public double currentHealth;
     public Slider healthSlider;
     public GameObject healthRoot;
     public TMP_Text healthText;
@@ -25,48 +23,40 @@ public class BarrierModule : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        currentBarrier = StatsManager.Instance.GetStat(StatsManager.StatType.BARRIER);
+        currentHealth = StatsManager.Instance.GetStat(StatsManager.StatType.HEALTH);
     }
 
     // Update is called once per frame
     void Update()
     {
         // Keep UI updated
-        healthSlider.maxValue = (int)maxHealthStrength;
-        barrierSlider.maxValue = (int)maxBarrierStrength;
+       if (healthSlider) healthSlider.maxValue = (int)StatsManager.Instance.GetStat(StatsManager.StatType.HEALTH);
+       if (barrierSlider) barrierSlider.maxValue = (int)StatsManager.Instance.GetStat(StatsManager.StatType.BARRIER);
 
 
-        barrierSlider.value = (int)barrierStrength;
-        barrierText.text = $"{(int)barrierStrength} / {(int)maxBarrierStrength}";
+        if (barrierSlider) barrierSlider.value = (int)currentBarrier;
+        if (barrierSlider) barrierText.text = $"{(int)currentBarrier} / {(int)StatsManager.Instance.GetStat(StatsManager.StatType.BARRIER)}";
 
-        healthSlider.value = (int)healthStrength;
-        healthText.text = $"{(int)healthStrength} / {(int)maxHealthStrength}";
+        if (healthSlider) healthSlider.value = (int)currentHealth;
+        if (healthSlider) healthText.text = $"{(int)currentHealth} / {(int)StatsManager.Instance.GetStat(StatsManager.StatType.HEALTH)}";
     }
 
-    public void ResetBarrier()
+    public void ResetHealthBarrier()
     {
-        barrierStrength = maxBarrierStrength;
-        healthStrength = maxHealthStrength;
+        currentBarrier = StatsManager.Instance.GetStat(StatsManager.StatType.BARRIER);
+        currentHealth = StatsManager.Instance.GetStat(StatsManager.StatType.HEALTH);
     }
 
-    public double GetBarrierStrength()
-    {
-        return barrierStrength;
-    }
-
-    public double GetHealthStrength()
-    {
-        return healthStrength;
-    }
 
     public void TakeDamage(double amount)
     {
         // Apply damage to barrier first
-        if (barrierStrength > 0)
+        if (currentBarrier > 0)
         {
 
-            double damageToBarrier = Mathf.Min((float)amount, (float)barrierStrength);
-            barrierStrength -= damageToBarrier;
+            double damageToBarrier = Mathf.Min((float)amount, (float)currentBarrier);
+            currentBarrier -= damageToBarrier;
             amount -= damageToBarrier;
             barrierRoot.transform.DOPunchScale(Vector3.one * .15f, 0.15f, 10, 1)
                 .SetEase(Ease.OutCubic)
@@ -76,7 +66,7 @@ public class BarrierModule : MonoBehaviour
                 });
 
             // we need to figure out if this is the first time the barrier broke/depleted
-            if (barrierStrength <= 0)
+            if (currentBarrier <= 0)
             {
                 Debug.Log("Barrier depleted!");
                 // You can add additional effects or logic here for when the barrier breaks
@@ -86,8 +76,8 @@ public class BarrierModule : MonoBehaviour
         // If there's remaining damage, apply it to health
         if (amount > 0)
         {
-            healthStrength -= amount;
-            healthStrength = Mathf.Max((float)healthStrength, 0f);
+            currentHealth -= amount;
+            currentHealth = Mathf.Max((float)currentHealth, 0f);
             healthRoot.transform.DOPunchScale(Vector3.one * .15f, 0.15f, 10, 1)
                 .SetEase(Ease.OutCubic)
                 .OnComplete(() =>
@@ -97,11 +87,11 @@ public class BarrierModule : MonoBehaviour
         }
 
         // Clamp values to not exceed max
-        barrierStrength = Mathf.Clamp((float)barrierStrength, 0f, (float)maxBarrierStrength);
-        healthStrength = Mathf.Clamp((float)healthStrength, 0f, (float)maxHealthStrength);
+        currentBarrier = Mathf.Clamp((float)currentBarrier, 0f, (float)StatsManager.Instance.GetStat(StatsManager.StatType.BARRIER));
+        currentHealth = Mathf.Clamp((float)currentHealth, 0f, (float)StatsManager.Instance.GetStat(StatsManager.StatType.HEALTH));
 
         // If health drops to zero, end run
-        if (healthStrength <= 0)
+        if (currentHealth <= 0)
         {
             Debug.Log("Player health depleted! Ending run.");
             EnemyManager.Instance.PlayerWonBySwarmDefeated = false;
