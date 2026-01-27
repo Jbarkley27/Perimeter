@@ -25,6 +25,10 @@ public class SkillTreeUIManager : MonoBehaviour
     public Button purchaseOrUpgradeButton;
     public Color canAffordColor = Color.white;
     public Color cannotAffordColor = Color.red;
+    public TMP_Text nextUpgradeText;
+    public TreeNodeConnector nodeConnectorPrefab;
+    public RectTransform connectorParent;
+
 
     [Header("Follow Mouse Settings")]
     public Vector3 mouseOffset = new Vector3(15f, -15f, 0f);
@@ -83,7 +87,37 @@ public class SkillTreeUIManager : MonoBehaviour
         // Populate UI Elements
         skillHoverCanvasGroup.alpha = 0f;
         skillHoverNameText.text = skillData.skillName;
-        skillHoverDescriptionText.text = skillData.description;
+
+
+
+
+        // Set description with current effects
+        string desc = string.IsNullOrWhiteSpace(skillData.description) ? "" : skillData.description;
+
+        if (skillData.isPassive)
+        {
+            string currentLine = BuildEffectsLine(skillData, skillData.currentLevel, true);
+            if (!string.IsNullOrEmpty(currentLine))
+                desc += (desc.Length > 0 ? "\n" : "") + $"Current: {currentLine}";
+
+            if (skillData.currentLevel < skillData.maxLevel)
+            {
+                string nextLine = BuildEffectsLine(skillData, skillData.currentLevel + 1, false);
+                if (!string.IsNullOrEmpty(nextLine))
+                    desc += (desc.Length > 0 ? "\n" : "") + $"Next: {nextLine}";
+            }
+            else
+            {
+                desc += (desc.Length > 0 ? "\n" : "") + "Max Level";
+            }
+        }
+
+        skillHoverDescriptionText.text = desc;
+
+
+        UpdateHoverDescriptionText(skillData);
+
+
         skillHoverElementImage.sprite =
             GlobalDataStore.Instance.SkillElementLibrary.GetElementIcon(skillData.element);
 
@@ -98,6 +132,19 @@ public class SkillTreeUIManager : MonoBehaviour
         bool isPassive = skillData.isPassive;
         bool isMaxLevel = isPassive && skillData.currentLevel >= skillData.maxLevel;
         bool isExclusiveMax = isExclusive && skillData.currentLevel >= skillData.maxLevel;
+
+        // if (nextUpgradeText != null)
+        // {
+        //     if (skillData.isPassive && skillData.currentLevel < skillData.maxLevel)
+        //     {
+        //         nextUpgradeText.gameObject.SetActive(true);
+        //         nextUpgradeText.text = $"Next: {BuildNextUpgradeDescription(skillData)}";
+        //     }
+        //     else
+        //     {
+        //         nextUpgradeText.gameObject.SetActive(false);
+        //     }
+        // }
 
         if (!isAvailable)
         {
@@ -191,6 +238,7 @@ public class SkillTreeUIManager : MonoBehaviour
         bool isMaxLevel = isPassive && skillData.currentLevel >= skillData.maxLevel;
         bool isExclusiveMax = isExclusive && skillData.currentLevel >= skillData.maxLevel;
 
+
         if (!isAvailable)
         {
             currentLevelText.text = "Locked";
@@ -200,6 +248,15 @@ public class SkillTreeUIManager : MonoBehaviour
         }
 
         costText.gameObject.SetActive(true);
+
+        skillHoverElementImage.sprite =
+            GlobalDataStore.Instance.SkillElementLibrary.GetElementIcon(skillData.element);
+        skillHoverElementImage.color =
+            GlobalDataStore.Instance.SkillElementLibrary.GetElementColor(skillData.element);
+
+
+        UpdateHoverDescriptionText(skillData);
+
 
         if (isPassive)
             currentLevelText.text = $"Level: {skillData.currentLevel}/{skillData.maxLevel}";
@@ -263,6 +320,65 @@ public class SkillTreeUIManager : MonoBehaviour
             purchaseOrUpgradeButton.GetComponent<Image>().color = canAfford ? canAffordColor : cannotAffordColor;
             purchaseOrUpgradeText.text = canAfford ? "Unlock" : "Cannot Afford";
         }
+    }
+
+
+    private string BuildEffectsLine(SkillData skillData, int level, bool includeTotals)
+    {
+        if (skillData == null || skillData.upgrades == null)
+            return string.Empty;
+
+        SkillUpgrade upgrade = null;
+        foreach (var u in skillData.upgrades)
+        {
+            if (u != null && u.level == level)
+            {
+                upgrade = u;
+                break;
+            }
+        }
+
+        if (upgrade == null || upgrade.effects == null || upgrade.effects.Count == 0)
+            return string.Empty;
+
+        System.Text.StringBuilder sb = new System.Text.StringBuilder();
+        foreach (var effect in upgrade.effects)
+        {
+            if (effect == null) continue;
+
+            if (sb.Length > 0) sb.Append(", ");
+            sb.Append(includeTotals ? effect.GetDescriptionWithValue() : effect.GetDescription());
+        }
+
+        return sb.ToString();
+    }
+
+
+
+
+    private void UpdateHoverDescriptionText(SkillData skillData)
+    {
+        string desc = string.IsNullOrWhiteSpace(skillData.description) ? "" : skillData.description;
+
+        if (skillData.isPassive)
+        {
+            string currentLine = BuildEffectsLine(skillData, skillData.currentLevel, true);
+            if (!string.IsNullOrEmpty(currentLine))
+                desc += (desc.Length > 0 ? "\n" : "") + $"Current: {currentLine}";
+
+            if (skillData.currentLevel < skillData.maxLevel)
+            {
+                string nextLine = BuildEffectsLine(skillData, skillData.currentLevel + 1, false);
+                if (!string.IsNullOrEmpty(nextLine))
+                    desc += (desc.Length > 0 ? "\n" : "") + $"Next: {nextLine}";
+            }
+            else
+            {
+                desc += (desc.Length > 0 ? "\n" : "") + "Max Level";
+            }
+        }
+
+        skillHoverDescriptionText.text = desc;
     }
 
 

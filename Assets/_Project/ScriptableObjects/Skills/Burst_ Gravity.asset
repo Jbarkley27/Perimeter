@@ -17,7 +17,7 @@ MonoBehaviour:
   element: 3
   description: Changes Burst's damage type to Gravity
   cost: 2
-  currentLevel: 0
+  currentLevel: 1
   maxLevel: 1
   isPassive: 1
   type: 3
@@ -31,9 +31,12 @@ MonoBehaviour:
   arcHeight: 50
   accuracyAngle: 0
   cursorMode: 0
-  upgrades: []
+  upgrades:
+  - level: 1
+    effects:
+    - {fileID: 11400000, guid: a0c62e11e0c9042f58669e0a2a81b843, type: 2}
   exclusiveGroupId: blast
-  isExclusiveActive: 1
+  isExclusiveActive: 0
   baseDamage: 0
   baseCooldownRate: 0
   baseElement: 3

@@ -53,6 +53,16 @@ public class SkillUISlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     }
 
 
+    public void RefreshElementColor()
+    {
+        if (currentSkill == null || skillSliderBGImage == null)
+            return;
+
+        skillSliderBGImage.color =
+            GlobalDataStore.Instance.SkillElementLibrary.GetElementColor(currentSkill.element);
+    }
+
+
     public void SetFireMode(bool isAuto)
     {
         if (GameManager.Instance.GamePaused) return;

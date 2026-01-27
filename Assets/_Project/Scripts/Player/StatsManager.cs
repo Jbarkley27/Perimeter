@@ -8,6 +8,7 @@ public class StatsManager : MonoBehaviour
     {
         HEALTH,
         BARRIER,
+        CRIT_CHANCE
     }
 
     [Header("Health/Barrier Stats")]
@@ -19,8 +20,14 @@ public class StatsManager : MonoBehaviour
     private float barrierPercent;
 
 
+    
     [Header("Critical Hit Chance")]
-    public float critChance = 0.1f; // 10% default crit chance
+    public float critChance = 0.1f; // base
+
+    private float critFlat;
+    private float critPercent;
+
+
 
     private void Awake()
     {
@@ -34,14 +41,17 @@ public class StatsManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
+    
     public double GetStat(StatType stat)
     {
         switch (stat)
         {
             case StatType.HEALTH:
-                return HealthStat;
+                return (HealthStat + healthFlat) * (1 + healthPercent);
             case StatType.BARRIER:
-                return BarrierStat;
+                return (BarrierStat + barrierFlat) * (1 + barrierPercent);
+            case StatType.CRIT_CHANCE:
+                return Mathf.Clamp01(critChance + critFlat) * (1 + critPercent);
             default:
                 return 0;
         }
@@ -53,6 +63,8 @@ public class StatsManager : MonoBehaviour
         healthPercent = 0f;
         barrierFlat = 0;
         barrierPercent = 0f;
+        critFlat = 0f;
+        critPercent = 0f;
     }
 
     public void ApplyModifier(StatType stat, double flat, float percent)
@@ -66,6 +78,10 @@ public class StatsManager : MonoBehaviour
             case StatType.BARRIER:
                 barrierFlat += flat;
                 barrierPercent += percent;
+                break;
+            case StatType.CRIT_CHANCE:
+                critFlat += (float)flat;
+                critPercent += percent;
                 break;
         }
     }

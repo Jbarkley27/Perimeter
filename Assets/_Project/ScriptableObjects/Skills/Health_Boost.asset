@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7d9e03e74924b417497dfb11b31dc422, type: 3}
-  m_Name: Burst_Scorch
+  m_Name: Health_Boost
   m_EditorClassIdentifier: Assembly-CSharp::SkillData
-  skillName: Scorch
-  icon: {fileID: 21300000, guid: ccf75095ece7b4b45aa50437f806a4d3, type: 3}
-  element: 1
-  description: Changes Burst's damage type to Scorch
+  skillName: Health Boost
+  icon: {fileID: 21300000, guid: bf69d2d7c79e8461d946453fc556f437, type: 3}
+  element: 0
+  description: Reinforce your ship's hull so it's able to take more damage.
   cost: 2
   currentLevel: 1
-  maxLevel: 1
+  maxLevel: 5
   isPassive: 1
   type: 3
   isProjectile: 0
@@ -34,11 +34,23 @@ MonoBehaviour:
   upgrades:
   - level: 1
     effects:
-    - {fileID: 11400000, guid: c10a6798a58e14a359ca9653a28263a0, type: 2}
-  exclusiveGroupId: blast
-  isExclusiveActive: 1
+    - {fileID: 11400000, guid: f007c97b411d540dcbbf6fc1d65c80a5, type: 2}
+  - level: 2
+    effects:
+    - {fileID: 11400000, guid: 9836e4664772548ae8b1e42cbe8a731c, type: 2}
+  - level: 3
+    effects:
+    - {fileID: 11400000, guid: aee3051cf045d4dc78bfd1b21fffef68, type: 2}
+  - level: 4
+    effects:
+    - {fileID: 11400000, guid: 36458f9c39d4a481cba5f91d69f866a1, type: 2}
+  - level: 5
+    effects:
+    - {fileID: 11400000, guid: f1e41befd34794a01a80b2f7e492200e, type: 2}
+  exclusiveGroupId: 
+  isExclusiveActive: 0
   baseDamage: 0
   baseCooldownRate: 0
-  baseElement: 1
+  baseElement: 0
   baseAccuracyAngle: 0
   cooldownRestartDelayBase: 0

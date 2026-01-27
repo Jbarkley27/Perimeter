@@ -91,4 +91,14 @@ public class SkillLoadout : MonoBehaviour
     {
         return equippedSkills.Contains(skill);
     }
+
+
+    public void RefreshSlotElementColors()
+    {
+        foreach (var slot in uiSlots)
+        {
+            if (slot != null && slot.currentSkill != null && slot.gameObject.activeSelf)
+                slot.RefreshElementColor();
+        }
+    }
 }

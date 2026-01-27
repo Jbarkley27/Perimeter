@@ -117,6 +117,8 @@ public class RunManager : MonoBehaviour
 
         UpdateEndRunStatsUI();
 
+        yield return new WaitForSeconds(0.2f);
+
         Color c = endRunBorderImage.color;
         c.a = Mathf.Clamp01(0);
         endRunBorderImage.color = c;

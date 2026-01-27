@@ -133,6 +133,10 @@ public class SkillTreeData : MonoBehaviour
         // Refresh dependent systems
         if (GlobalDataStore.Instance != null && GlobalDataStore.Instance.BarrierModule != null)
             GlobalDataStore.Instance.BarrierModule.ResetHealthBarrier();
+
+        if (SkillLoadout.Instance != null)
+            SkillLoadout.Instance.RefreshSlotElementColors();
+
     }
 
     private void ApplyEffects(List<SkillEffect> effects)

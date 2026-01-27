@@ -26,6 +26,7 @@ public class TreeNode: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     public Image canAffordImage;
     public SkillDraggable draggableComponent;
     public Slider passiveLevelSlider;
+    public GameObject passiveLevelContainer; // parent of slider + background
     public CanvasGroup exclusiveInactiveIndicatorCanvasGroup;
 
     [Header("Tree Gating")]
@@ -39,7 +40,7 @@ public class TreeNode: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     public Color passiveMaxLevelBorderColor = Color.yellow;
 
     [Header("Line Visuals")]
-    public CanvasGroup parentLineCanvasGroup;
+    public CanvasGroup lineCg = null;
 
     [Header("Unlock Animation")]
     public Transform unlockPunchTarget;
@@ -50,11 +51,27 @@ public class TreeNode: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
 
     private bool wasAvailable;
 
+    [Header("Connector Spawning")]
+    public RectTransform nodeRect;
+    public TreeNodeConnector connectorPrefab;
+
+    private TreeNodeConnector parentConnector;
+
+
 
     void Awake()
     {
         if (SkillTreeData.Instance != null)
             SkillTreeData.Instance.AddToAllNodes(this);
+
+        if (SkillTreeData.Instance != null)
+        SkillTreeData.Instance.AddToAllNodes(this);
+
+        if (nodeRect == null)
+            nodeRect = GetComponent<RectTransform>();
+
+        if (connectorPrefab == null && SkillTreeUIManager.Instance != null)
+            connectorPrefab = SkillTreeUIManager.Instance.nodeConnectorPrefab;
     }
 
 
@@ -63,6 +80,7 @@ public class TreeNode: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     {
         // Turn off hover highlight at start
         // SkillTreeData.Instance.AddToAllNodes(this);
+        // connectorPrefab = SkillTreeUIManager.Instance.nodeConnectorPrefab;
         if (hoverHighlightCanvasGroup) hoverHighlightCanvasGroup.gameObject.SetActive(false);
         if (exclusiveInactiveIndicatorCanvasGroup) exclusiveInactiveIndicatorCanvasGroup.gameObject.SetActive(false);
         
@@ -156,10 +174,30 @@ public class TreeNode: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     // Initialize node and its children
     public void InitializeNode()
     {
+        if (connectorPrefab == null && parentNode != null)
+            connectorPrefab = parentNode.connectorPrefab;
+
+        // Connect to children Nodes
         foreach (var child in children)
         {
-            if (child != null && child.parentNode == null)
+            if (child == null) continue;
+
+            if (child.nodeRect == null)
+                child.nodeRect = child.GetComponent<RectTransform>();
+
+            // Auto-assign parent if you want
+            if (child.parentNode == null)
                 child.parentNode = this;
+
+            // Spawn connector from this -> child
+            if (connectorPrefab != null && SkillTreeUIManager.Instance.connectorParent != null && nodeRect != null && child.nodeRect != null)
+            {
+                var connector = Instantiate(connectorPrefab, SkillTreeUIManager.Instance.connectorParent);
+                connector.Bind(nodeRect, child.nodeRect);
+
+                // let the child control its own parent connector alpha
+                child.parentConnector = connector;
+            }
 
             child.InitializeNode();
         }
@@ -205,23 +243,17 @@ public class TreeNode: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
 
         bool isExclusive = !string.IsNullOrEmpty(skillData.exclusiveGroupId);
 
-        if (parentLineCanvasGroup)
+        if (parentConnector != null)
+            lineCg = parentConnector.GetComponent<CanvasGroup>();
+
+        if (lineCg)
         {
-            
             if (!isAvailable)
-                parentLineCanvasGroup.alpha = 0.1f;
+                lineCg.alpha = 0.1f;
             else if (isActive)
-                parentLineCanvasGroup.alpha = 1f;
+                lineCg.alpha = 1f;
             else
-                parentLineCanvasGroup.alpha = 0.4f;
-
-
-            if (isExclusive && !skillData.isExclusiveActive)
-            {
-                // Dim the line more for exclusive inactive nodes
-                parentLineCanvasGroup.alpha = 0.1f;
-            }
-            
+                lineCg.alpha = 0.5f;
         }
 
         bool isExclusiveInactive = isExclusive && !skillData.isExclusiveActive;
@@ -249,27 +281,55 @@ public class TreeNode: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             nodeBorderImageRoot.color = isPassiveMax ? passiveMaxLevelBorderColor : Color.white;
 
         // Passive level slider
-        if (passiveLevelSlider != null)
+        if (passiveLevelContainer != null)
         {
-            if (skillData.isPassive)
+            if (skillData.isPassive && IsAvailable())
             {
-                passiveLevelSlider.gameObject.SetActive(true);
-                passiveLevelSlider.value = skillData.currentLevel;
+                passiveLevelContainer.SetActive(true);
+                if (passiveLevelSlider != null)
+                    passiveLevelSlider.value = skillData.currentLevel;
             }
             else
             {
-                passiveLevelSlider.gameObject.SetActive(false);
+                passiveLevelContainer.SetActive(false);
             }
+        }
+
+
+        // Node background color by element for effects that change element type
+        if (nodeBackground != null)
+        {
+            nodeBackground.color =
+                GlobalDataStore.Instance.SkillElementLibrary.GetElementColor(skillData.element);
         }
 
         // Affordability icon only when available AND not max level
         if (canAffordImage != null)
         {
-            bool isMaxLevel = isPassive && skillData.currentLevel >= skillData.maxLevel;
+            bool isMaxLevel = skillData.isPassive && skillData.currentLevel >= skillData.maxLevel;
             bool canAfford = GlassManager.Instance.CanAffordNodePurchase(skillData.cost);
-            bool showAfford = isAvailable && !hasPurchased && !isMaxLevel && canAfford;
-            canAffordImage.gameObject.SetActive(showAfford);
 
+            bool showAfford = false;
+
+            if (IsAvailable() && canAfford && !isMaxLevel)
+            {
+                if (skillData.isPassive)
+                {
+                    // keep showing for passive upgrades until max
+                    showAfford = true;
+                }
+                else
+                {
+                    // active/exclusive only show before first purchase
+                    hasPurchased = !string.IsNullOrEmpty(skillData.exclusiveGroupId)
+                        ? skillData.currentLevel > 0
+                        : skillData.isUnlocked;
+
+                    showAfford = !hasPurchased;
+                }
+            }
+
+            canAffordImage.gameObject.SetActive(showAfford);
         }
     }
 

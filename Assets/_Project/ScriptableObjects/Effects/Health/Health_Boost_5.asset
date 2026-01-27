@@ -9,9 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bea61175a8c0144d29c0efed622dacaf, type: 3}
-  m_Name: Burst_Scorch
-  m_EditorClassIdentifier: Assembly-CSharp::SkillElementOverrideEffect
+  m_Script: {fileID: 11500000, guid: f2ca5eacdc8b2467fbe908bd05762232, type: 3}
+  m_Name: Health_Boost_5
+  m_EditorClassIdentifier: Assembly-CSharp::StatModifierEffect
   priority: 0
-  targetSkill: {fileID: 11400000, guid: 1c257a67ffa82420f8f41a3a8cbb28aa, type: 2}
-  newElement: 1
+  stat: 0
+  flatAmount: 6
+  percentAmount: 0
