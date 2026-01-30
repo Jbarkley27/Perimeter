@@ -27,6 +27,12 @@ public class MiningManager : MonoBehaviour
     [Header("Debug")]
     public int debugStartPlanetCount = 3;
 
+
+    [Header("Mining Tick")]
+    public float miningTickInterval = 1f;
+    private float miningTickTimer;
+
+
     private void Awake()
     {
         if (Instance == null)
@@ -63,7 +69,30 @@ public class MiningManager : MonoBehaviour
     {
         moveLeftButton.interactable = CurrentPlanetIndex > 0 && !isMovingCamera;
         moveRightButton.interactable = CurrentPlanetIndex < UnlockedPlanets.Count - 1 && !isMovingCamera;
+
+        if (GameManager.Instance != null && GameManager.Instance.GamePaused)
+        return;
+
+        miningTickTimer += Time.deltaTime;
+        if (miningTickTimer >= miningTickInterval)
+        {
+            float dt = miningTickTimer;
+            miningTickTimer = 0f;
+            TickUnlockedPlanets(dt);
+        }
     }
+
+
+    private void TickUnlockedPlanets(float deltaTime)
+    {
+        foreach (var planet in UnlockedPlanets)
+        {
+            if (planet != null)
+                planet.Tick(deltaTime);
+        }
+    }
+
+
 
     public void SetCurrentPlanet(int planetIndex)
     {

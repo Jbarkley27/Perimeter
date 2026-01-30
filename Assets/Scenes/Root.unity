@@ -1341,6 +1341,7 @@ MonoBehaviour:
   cameraMoveSpeed: 0.85
   isMovingCamera: 0
   debugStartPlanetCount: 3
+  miningTickInterval: 1
 --- !u!114 &64277014
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4343,9 +4344,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Planet
   planetName: 
-  miningDifficulty: 0
-  resourceAbundance: 0
   Locked: 1
+  planetTier: 0
+  currentReserves: 0
+  maxReserves: 0
+  MaxProbesAllowed: 2
+  stationarySlots: []
+  orbitSlots: []
 --- !u!1 &288236854
 GameObject:
   m_ObjectHideFlags: 0
@@ -6458,9 +6463,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Planet
   planetName: 
-  miningDifficulty: 0
-  resourceAbundance: 0
   Locked: 1
+  planetTier: 0
+  currentReserves: 0
+  maxReserves: 0
+  MaxProbesAllowed: 2
+  stationarySlots: []
+  orbitSlots: []
 --- !u!1 &403748352
 GameObject:
   m_ObjectHideFlags: 0
@@ -27484,9 +27493,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Planet
   planetName: 
-  miningDifficulty: 0
-  resourceAbundance: 0
   Locked: 1
+  planetTier: 0
+  currentReserves: 0
+  maxReserves: 0
+  MaxProbesAllowed: 2
+  stationarySlots: []
+  orbitSlots: []
 --- !u!1 &1160744697
 GameObject:
   m_ObjectHideFlags: 0
@@ -33834,9 +33847,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Planet
   planetName: 
-  miningDifficulty: 0
-  resourceAbundance: 0
   Locked: 1
+  planetTier: 0
+  currentReserves: 0
+  maxReserves: 0
+  MaxProbesAllowed: 2
+  stationarySlots: []
+  orbitSlots: []
 --- !u!1 &1610214191
 GameObject:
   m_ObjectHideFlags: 0
@@ -34596,9 +34613,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Planet
   planetName: 
-  miningDifficulty: 0
-  resourceAbundance: 0
   Locked: 1
+  planetTier: 0
+  currentReserves: 0
+  maxReserves: 0
+  MaxProbesAllowed: 2
+  stationarySlots: []
+  orbitSlots: []
 --- !u!1 &1661916839
 GameObject:
   m_ObjectHideFlags: 0
@@ -38655,9 +38676,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Planet
   planetName: 
-  miningDifficulty: 0
-  resourceAbundance: 0
   Locked: 1
+  planetTier: 0
+  currentReserves: 0
+  maxReserves: 0
+  MaxProbesAllowed: 2
+  stationarySlots: []
+  orbitSlots: []
 --- !u!1 &1936215605
 GameObject:
   m_ObjectHideFlags: 0
