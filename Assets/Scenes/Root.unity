@@ -482,7 +482,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 735.55, y: -122.6}
+  m_AnchoredPosition: {x: 735.55, y: -591.3}
   m_SizeDelta: {x: 3000, y: 2200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &12023037
@@ -825,7 +825,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &43649055
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2990,11 +2990,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1487674340246933157, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 0.6
       objectReference: {fileID: 0}
     - target: {fileID: 1487674340246933157, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3653183952629697338, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_Pivot.x
@@ -3091,6 +3091,10 @@ PrefabInstance:
     - target: {fileID: 4180442227703319411, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_Name
       value: Blast_Cooldown_Delay_Boost
+      objectReference: {fileID: 0}
+    - target: {fileID: 4180442227703319411, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -3264,7 +3268,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &175005832
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4763,11 +4767,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1487674340246933157, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 0.6
       objectReference: {fileID: 0}
     - target: {fileID: 1487674340246933157, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3653183952629697338, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_Pivot.x
@@ -4872,6 +4876,10 @@ PrefabInstance:
     - target: {fileID: 4180442227703319411, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_Name
       value: Acid_Skill_Passive
+      objectReference: {fileID: 0}
+    - target: {fileID: 4180442227703319411, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -6269,11 +6277,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1487674340246933157, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 0.6
       objectReference: {fileID: 0}
     - target: {fileID: 1487674340246933157, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3653183952629697338, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_Pivot.x
@@ -6378,6 +6386,10 @@ PrefabInstance:
     - target: {fileID: 4180442227703319411, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_Name
       value: Scorch_Damage_Boost
+      objectReference: {fileID: 0}
+    - target: {fileID: 4180442227703319411, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -13110,11 +13122,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1487674340246933157, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 0.6
       objectReference: {fileID: 0}
     - target: {fileID: 1487674340246933157, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3653183952629697338, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_Pivot.x
@@ -13219,6 +13231,10 @@ PrefabInstance:
     - target: {fileID: 4180442227703319411, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_Name
       value: Gravity_Damage_Boost
+      objectReference: {fileID: 0}
+    - target: {fileID: 4180442227703319411, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -13537,11 +13553,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1487674340246933157, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 0.6
       objectReference: {fileID: 0}
     - target: {fileID: 1487674340246933157, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3653183952629697338, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_Pivot.x
@@ -13646,6 +13662,10 @@ PrefabInstance:
     - target: {fileID: 4180442227703319411, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_Name
       value: Acid_Damage_Boost
+      objectReference: {fileID: 0}
+    - target: {fileID: 4180442227703319411, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -14644,11 +14664,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1487674340246933157, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 0.6
       objectReference: {fileID: 0}
     - target: {fileID: 1487674340246933157, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3653183952629697338, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_Pivot.x
@@ -14741,6 +14761,10 @@ PrefabInstance:
     - target: {fileID: 4180442227703319411, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_Name
       value: Barrier_Boost
+      objectReference: {fileID: 0}
+    - target: {fileID: 4180442227703319411, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4187497138849329370, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_IsActive
@@ -21159,11 +21183,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1487674340246933157, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 0.6
       objectReference: {fileID: 0}
     - target: {fileID: 1487674340246933157, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3653183952629697338, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_Pivot.x
@@ -21256,6 +21280,10 @@ PrefabInstance:
     - target: {fileID: 4180442227703319411, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_Name
       value: Barrier_Passive
+      objectReference: {fileID: 0}
+    - target: {fileID: 4180442227703319411, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4187497138849329370, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_IsActive
@@ -23108,11 +23136,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1487674340246933157, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 0.6
       objectReference: {fileID: 0}
     - target: {fileID: 1487674340246933157, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3653183952629697338, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_Pivot.x
@@ -23217,6 +23245,10 @@ PrefabInstance:
     - target: {fileID: 4180442227703319411, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_Name
       value: Acid_Damage_Boost (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4180442227703319411, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -23957,11 +23989,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1487674340246933157, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 0.6
       objectReference: {fileID: 0}
     - target: {fileID: 1487674340246933157, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3653183952629697338, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_Pivot.x
@@ -24070,6 +24102,10 @@ PrefabInstance:
     - target: {fileID: 4180442227703319411, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_Name
       value: Critical_Boost_Damage
+      objectReference: {fileID: 0}
+    - target: {fileID: 4180442227703319411, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -24887,11 +24923,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1487674340246933157, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 0.6
       objectReference: {fileID: 0}
     - target: {fileID: 1487674340246933157, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3653183952629697338, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_Pivot.x
@@ -25000,6 +25036,10 @@ PrefabInstance:
     - target: {fileID: 4180442227703319411, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_Name
       value: Health Boost
+      objectReference: {fileID: 0}
+    - target: {fileID: 4180442227703319411, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -25201,11 +25241,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1487674340246933157, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 0.6
       objectReference: {fileID: 0}
     - target: {fileID: 1487674340246933157, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3653183952629697338, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_Pivot.x
@@ -25311,6 +25351,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Critical_Boost_Chance
       objectReference: {fileID: 0}
+    - target: {fileID: 4180442227703319411, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -25347,7 +25391,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &999242612
 RectTransform:
   m_ObjectHideFlags: 0
@@ -27270,11 +27314,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1487674340246933157, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 0.6
       objectReference: {fileID: 0}
     - target: {fileID: 1487674340246933157, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3653183952629697338, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_Pivot.x
@@ -27379,6 +27423,10 @@ PrefabInstance:
     - target: {fileID: 4180442227703319411, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_Name
       value: Gravity_Skill_Passive
+      objectReference: {fileID: 0}
+    - target: {fileID: 4180442227703319411, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -44151,11 +44199,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1487674340246933157, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 0.6
       objectReference: {fileID: 0}
     - target: {fileID: 1487674340246933157, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3653183952629697338, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_Pivot.x
@@ -44264,6 +44312,10 @@ PrefabInstance:
     - target: {fileID: 4180442227703319411, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_Name
       value: Health_Passive
+      objectReference: {fileID: 0}
+    - target: {fileID: 4180442227703319411, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -45216,11 +45268,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1487674340246933157, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 0.6
       objectReference: {fileID: 0}
     - target: {fileID: 1487674340246933157, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3653183952629697338, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_Pivot.x
@@ -45325,6 +45377,10 @@ PrefabInstance:
     - target: {fileID: 4180442227703319411, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_Name
       value: Scorch_Skill_Passive
+      objectReference: {fileID: 0}
+    - target: {fileID: 4180442227703319411, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -48326,11 +48382,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1487674340246933157, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 0.6
       objectReference: {fileID: 0}
     - target: {fileID: 1487674340246933157, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3653183952629697338, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_Pivot.x
@@ -48439,6 +48495,10 @@ PrefabInstance:
     - target: {fileID: 4180442227703319411, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
       propertyPath: m_Name
       value: Blast_Cooldown_Boost
+      objectReference: {fileID: 0}
+    - target: {fileID: 4180442227703319411, guid: 8ccf2d31b249b4107b292957829ce34e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
