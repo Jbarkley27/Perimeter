@@ -189,6 +189,10 @@ public class ConsoleUIManager : MonoBehaviour
                 UpdateScreenUI();
             });
 
+        // Force mining UI refresh when the mining tab is shown.
+        if (MiningManager.Instance != null && MiningManager.Instance.miningUI != null)
+            MiningManager.Instance.miningUI.RefreshAllUI();
+
     }
 
 

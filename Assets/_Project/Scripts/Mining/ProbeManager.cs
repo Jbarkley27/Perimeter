@@ -8,13 +8,13 @@ public class ProbeManager : MonoBehaviour
 
     private Dictionary<ProbeType, ProbeCostData> costs = new Dictionary<ProbeType, ProbeCostData>
     {
-        [ProbeType.Extractor] = new ProbeCostData { buyCost = 50, upgradeBaseCost = 25, upgradeCostMultiplier = 1.35f, requiredPlanetTier = 1 },
-        [ProbeType.Refinery]  = new ProbeCostData { buyCost = 80, upgradeBaseCost = 40, upgradeCostMultiplier = 1.4f, requiredPlanetTier = 1 },
-        [ProbeType.DeepCore]  = new ProbeCostData { buyCost = 120, upgradeBaseCost = 60, upgradeCostMultiplier = 1.45f, requiredPlanetTier = 2 },
-        [ProbeType.Amplifier] = new ProbeCostData { buyCost = 150, upgradeBaseCost = 75, upgradeCostMultiplier = 1.5f, requiredPlanetTier = 2 },
-        [ProbeType.Survey]    = new ProbeCostData { buyCost = 90, upgradeBaseCost = 45, upgradeCostMultiplier = 1.35f, requiredPlanetTier = 2 },
-        [ProbeType.Stabilizer]= new ProbeCostData { buyCost = 110, upgradeBaseCost = 55, upgradeCostMultiplier = 1.4f, requiredPlanetTier = 2 },
-        [ProbeType.HeavyMining]= new ProbeCostData { buyCost = 500, upgradeBaseCost = 250, upgradeCostMultiplier = 1.6f, requiredPlanetTier = 4, requiredCores = 2000 }
+        [ProbeType.Extractor] = new ProbeCostData { buyCost = 10, upgradeBaseCost = 25, upgradeCostMultiplier = 1.35f, requiredPlanetTier = 0 },
+        [ProbeType.Refinery]  = new ProbeCostData { buyCost = 80, upgradeBaseCost = 40, upgradeCostMultiplier = 1.4f, requiredPlanetTier = 0 },
+        [ProbeType.DeepCore]  = new ProbeCostData { buyCost = 120, upgradeBaseCost = 60, upgradeCostMultiplier = 1.45f, requiredPlanetTier = 0 },
+        [ProbeType.Amplifier] = new ProbeCostData { buyCost = 150, upgradeBaseCost = 75, upgradeCostMultiplier = 1.5f, requiredPlanetTier = 0 },
+        [ProbeType.Survey]    = new ProbeCostData { buyCost = 90, upgradeBaseCost = 45, upgradeCostMultiplier = 1.35f, requiredPlanetTier = 0 },
+        [ProbeType.Stabilizer]= new ProbeCostData { buyCost = 110, upgradeBaseCost = 55, upgradeCostMultiplier = 1.4f, requiredPlanetTier = 0 },
+        [ProbeType.HeavyMining]= new ProbeCostData { buyCost = 500, upgradeBaseCost = 250, upgradeCostMultiplier = 1.6f, requiredPlanetTier = 0, requiredCores = 2000 }
     };
 
 
@@ -140,6 +140,7 @@ public class ProbeManager : MonoBehaviour
         if (planet == null || !planet.CanAddProbe())
             return false;
 
+        Debug.Log("Planet not null and can add probe");
         if (!IsProbeUnlocked(type, planet))
             return false;
 
@@ -175,6 +176,7 @@ public class ProbeManager : MonoBehaviour
 
     private Dictionary<Probe, ProbeVisual> visuals = new();
 
+    // Spawns a probe visual and initializes its orbit behavior.
     public void SpawnProbeVisual(Probe probe, Planet planet)
     {
         if (!spawnTable.TryGetValue(probe.Type, out var data))
@@ -183,31 +185,28 @@ public class ProbeManager : MonoBehaviour
         Transform slot;
         int index;
 
-        if (data.spawnType == ProbeSpawnType.Stationary)
-        {
-            if (!planet.TryGetStationarySlot(out slot, out index))
-                return;
-        }
-        else
+        if (data.spawnType == ProbeSpawnType.Orbiting)
         {
             if (!planet.TryGetOrbitSlot(out slot, out index))
                 return;
-        }
 
-        GameObject go = Instantiate(data.prefab, slot.position, slot.rotation, slot);
-        ProbeVisual visual = go.GetComponent<ProbeVisual>();
-        visuals[probe] = visual;
+            // Parent to planet, not slot, so orbit radius is correct.
+            GameObject go = Instantiate(data.prefab, slot.position, Quaternion.identity, planet.transform);
 
-        if (data.spawnType == ProbeSpawnType.Orbiting)
-        {
-            var orbit = go.GetComponent<ProbeOrbit>();
+            ProbeOrbit orbit = go.GetComponent<ProbeOrbit>();
             if (orbit == null) orbit = go.AddComponent<ProbeOrbit>();
-            orbit.Init(planet.transform, data.orbitSpeed, data.clockwise);
-        }
 
-        // initial particles
-        visual.SetOutput(probe.GetOutput(planet.BuildContext()));
+            orbit.Init(planet.transform, slot.position, data.orbitSpeed, data.clockwise);
+        }
+        else
+        {
+            if (!planet.TryGetStationarySlot(out slot, out index))
+                return;
+
+            Instantiate(data.prefab, slot.position, slot.rotation, slot);
+        }
     }
+
 
 
     public void UpdateProbeVisual(Probe probe, ProbeOutput output)

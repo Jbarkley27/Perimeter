@@ -9,6 +9,15 @@ public class MiningUIController : MonoBehaviour
     public TMP_Text glassPerSecText;
     public TMP_Text coresPerSecText;
     public List<ProbeSlotUI> slotUIs = new List<ProbeSlotUI>();
+    public List<ProbeBuyButton> buyButtons = new List<ProbeBuyButton>();
+
+
+    void OnEnable()
+    {
+        if (MiningManager.Instance == null) return;
+        
+        RefreshPlanetUI(MiningManager.Instance.CurrentPlanet);
+    }
 
     // Refreshes all mining UI for a given planet.
     public void RefreshPlanetUI(Planet planet)
@@ -61,5 +70,23 @@ public class MiningUIController : MonoBehaviour
 
         if (glassPerSecText) glassPerSecText.text = $"{glass:0.#}/s";
         if (coresPerSecText) coresPerSecText.text = $"{cores:0.#}/s";
+    }
+
+
+    // Refreshes the entire mining UI (planet info + slots + rates + buy buttons).
+    public void RefreshAllUI()
+    {
+        var planet = MiningManager.Instance.CurrentPlanet;
+        RefreshPlanetUI(planet);
+
+        // If you keep a list of buy buttons, refresh them here.
+        foreach (var button in buyButtons)
+            button.RefreshState();
+    }
+
+    public void RegisterBuyButton(ProbeBuyButton button)
+    {
+        if (!buyButtons.Contains(button))
+            buyButtons.Add(button);
     }
 }
