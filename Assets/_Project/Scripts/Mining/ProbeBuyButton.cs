@@ -49,16 +49,27 @@ public class ProbeBuyButton : MonoBehaviour
         var planet = MiningManager.Instance.CurrentPlanet;
         if (ProbeManager.Instance.PurchaseProbe(type, planet))
         {
-            gameObject.transform.DOPunchScale(Vector3.one * 0.2f, 0.2f, 10, 1)
+            button.transform.DOPunchScale(Vector3.one * 0.2f, 0.2f, 10, 1)
             .SetEase(Ease.OutQuad)
             .OnComplete(() =>
             {
                 // reset scale to ensure no drift
                 gameObject.transform.localScale = Vector3.one;
             });
-            
+
             Debug.Log($"Purchased probe of type {type} for planet {planet.planetName}");
             MiningManager.Instance.miningUI.RefreshPlanetUI(planet);
+        }
+        else
+        {
+            Debug.Log($"Failed to purchase probe of type {type} for planet {planet.planetName}");
+            button.transform.DOPunchPosition(Vector3.one * 0.1f, 0.1f, 10, 1)
+            .SetEase(Ease.OutQuad)
+            .OnComplete(() =>
+            {
+                // reset position to ensure no drift
+                gameObject.transform.localPosition = Vector3.zero;
+            });
         }
     }
 

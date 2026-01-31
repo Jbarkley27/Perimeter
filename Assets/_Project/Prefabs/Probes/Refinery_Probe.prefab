@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 5876212813641196047}
   - component: {fileID: 2213160521988145959}
-  - component: {fileID: 7908267706285143798}
   m_Layer: 9
   m_Name: Refinery_Probe
   m_TagString: Untagged
@@ -27,11 +26,12 @@ Transform:
   m_GameObject: {fileID: 1316525340634809465}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.67, y: 1.2, z: -0.55}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.125, y: 0.125, z: 0.125}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8158910553808186172}
+  - {fileID: 5427050686742493102}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2213160521988145959
@@ -50,21 +50,6 @@ MonoBehaviour:
   particlesPerRate: 5
   minParticles: 5
   maxParticles: 200
---- !u!114 &7908267706285143798
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1316525340634809465}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 74c87d3cd19c94ec6bb4fb8589d61aec, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ProbeOrbit
-  center: {fileID: 0}
-  speed: 20
-  clockwise: 1
 --- !u!1 &1585918054392063309
 GameObject:
   m_ObjectHideFlags: 0
@@ -128,8 +113,7 @@ Transform:
   m_LocalPosition: {x: 4.56, y: 0, z: 0}
   m_LocalScale: {x: 0.7, y: 0.7, z: 0.7}
   m_ConstrainProportionsScale: 1
-  m_Children:
-  - {fileID: 5427050686742493102}
+  m_Children: []
   m_Father: {fileID: 8158910553808186172}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &7281983412141637572
@@ -235,12 +219,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6927132775245023085}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 40}
+  m_LocalScale: {x: 1.4, y: 1.4, z: 1.4}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 6028396032520113858}
+  m_Father: {fileID: 5876212813641196047}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!198 &8788174772544530264
 ParticleSystem:

@@ -4882,7 +4882,6 @@ GameObject:
   m_Component:
   - component: {fileID: 5938599693146341144}
   - component: {fileID: 4081898576273725862}
-  - component: {fileID: 6104921940958784600}
   m_Layer: 9
   m_Name: Extractor_Probe
   m_TagString: Untagged
@@ -4922,21 +4921,6 @@ MonoBehaviour:
   particlesPerRate: 5
   minParticles: 5
   maxParticles: 200
---- !u!114 &6104921940958784600
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4309597106368717488}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 74c87d3cd19c94ec6bb4fb8589d61aec, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ProbeOrbit
-  center: {fileID: 0}
-  speed: 20
-  clockwise: 1
 --- !u!1 &6532238483638354359
 GameObject:
   m_ObjectHideFlags: 0
@@ -5043,7 +5027,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -5187,7 +5171,7 @@ CapsuleCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
