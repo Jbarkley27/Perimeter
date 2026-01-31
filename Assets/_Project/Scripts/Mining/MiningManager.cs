@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 using UnityEngine.UI;
+using TMPro;
 
 public class MiningManager : MonoBehaviour
 {
@@ -11,6 +12,8 @@ public class MiningManager : MonoBehaviour
     public Planet CurrentPlanet;
     public int CurrentPlanetIndex = 0;
     public Camera miningCamera;
+    public MiningUIController miningUI;
+
 
 
     [Header("UI")]
@@ -18,6 +21,7 @@ public class MiningManager : MonoBehaviour
     public Button moveLeftButton;
     public Button moveRightButton;
     public Transform AllPlanetsContainer;
+    public TMP_Text planetNameText;
 
 
     [Header("Camera Settings")]
@@ -105,6 +109,11 @@ public class MiningManager : MonoBehaviour
             CurrentPlanet = UnlockedPlanets[planetIndex];
 
             MoveCameraToPlanet(CurrentPlanet);
+
+            // Refresh Mining UI when the planet changes.
+            if (miningUI != null)
+                miningUI.RefreshPlanetUI(CurrentPlanet);
+
             // Additional logic to update the mining environment based on the selected planet can be added here
         }
         else
@@ -176,4 +185,5 @@ public class MiningManager : MonoBehaviour
         moveRightButton.interactable = true;
         SetCurrentPlanet(newIndex);
     }
+
 }

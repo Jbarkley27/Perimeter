@@ -66,6 +66,7 @@ public abstract class Probe
     public void Upgrade()
     {
         Level++;
+        MiningManager.Instance.miningUI.RefreshPlanetUI(MiningManager.Instance.CurrentPlanet);
     }
 
     

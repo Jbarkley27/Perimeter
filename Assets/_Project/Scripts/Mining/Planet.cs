@@ -39,7 +39,7 @@ public class Planet : MonoBehaviour
     private List<Probe> probes = new List<Probe>();
 
     public IReadOnlyList<Probe> Probes => probes;
-    public int MaxProbesAllowed = 2; // 2 by default, can be modified via upgrades
+    public int MaxProbeSlots = 2; // 2 by default, can be modified via upgrades
 
 
     public List<Transform> stationarySlots;
@@ -122,6 +122,15 @@ public class Planet : MonoBehaviour
             probesOnPlanet = Probes
         };
     }
+
+
+
+    // Provides a read-only snapshot of the planet state for UI calculations.
+    public PlanetContext GetProbeContext()
+    {
+        return BuildContext();
+    }
+
 
 
     // Calculates how efficient probes are based on remaining reserves.
@@ -207,7 +216,7 @@ public class Planet : MonoBehaviour
     // -----------------------
     public bool CanAddProbe()
     {
-        if (probes.Count >= MaxProbesAllowed)
+        if (probes.Count >= MaxProbeSlots)
             return false;
         return true;
     }

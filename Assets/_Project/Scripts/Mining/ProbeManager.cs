@@ -21,6 +21,14 @@ public class ProbeManager : MonoBehaviour
     [SerializeField] private List<ProbeSpawnData> spawnConfigs = new List<ProbeSpawnData>();
     private Dictionary<ProbeType, ProbeSpawnData> spawnTable;
 
+    [Header("Probe Unlocks (Global)")]
+    public List<ProbeUnlockEntry> unlockOrder = new List<ProbeUnlockEntry>();
+
+    [Header("Debug")]
+    public bool unlockNextProbeDebug;
+
+    private Dictionary<ProbeType, bool> unlockedLookup = new Dictionary<ProbeType, bool>();
+
     private void Awake()
     {
         if (Instance == null) 
@@ -38,6 +46,49 @@ public class ProbeManager : MonoBehaviour
             if (cfg != null)
                 spawnTable[cfg.type] = cfg;
         }
+
+        RefreshUnlocks();
+    }
+
+
+    void Update()
+    {
+        if (unlockNextProbeDebug)
+        {
+            unlockNextProbeDebug = false;
+            UnlockNextProbe();
+        }
+    }
+
+
+    // Builds a quick lookup from the inspector list.
+    public void RefreshUnlocks()
+    {
+        unlockedLookup.Clear();
+        foreach (var entry in unlockOrder)
+        {
+            unlockedLookup[entry.type] = entry.unlocked;
+        }
+    }
+
+    // Returns true if the probe type is unlocked globally.
+    public bool IsProbeUnlocked(ProbeType type)
+    {
+        return unlockedLookup.ContainsKey(type) && unlockedLookup[type];
+    }
+
+    // Unlocks the next locked probe in the list.
+    public void UnlockNextProbe()
+    {
+        foreach (var entry in unlockOrder)
+        {
+            if (!entry.unlocked)
+            {
+                entry.unlocked = true;
+                break;
+            }
+        }
+        RefreshUnlocks();
     }
 
 
@@ -102,6 +153,7 @@ public class ProbeManager : MonoBehaviour
         SpawnProbeVisual(probe, planet);
 
         planet.AddProbe(probe);
+        MiningManager.Instance.miningUI.RefreshPlanetUI(MiningManager.Instance.CurrentPlanet);
         return true;
     }
 
@@ -113,6 +165,7 @@ public class ProbeManager : MonoBehaviour
         double cost = GetUpgradeCost(probe);
         if (!GlassManager.Instance.SpendGlass(cost))
             return false;
+
 
         probe.Upgrade();
         return true;
@@ -164,6 +217,14 @@ public class ProbeManager : MonoBehaviour
     }
 
 
+    // Returns the configured icon for a probe type (or null if missing).
+    public Sprite GetProbeIcon(ProbeType type)
+    {
+        if (spawnTable != null && spawnTable.TryGetValue(type, out var data))
+            return data.icon;
+
+        return null;
+    }
 
 }
 
@@ -183,6 +244,7 @@ public class ProbeCostData
 
 public enum ProbeSpawnType { Stationary, Orbiting }
 
+[System.Serializable]
 public class ProbeSpawnData
 {
     public ProbeType type;
@@ -190,4 +252,7 @@ public class ProbeSpawnData
     public GameObject prefab;
     public float orbitSpeed;
     public bool clockwise;
+
+    // Icon used by UI buttons / slots.
+    public Sprite icon;
 }
