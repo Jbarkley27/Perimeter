@@ -28,6 +28,9 @@ public class ProbeOrbit : MonoBehaviour
         probe.transform.position += offset;
         probeObject = probe;
 
+        // randomize orbit speed
+        speed = Random.Range(30, 45);
+
         // change rotation to a random x angle to avoid uniformity
         angle = Random.Range(0f, 360f);
         tilt = Random.Range(-180, 180); // optional

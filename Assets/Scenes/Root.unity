@@ -1643,6 +1643,7 @@ GameObject:
   - component: {fileID: 102079341}
   - component: {fileID: 102079340}
   - component: {fileID: 102079339}
+  - component: {fileID: 102079343}
   m_Layer: 7
   m_Name: Amplifier
   m_TagString: Untagged
@@ -1686,6 +1687,7 @@ MonoBehaviour:
   type: 3
   iconImage: {fileID: 11689844}
   button: {fileID: 102079340}
+  canvasGroup: {fileID: 0}
 --- !u!114 &102079340
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1780,6 +1782,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 102079337}
   m_CullTransparentMesh: 1
+--- !u!225 &102079343
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 102079337}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &105790841
 GameObject:
   m_ObjectHideFlags: 0
@@ -1793,6 +1807,7 @@ GameObject:
   - component: {fileID: 105790845}
   - component: {fileID: 105790844}
   - component: {fileID: 105790843}
+  - component: {fileID: 105790847}
   m_Layer: 7
   m_Name: Heavy Mining
   m_TagString: Untagged
@@ -1836,6 +1851,7 @@ MonoBehaviour:
   type: 6
   iconImage: {fileID: 201505496}
   button: {fileID: 105790844}
+  canvasGroup: {fileID: 0}
 --- !u!114 &105790844
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1880,7 +1896,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 102079339}
+      - m_Target: {fileID: 105790843}
         m_TargetAssemblyTypeName: ProbeBuyButton, Assembly-CSharp
         m_MethodName: OnClick
         m_Mode: 1
@@ -1930,6 +1946,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 105790841}
   m_CullTransparentMesh: 1
+--- !u!225 &105790847
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 105790841}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &106183752
 GameObject:
   m_ObjectHideFlags: 0
@@ -3026,6 +3054,7 @@ GameObject:
   - component: {fileID: 160118084}
   - component: {fileID: 160118083}
   - component: {fileID: 160118082}
+  - component: {fileID: 160118086}
   m_Layer: 7
   m_Name: DeepCore
   m_TagString: Untagged
@@ -3069,6 +3098,7 @@ MonoBehaviour:
   type: 2
   iconImage: {fileID: 59773385}
   button: {fileID: 160118083}
+  canvasGroup: {fileID: 0}
 --- !u!114 &160118083
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3113,7 +3143,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 102079339}
+      - m_Target: {fileID: 160118082}
         m_TargetAssemblyTypeName: ProbeBuyButton, Assembly-CSharp
         m_MethodName: OnClick
         m_Mode: 1
@@ -3163,6 +3193,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 160118080}
   m_CullTransparentMesh: 1
+--- !u!225 &160118086
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 160118080}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &165188942
 GameObject:
   m_ObjectHideFlags: 0
@@ -6060,7 +6102,7 @@ GameObject:
   - component: {fileID: 345598208}
   - component: {fileID: 345598209}
   m_Layer: 9
-  m_Name: StationRy_Placement_4
+  m_Name: Stationary_Placement_4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -36923,6 +36965,7 @@ GameObject:
   - component: {fileID: 1010828073}
   - component: {fileID: 1010828072}
   - component: {fileID: 1010828071}
+  - component: {fileID: 1010828075}
   m_Layer: 7
   m_Name: Stabilizer
   m_TagString: Untagged
@@ -36966,6 +37009,7 @@ MonoBehaviour:
   type: 5
   iconImage: {fileID: 158488391}
   button: {fileID: 1010828072}
+  canvasGroup: {fileID: 0}
 --- !u!114 &1010828072
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -37010,7 +37054,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 102079339}
+      - m_Target: {fileID: 1010828071}
         m_TargetAssemblyTypeName: ProbeBuyButton, Assembly-CSharp
         m_MethodName: OnClick
         m_Mode: 1
@@ -37060,6 +37104,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1010828069}
   m_CullTransparentMesh: 1
+--- !u!225 &1010828075
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1010828069}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &1012345590
 GameObject:
   m_ObjectHideFlags: 0
@@ -37073,6 +37129,7 @@ GameObject:
   - component: {fileID: 1012345594}
   - component: {fileID: 1012345593}
   - component: {fileID: 1012345592}
+  - component: {fileID: 1012345596}
   m_Layer: 7
   m_Name: Survey
   m_TagString: Untagged
@@ -37116,6 +37173,7 @@ MonoBehaviour:
   type: 4
   iconImage: {fileID: 1259488291}
   button: {fileID: 1012345593}
+  canvasGroup: {fileID: 0}
 --- !u!114 &1012345593
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -37160,7 +37218,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 102079339}
+      - m_Target: {fileID: 1012345592}
         m_TargetAssemblyTypeName: ProbeBuyButton, Assembly-CSharp
         m_MethodName: OnClick
         m_Mode: 1
@@ -37210,6 +37268,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1012345590}
   m_CullTransparentMesh: 1
+--- !u!225 &1012345596
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1012345590}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &1014028890
 GameObject:
   m_ObjectHideFlags: 0
@@ -44051,7 +44121,7 @@ MonoBehaviour:
     clockwise: 0
     icon: {fileID: 21300000, guid: 31236d838a03d4002ba1eb1760077ca6, type: 3}
   - type: 4
-    spawnType: 1
+    spawnType: 0
     prefab: {fileID: 2415992112710626735, guid: ac5a6ea500d3b4bf8b3de151eb8d7913, type: 3}
     orbitSpeed: 0
     clockwise: 0
@@ -44408,6 +44478,7 @@ GameObject:
   - component: {fileID: 1473643190}
   - component: {fileID: 1473643189}
   - component: {fileID: 1473643188}
+  - component: {fileID: 1473643192}
   m_Layer: 7
   m_Name: Extractor
   m_TagString: Untagged
@@ -44450,6 +44521,7 @@ MonoBehaviour:
   type: 0
   iconImage: {fileID: 1027449671}
   button: {fileID: 1473643189}
+  canvasGroup: {fileID: 0}
 --- !u!114 &1473643189
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -44544,6 +44616,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1473643186}
   m_CullTransparentMesh: 1
+--- !u!225 &1473643192
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1473643186}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &1474729956
 GameObject:
   m_ObjectHideFlags: 0
@@ -54612,6 +54696,7 @@ GameObject:
   - component: {fileID: 1842133645}
   - component: {fileID: 1842133644}
   - component: {fileID: 1842133643}
+  - component: {fileID: 1842133647}
   m_Layer: 7
   m_Name: Refinery
   m_TagString: Untagged
@@ -54655,6 +54740,7 @@ MonoBehaviour:
   type: 1
   iconImage: {fileID: 594491853}
   button: {fileID: 1842133644}
+  canvasGroup: {fileID: 0}
 --- !u!114 &1842133644
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -54749,6 +54835,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1842133641}
   m_CullTransparentMesh: 1
+--- !u!225 &1842133647
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1842133641}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &1864127230
 GameObject:
   m_ObjectHideFlags: 0

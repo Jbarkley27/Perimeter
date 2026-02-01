@@ -131,11 +131,13 @@ public class ProbeManager : MonoBehaviour
     public bool IsProbeUnlocked(ProbeType type, Planet planet)
     {
         ProbeCostData data = costs[type];
-        if (planet.planetTier < data.requiredPlanetTier)
-            return false;
+        // if (planet.planetTier < data.requiredPlanetTier)
+        //     return false;
 
-        if (data.requiredCores > 0 && (CoreManager.Instance == null || CoreManager.Instance.totalCores < data.requiredCores))
-            return false;
+        // TODO: add this back once economy or probe gating is finalized
+        // This currently allows testing of Heavy Mining probe without needing cores.
+        // if (data.requiredCores > 0 && (CoreManager.Instance == null || CoreManager.Instance.totalCores < data.requiredCores))
+        //     return false;
 
         // prestige gating placeholder if you add it later
         return true;

@@ -24,7 +24,7 @@ public class GlassManager : MonoBehaviour
 
     void Start()
     {
-        totalGlassShardsCollected = Random.Range(10, 40); // For testing purposes
+        totalGlassShardsCollected = Random.Range(30, 70); // For testing purposes
     }
 
     void Update()
