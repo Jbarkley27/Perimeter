@@ -23,11 +23,14 @@ public class RefineryProbe : Probe
         glassPerLevel = 0.75f;
     }
 
+
     protected override float GetGlassOutput(PlanetContext context)
     {
         float raw = baseGlassRate + (glassPerLevel * Level);
         return raw * context.reserveEfficiency;
     }
+
+    
 
     protected override float GetCoreOutput(PlanetContext context)
     {

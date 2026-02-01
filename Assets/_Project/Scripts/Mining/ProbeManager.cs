@@ -77,6 +77,13 @@ public class ProbeManager : MonoBehaviour
         return unlockedLookup.ContainsKey(type) && unlockedLookup[type];
     }
 
+
+    public bool CanAffordProbe(ProbeType type)
+    {
+        double cost = GetBuyCost(type);
+        return GlassManager.Instance.CanAffordGlass(cost);
+    }
+
     // Unlocks the next locked probe in the list.
     public void UnlockNextProbe()
     {
@@ -233,11 +240,14 @@ public class ProbeManager : MonoBehaviour
     private void SpawnStationary(Transform slot, ProbeSpawnData data, Probe probe)
     {
         ProbeStatic staticSlot = slot.GetComponent<ProbeStatic>();
-        Transform spawn = staticSlot != null ? staticSlot.GetSpawnTransform() : slot;
+        if (staticSlot == null)
+            return;
 
-        GameObject go = Instantiate(data.prefab, spawn.position, spawn.rotation, spawn);
+        GameObject go = Instantiate(data.prefab, staticSlot.transform.position, Quaternion.identity, staticSlot.transform);
         ProbeVisual visual = go.GetComponent<ProbeVisual>();
         visuals[probe] = visual;
+
+        staticSlot.ActiveParticleEffect();
     }
 
 

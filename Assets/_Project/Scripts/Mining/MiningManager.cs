@@ -97,6 +97,12 @@ public class MiningManager : MonoBehaviour
     }
 
 
+    public bool IsCurrentPlanetProbesFull()
+    {
+        return CurrentPlanet.MaxProbeSlotsReached();
+    }
+
+
 
     public void SetCurrentPlanet(int planetIndex)
     {

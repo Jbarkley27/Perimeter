@@ -17,7 +17,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &143328982705457323
 Transform:
   m_ObjectHideFlags: 0
@@ -4942,6 +4942,8 @@ MonoBehaviour:
   center: {fileID: 0}
   speed: 20
   clockwise: 1
+  offset: {x: 0, y: 0, z: 0}
+  baseXAngle: 90
 --- !u!1 &6421279715058126508
 GameObject:
   m_ObjectHideFlags: 0

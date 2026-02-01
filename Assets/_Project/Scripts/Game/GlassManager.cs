@@ -24,7 +24,7 @@ public class GlassManager : MonoBehaviour
 
     void Start()
     {
-        totalGlassShardsCollected = Random.Range(10, 50); // For testing purposes
+        totalGlassShardsCollected = Random.Range(10, 40); // For testing purposes
     }
 
     void Update()
@@ -72,6 +72,11 @@ public class GlassManager : MonoBehaviour
     public bool CanAffordNodePurchase(int cost)
     {
         return totalGlassShardsCollected >= cost;
+    }
+
+    public bool CanAffordGlass(double amount)
+    {
+        return totalGlassShardsCollected >= amount;
     }
 
 

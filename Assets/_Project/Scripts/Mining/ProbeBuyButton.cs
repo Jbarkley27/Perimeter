@@ -8,11 +8,15 @@ public class ProbeBuyButton : MonoBehaviour
     public ProbeType type;
     public Image iconImage;
     public Button button;
+    public CanvasGroup canvasGroup;
 
     void Awake()
     {
         if (button == null)
             button = GetComponent<Button>();
+
+        if (canvasGroup == null)
+            canvasGroup = GetComponent<CanvasGroup>();
     }
 
     void Start()
@@ -30,6 +34,17 @@ public class ProbeBuyButton : MonoBehaviour
     {
         bool unlocked = ProbeManager.Instance.IsProbeUnlocked(type);
         button.gameObject.SetActive(unlocked);
+
+        button.interactable = CanPurchase();
+        canvasGroup.alpha = button.interactable ? 1f : 0.4f;
+    }
+
+    public bool CanPurchase()
+    {
+        return ProbeManager.Instance.CanAffordProbe(type)
+            && ProbeManager.Instance.IsProbeUnlocked(type)
+            && MiningManager.Instance.CurrentPlanet != null
+            && !MiningManager.Instance.IsCurrentPlanetProbesFull();
     }
 
     // Pulls the correct icon for this probe type.

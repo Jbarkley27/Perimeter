@@ -93,6 +93,10 @@ public class Planet : MonoBehaviour
     }
 
 
+    public bool MaxProbeSlotsReached()
+    {
+        return probes.Count >= MaxProbeSlots;
+    }
 
 
     // Builds a read-only snapshot of the planet state for this tick.

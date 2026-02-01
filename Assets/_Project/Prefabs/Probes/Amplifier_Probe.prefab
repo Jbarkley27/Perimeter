@@ -5022,6 +5022,8 @@ MonoBehaviour:
   center: {fileID: 0}
   speed: 20
   clockwise: 1
+  offset: {x: 0, y: 0, z: 0}
+  baseXAngle: 90
 --- !u!1 &6230979716723461979
 GameObject:
   m_ObjectHideFlags: 0
