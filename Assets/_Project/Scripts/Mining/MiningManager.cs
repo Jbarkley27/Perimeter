@@ -36,6 +36,17 @@ public class MiningManager : MonoBehaviour
     public float miningTickInterval = 1f;
     private float miningTickTimer;
 
+    [Header("Refund Settings")]
+    [Range(0f, 1f)]
+    public float probeRefundPercent = 0.9f;
+
+    [Range(0f, 1f)]
+    public float planetUpgradeRefundPercent = 0.9f;
+
+    [Header("Planet Upgrade Roll Options")]
+    public bool allowPredictiveLogisticsRepeatRolls = false;
+
+
 
     private void Awake()
     {
@@ -74,8 +85,6 @@ public class MiningManager : MonoBehaviour
         moveLeftButton.interactable = CurrentPlanetIndex > 0 && !isMovingCamera;
         moveRightButton.interactable = CurrentPlanetIndex < UnlockedPlanets.Count - 1 && !isMovingCamera;
 
-        if (GameManager.Instance != null && GameManager.Instance.GamePaused)
-        return;
 
         miningTickTimer += Time.deltaTime;
         if (miningTickTimer >= miningTickInterval)
@@ -91,8 +100,15 @@ public class MiningManager : MonoBehaviour
     {
         foreach (var planet in UnlockedPlanets)
         {
+            // Debug.Log("Ticking planet: " + planet.planetName);
             if (planet != null)
                 planet.Tick(deltaTime);
+        }
+
+        if (miningUI != null && CurrentPlanet != null)
+        {
+            miningUI.UpdateRateDisplay(CurrentPlanet);
+            miningUI.UpdateGlobalRateDisplay();
         }
     }
 

@@ -71,7 +71,7 @@ public class RunManager : MonoBehaviour
             totalEnemiesDefeatedText.DOText(EnemyManager.Instance.GetTotalEnemiesDefeatedThisRun().ToString(), 1);
 
         if (glassCollectedText)
-            glassCollectedText.DOText(GlassManager.Instance.GetCurrentGlassShards().ToString(), 1);
+            glassCollectedText.DOText(GlassManager.Instance.GetCurrentGlassShardsFormatted(), 1);
 
         // End Run Damage Slider Animation to next slider
         if (endRunDamageSlider)

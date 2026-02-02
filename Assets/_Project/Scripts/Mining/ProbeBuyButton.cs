@@ -1,14 +1,17 @@
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 // Handles purchase button behavior for a specific probe type.
-public class ProbeBuyButton : MonoBehaviour
+public class ProbeBuyButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     public ProbeType type;
     public Image iconImage;
     public Button button;
     public CanvasGroup canvasGroup;
+    public ProbePurchaseUIController purchaseUI;
+
 
     void Awake()
     {
@@ -17,6 +20,10 @@ public class ProbeBuyButton : MonoBehaviour
 
         if (canvasGroup == null)
             canvasGroup = GetComponent<CanvasGroup>();
+
+        if (purchaseUI == null && MiningManager.Instance != null && MiningManager.Instance.miningUI != null)
+            purchaseUI = MiningManager.Instance.miningUI.probePurchaseUI;
+
     }
 
     void Start()
@@ -41,11 +48,14 @@ public class ProbeBuyButton : MonoBehaviour
 
     public bool CanPurchase()
     {
-        return ProbeManager.Instance.CanAffordProbe(type)
+        Planet planet = MiningManager.Instance.CurrentPlanet;
+
+        return ProbeManager.Instance.CanAffordProbe(type, planet)
             && ProbeManager.Instance.IsProbeUnlocked(type)
-            && MiningManager.Instance.CurrentPlanet != null
+            && planet != null
             && !MiningManager.Instance.IsCurrentPlanetProbesFull();
     }
+
 
     // Pulls the correct icon for this probe type.
     public void RefreshIcon()
@@ -96,5 +106,19 @@ public class ProbeBuyButton : MonoBehaviour
 
         RefreshIcon();
     }
+
+
+        public void OnPointerEnter(PointerEventData eventData)
+    {
+        if (purchaseUI != null)
+            purchaseUI.ShowInfo(type, MiningManager.Instance.CurrentPlanet);
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        if (purchaseUI != null)
+            purchaseUI.HideInfo();
+    }
+
 
 }

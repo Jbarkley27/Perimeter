@@ -31,7 +31,7 @@ public class GlassManager : MonoBehaviour
     {
         if (glassCollectedTextInGame)
         {
-            glassCollectedTextInGame.text = totalGlassShardsCollected.ToString();
+            glassCollectedTextInGame.text = GetTotalGlassShardsCollectedFormatted();
         }
     }
 
@@ -42,10 +42,13 @@ public class GlassManager : MonoBehaviour
         // Debug.Log($"Collected {amount} glass shards. Total: {glassShardsThisRun}");
         if (glassCollectedTextInGame)
         {
-            glassCollectedTextInGame.text = $"{(int)totalGlassShardsCollected}";
+            glassCollectedTextInGame.text = GetTotalGlassShardsCollectedFormatted();
         }
 
-        glassIcon.transform.DOPunchScale(Vector3.one * 0.2f, 0.3f, 10, 1)
+        // kill any existing animations
+        glassIcon.transform.DOKill();
+
+        glassIcon.transform.DOPunchScale(Vector3.one * 0.15f, 0.2f, 10, 1)
             .SetEase(Ease.OutCubic)
             .OnComplete(() =>
             {
@@ -58,9 +61,19 @@ public class GlassManager : MonoBehaviour
         return glassShardsThisRun;
     }
 
+    public string GetCurrentGlassShardsFormatted()
+    {
+        return FormatGlass(glassShardsThisRun);
+    }
+
     public double GetTotalGlassShardsCollected()
     {
         return totalGlassShardsCollected;
+    }
+
+    public string GetTotalGlassShardsCollectedFormatted()
+    {
+        return FormatGlass(totalGlassShardsCollected);
     }
 
     public void ResetGlassThisRun()
@@ -93,10 +106,17 @@ public class GlassManager : MonoBehaviour
             totalGlassShardsCollected -= amount;
             if (glassCollectedTextInGame)
             {
-                glassCollectedTextInGame.text = $"{(int)totalGlassShardsCollected}";
+                glassCollectedTextInGame.text = GetTotalGlassShardsCollectedFormatted();
             }
             return true;
         }
         return false;
+    }
+
+    private static string FormatGlass(double amount)
+    {
+        if (amount < 0)
+            amount = 0;
+        return System.Math.Floor(amount).ToString("0");
     }
 }

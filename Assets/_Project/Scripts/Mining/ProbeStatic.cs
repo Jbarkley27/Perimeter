@@ -22,4 +22,12 @@ public class ProbeStatic : MonoBehaviour
         if (particleEffect != null)
             particleEffect.gameObject.SetActive(true);
     }
+
+    // Disables the stationary probe particle effect (used on refund/despawn).
+    public void DeactivateParticleEffect()
+    {
+        if (particleEffect != null)
+            particleEffect.gameObject.SetActive(false);
+    }
+
 }

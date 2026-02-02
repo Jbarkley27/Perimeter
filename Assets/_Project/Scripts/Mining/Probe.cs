@@ -34,7 +34,8 @@ public abstract class Probe
 
     protected Probe()
     {
-        Level = 0;
+        // Probes start at level 1 when purchased.
+        Level = 1;
     }
 
 

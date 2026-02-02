@@ -78,11 +78,20 @@ public class ProbeManager : MonoBehaviour
     }
 
 
-    public bool CanAffordProbe(ProbeType type)
+    // Returns true if the player can afford this probe on a specific planet.
+    public bool CanAffordProbe(ProbeType type, Planet planet)
     {
-        double cost = GetBuyCost(type);
+        double cost = GetBuyCost(type, planet);
         return GlassManager.Instance.CanAffordGlass(cost);
     }
+
+    // Backward-compatible helper: uses current planet.
+    public bool CanAffordProbe(ProbeType type)
+    {
+        Planet planet = MiningManager.Instance != null ? MiningManager.Instance.CurrentPlanet : null;
+        return CanAffordProbe(type, planet);
+    }
+
 
     // Unlocks the next locked probe in the list.
     public void UnlockNextProbe()
@@ -116,16 +125,53 @@ public class ProbeManager : MonoBehaviour
     }
 
 
+    // Base buy cost without planet modifiers.
     public double GetBuyCost(ProbeType type)
     {
         return costs[type].buyCost;
     }
 
+    // Buy cost with planet modifiers (Mass Fabrication).
+    public double GetBuyCost(ProbeType type, Planet planet)
+    {
+        double baseCost = GetBuyCost(type);
+        if (planet == null)
+            return baseCost;
+
+        float discountPerProbe = planet.GetProbeBuyCostDiscountPerProbe();
+        int existingProbes = planet.Probes.Count;
+
+        float discount = Mathf.Min(
+            discountPerProbe * existingProbes,
+            PlanetUpgradeTuning.MassFabricationMaxDiscount
+        );
+
+        return baseCost * (1f - discount);
+    }
+
+
+     // Base upgrade cost without planet modifiers.
     public double GetUpgradeCost(Probe probe)
     {
         ProbeCostData data = costs[probe.Type];
-        return data.upgradeBaseCost * Mathf.Pow(data.upgradeCostMultiplier, probe.Level);
+
+        // Level 1 should cost base (multiplier^0).
+        int exponent = Mathf.Max(0, probe.Level - 1);
+        return data.upgradeBaseCost * Mathf.Pow(data.upgradeCostMultiplier, exponent);
     }
+
+
+    // Upgrade cost with planet modifiers (Automated Calibration).
+    public double GetUpgradeCost(Probe probe, Planet planet)
+    {
+        double baseCost = GetUpgradeCost(probe);
+        if (planet == null)
+            return baseCost;
+
+        float reduction = planet.GetProbeUpgradeCostReduction();
+        return baseCost * (1f - reduction);
+    }
+
 
 
     public bool IsProbeUnlocked(ProbeType type, Planet planet)
@@ -156,14 +202,30 @@ public class ProbeManager : MonoBehaviour
             return false;
         }
 
-        double cost = GetBuyCost(type);
+        double cost = GetBuyCost(type, planet);
+
+        // Predictive Logistics: first probe is free on this planet.
+        bool useFreeProbe = planet != null && planet.CanUsePredictiveLogisticsFreeProbe();
+        if (useFreeProbe)
+            cost = 0;
+
         if (!GlassManager.Instance.SpendGlass(cost))
         {
             Debug.Log("Not enough glass to buy probe");
             return false;
         }
+        
+
+        if (useFreeProbe)
+            planet.UsePredictiveLogisticsFreeProbe();
+
+
 
         Probe probe = CreateProbe(type);
+
+
+        RecordPurchaseCost(probe, cost);
+
         if (probe == null) return false;
 
         SpawnProbeVisual(probe, planet);
@@ -173,19 +235,36 @@ public class ProbeManager : MonoBehaviour
         return true;
     }
 
-    public bool UpgradeProbe(Probe probe)
+    // Upgrades a probe using planet-specific rules (cost reduction + max level).
+    public bool UpgradeProbe(Probe probe, Planet planet)
     {
         if (probe == null)
             return false;
 
-        double cost = GetUpgradeCost(probe);
+        if (planet != null)
+        {
+            int maxLevel = planet.GetMaxProbeLevel();
+            if (probe.Level >= maxLevel)
+                return false;
+        }
+
+        double cost = GetUpgradeCost(probe, planet);
         if (!GlassManager.Instance.SpendGlass(cost))
             return false;
 
 
+        RecordUpgradeCost(probe, cost);
         probe.Upgrade();
         return true;
     }
+
+    // Backward-compatible helper: uses current planet.
+    public bool UpgradeProbe(Probe probe)
+    {
+        Planet planet = MiningManager.Instance != null ? MiningManager.Instance.CurrentPlanet : null;
+        return UpgradeProbe(probe, planet);
+    }
+
 
 
 
@@ -204,8 +283,18 @@ public class ProbeManager : MonoBehaviour
             if (!planet.TryGetStationarySlot(out slot, out index))
                 return;
 
-            SpawnStationary(slot, data, probe);
+            SpawnStationary(slot, data, probe, index);
+
+            slotBindings[probe] = new ProbeSlotBinding
+            {
+                planet = planet,
+                spawnType = ProbeSpawnType.Stationary,
+                slotIndex = index,
+                slotTransform = slot
+            };
+
             return;
+
         }
         else
         {
@@ -216,6 +305,15 @@ public class ProbeManager : MonoBehaviour
         GameObject go = Instantiate(data.prefab, slot.position, slot.rotation, slot);
         ProbeVisual visual = go.GetComponent<ProbeVisual>();
         visuals[probe] = visual;
+
+        slotBindings[probe] = new ProbeSlotBinding
+        {
+            planet = planet,
+            spawnType = ProbeSpawnType.Orbiting,
+            slotIndex = index,
+            slotTransform = slot
+        };
+
 
         Debug.Log("Got probe visual");
         if (data.spawnType == ProbeSpawnType.Orbiting)
@@ -238,8 +336,8 @@ public class ProbeManager : MonoBehaviour
     }
 
 
-    // Spawns a stationary probe at the slot’s configured visual anchor.
-    private void SpawnStationary(Transform slot, ProbeSpawnData data, Probe probe)
+        // Spawns a stationary probe at the slot’s configured visual anchor.
+    private void SpawnStationary(Transform slot, ProbeSpawnData data, Probe probe, int index)
     {
         ProbeStatic staticSlot = slot.GetComponent<ProbeStatic>();
         if (staticSlot == null)
@@ -262,6 +360,184 @@ public class ProbeManager : MonoBehaviour
 
         return null;
     }
+
+
+
+    // Tracks actual Glass spent on a probe so refunds are accurate.
+    private class ProbeSpendData
+    {
+        public double purchaseCost;
+        public List<double> upgradeCosts = new List<double>();
+
+        public double TotalSpent
+        {
+            get
+            {
+                double total = purchaseCost;
+                for (int i = 0; i < upgradeCosts.Count; i++)
+                    total += upgradeCosts[i];
+                return total;
+            }
+        }
+    }
+
+    // Tracks which slot a probe occupies so we can free it on refund.
+    private struct ProbeSlotBinding
+    {
+        public Planet planet;
+        public ProbeSpawnType spawnType;
+        public int slotIndex;
+        public Transform slotTransform;
+    }
+
+    private readonly Dictionary<Probe, ProbeSpendData> spendData = new Dictionary<Probe, ProbeSpendData>();
+    private readonly Dictionary<Probe, ProbeSlotBinding> slotBindings = new Dictionary<Probe, ProbeSlotBinding>();
+
+
+        // Gets existing spend data or rebuilds a best-effort estimate if missing.
+    private ProbeSpendData GetOrCreateSpendData(Probe probe, Planet planet)
+    {
+        if (probe == null)
+            return null;
+
+        if (spendData.TryGetValue(probe, out var data))
+            return data;
+
+        // Best-effort reconstruction (if probe existed before tracking).
+        data = new ProbeSpendData();
+        data.purchaseCost = GetBuyCost(probe.Type, planet);
+
+        // Recreate upgrade costs by simulating each past level-up.
+        ProbeCostData costData = costs[probe.Type];
+        float reduction = planet != null ? planet.GetProbeUpgradeCostReduction() : 0f;
+
+        // Rebuild only the upgrades above level 1.
+        int upgradesPurchased = Mathf.Max(0, probe.Level - 1);
+        for (int level = 0; level < upgradesPurchased; level++)
+        {
+            double cost = costData.upgradeBaseCost * Mathf.Pow(costData.upgradeCostMultiplier, level);
+            cost *= (1f - reduction);
+            data.upgradeCosts.Add(cost);
+        }
+
+
+        spendData[probe] = data;
+        return data;
+    }
+
+
+    // Returns true if the player can afford the next upgrade for this probe.
+    public bool CanAffordUpgrade(Probe probe, Planet planet)
+    {
+        if (probe == null)
+            return false;
+
+        if (planet != null && probe.Level >= planet.GetMaxProbeLevel())
+            return false;
+
+        double cost = GetUpgradeCost(probe, planet);
+        return GlassManager.Instance != null && GlassManager.Instance.CanAffordGlass(cost);
+    }
+
+
+    // Records the purchase cost for a new probe.
+    private void RecordPurchaseCost(Probe probe, double cost)
+    {
+        if (probe == null)
+            return;
+
+        ProbeSpendData data = GetOrCreateSpendData(probe, null);
+        if (data == null)
+            return;
+
+        data.purchaseCost = cost;
+    }
+
+    // Records the upgrade cost for a probe.
+    private void RecordUpgradeCost(Probe probe, double cost)
+    {
+        if (probe == null)
+            return;
+
+        ProbeSpendData data = GetOrCreateSpendData(probe, null);
+        if (data == null)
+            return;
+
+        data.upgradeCosts.Add(cost);
+    }
+
+
+        // Returns the full spend on this probe (purchase + upgrades).
+    public double GetProbeTotalSpent(Probe probe, Planet planet)
+    {
+        ProbeSpendData data = GetOrCreateSpendData(probe, planet);
+        return data != null ? data.TotalSpent : 0;
+    }
+
+    // Returns the refund amount based on the configured refund percentage.
+    public double GetProbeRefundAmount(Probe probe, Planet planet)
+    {
+        double total = GetProbeTotalSpent(probe, planet);
+        float refundPercent = MiningManager.Instance != null
+            ? MiningManager.Instance.probeRefundPercent
+            : 1f;
+
+        return total * refundPercent;
+    }
+
+    // Refunds a probe and removes it from the planet.
+    public bool RefundProbe(Probe probe, Planet planet)
+    {
+        if (probe == null || planet == null)
+            return false;
+
+        double refundAmount = GetProbeRefundAmount(probe, planet);
+
+        if (GlassManager.Instance != null && refundAmount > 0)
+            GlassManager.Instance.AddGlass(refundAmount);
+
+        // Despawn visual + free slot.
+        DespawnProbeVisual(probe);
+
+        // Remove from planet data.
+        planet.RemoveProbe(probe);
+
+        // Clean up spend tracking.
+        spendData.Remove(probe);
+
+        // Refresh UI.
+        if (MiningManager.Instance != null && MiningManager.Instance.miningUI != null)
+            MiningManager.Instance.miningUI.RefreshPlanetUI(planet);
+
+        return true;
+    }
+
+    // Destroys the probe visual and frees its slot.
+    private void DespawnProbeVisual(Probe probe)
+    {
+        if (probe == null)
+            return;
+
+        if (visuals.TryGetValue(probe, out var visual) && visual != null)
+        {
+            Destroy(visual.gameObject);
+            visuals.Remove(probe);
+        }
+
+        if (slotBindings.TryGetValue(probe, out var binding))
+        {
+            if (binding.planet != null)
+            {
+                if (binding.spawnType == ProbeSpawnType.Stationary)
+                    binding.planet.ClearStationarySlot(binding.slotIndex);
+                else
+                    binding.planet.ClearOrbitSlot(binding.slotIndex);
+            }
+
+            slotBindings.Remove(probe);
+        }
+    }
+
 
 }
 
