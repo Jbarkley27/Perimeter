@@ -116,11 +116,8 @@ public class ProbeSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        Debug.Log("ProbeSlotUI hover");
-
         if (owner != null && boundProbe != null && boundPlanet != null)
         {
-            Debug.Log("Showing probe info panel");
             owner.ShowInfo(boundProbe, boundPlanet);
         }
     }

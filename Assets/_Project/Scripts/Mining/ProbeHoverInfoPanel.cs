@@ -16,6 +16,7 @@ public class ProbeHoverInfoPanel : MonoBehaviour
     public TMP_Text refundText;
     public Image iconImage;
     public Button refundButton;
+    public Button upgradeButton;
     public CanvasGroup canvasGroup;
     public TMP_Text upgradeCostText;
 
@@ -39,14 +40,17 @@ public class ProbeHoverInfoPanel : MonoBehaviour
 
         bool isMax = planet != null && probe != null && probe.Level >= planet.GetMaxProbeLevel();
         if (upgradeCostText != null)
-            upgradeCostText.gameObject.SetActive(!isMax);
+            upgradeCostText.gameObject.SetActive(true);
+
+        if (upgradeButton == null && upgradeCostText != null)
+            upgradeButton = upgradeCostText.GetComponentInParent<Button>();
+
+        if (upgradeButton != null)
+            upgradeButton.interactable = !isMax;
 
 
         if (descriptionText != null)
             descriptionText.text = description;
-
-        if (refundText != null)
-            refundText.text = $"Refund: {refundAmount:0}";
 
         if (iconImage != null)
         {
@@ -58,11 +62,13 @@ public class ProbeHoverInfoPanel : MonoBehaviour
         if (refundButton != null)
             refundButton.interactable = false;
 
-        if (canvasGroup != null)
-            canvasGroup.alpha = 1f;
+        // Intentionally do not modify panel canvas group alpha.
 
-        if (upgradeCostText != null && upgradeCostText.gameObject.activeSelf)
-            upgradeCostText.text = $"Upgrade: {upgradeCostTextValue}";
+        if (upgradeCostText != null)
+            upgradeCostText.text = isMax ? "Upgrade: MAX" : $"Upgrade: {upgradeCostTextValue}";
+
+        if (refundText != null)
+            refundText.text = $"Refund: {refundAmount:0}";
 
 
     }

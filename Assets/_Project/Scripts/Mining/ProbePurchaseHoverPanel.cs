@@ -37,8 +37,7 @@ public class ProbePurchaseHoverPanel : MonoBehaviour
         if (deployButton != null)
             deployButton.interactable = false;
 
-        if (canvasGroup != null)
-            canvasGroup.alpha = 1f;
+        // Intentionally do not modify panel canvas group alpha.
 
         gameObject.SetActive(true);
     }

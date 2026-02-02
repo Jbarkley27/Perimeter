@@ -59,6 +59,10 @@ public class ProbePurchaseUIController : MonoBehaviour
         if (planet == null || ProbeManager.Instance == null)
             return "Deploy: -";
 
+        // Slots full = maxed for this planet.
+        if (!planet.CanAddProbe())
+            return "Probe Capacity Full";
+
         if (planet.CanUsePredictiveLogisticsFreeProbe())
             return "Deploy: Free";
 

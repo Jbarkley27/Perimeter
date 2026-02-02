@@ -82,21 +82,16 @@ public class PlanetUpgradeInfoPanel : MonoBehaviour
 
         if (costText != null)
         {
-            costText.gameObject.SetActive(!isMax);
-            if (!isMax)
-                costText.text = cost.ToString("0");
+            costText.gameObject.SetActive(true);
+            costText.text = isMax ? "Upgrade: MAX" : $"Upgrade: {cost:0}";
         }
 
         if (upgradeButton != null)
-            upgradeButton.gameObject.SetActive(!isMax);
+            upgradeButton.interactable = !isMax;
 
 
 
-        if (canvasGroup != null)
-        {
-            bool canAfford = currentPlanet.CanAffordUpgrade(currentUpgrade.id);
-            canvasGroup.alpha = (!isMax && !canAfford) ? 0.6f : 1f;
-        }
+        // Intentionally do not modify panel canvas group alpha.
 
         if (refundText != null)
         {

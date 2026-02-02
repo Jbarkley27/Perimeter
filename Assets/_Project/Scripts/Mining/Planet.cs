@@ -129,6 +129,8 @@ public class Planet : MonoBehaviour
         // Ensure one-time upgrades (like Predictive Logistics) never appear again.
         for (int i = 0; i < upgrades.Count; i++)
             MarkUpgradeRolled(upgrades[i].id);
+
+        ClampReservesToEffectiveMax();
     }
 
 
@@ -342,6 +344,8 @@ public class Planet : MonoBehaviour
             MarkUpgradeRolled(selected.id);
             pool.Remove(selected);
         }
+
+        ClampReservesToEffectiveMax();
     }
 
     // Weighted roll: higher weight = more likely.
@@ -413,6 +417,7 @@ public class Planet : MonoBehaviour
 
         glassSpentOnUpgrades = 0;
 
+        ClampReservesToEffectiveMax();
         return true;
     }
 
@@ -453,6 +458,7 @@ public class Planet : MonoBehaviour
         glassSpentOnUpgrades -= spent;
         upgradeSpendById[id] = 0;
 
+        ClampReservesToEffectiveMax();
         return true;
     }
 
@@ -663,6 +669,20 @@ public class Planet : MonoBehaviour
         return maxReserves * multiplier;
     }
 
+    // Prevents current reserves from exceeding effective max after upgrades change.
+    private void ClampReservesToEffectiveMax()
+    {
+        float effectiveMax = GetEffectiveMaxReserves();
+        if (effectiveMax <= 0f)
+        {
+            currentReserves = 0f;
+            return;
+        }
+
+        if (currentReserves > effectiveMax)
+            currentReserves = effectiveMax;
+    }
+
 
     // Applies a minimum efficiency floor based on Stabilizer probes and upgrades.
     private float ApplyStabilizerFloor(float efficiency)
@@ -760,16 +780,37 @@ public class Planet : MonoBehaviour
 
     public bool TryGetStationarySlot(out Transform slot, out int index)
     {
+        int freeCount = 0;
         for (int i = 0; i < stationarySlots.Count; i++)
         {
             if (!stationaryOccupied[i])
+                freeCount++;
+        }
+
+        if (freeCount <= 0)
+        {
+            slot = null;
+            index = -1;
+            return false;
+        }
+
+        int pick = Random.Range(0, freeCount);
+        for (int i = 0; i < stationarySlots.Count; i++)
+        {
+            if (stationaryOccupied[i])
+                continue;
+
+            if (pick == 0)
             {
                 stationaryOccupied[i] = true;
                 slot = stationarySlots[i];
                 index = i;
                 return true;
             }
+
+            pick--;
         }
+
         slot = null;
         index = -1;
         return false;
@@ -882,7 +923,7 @@ public class Planet : MonoBehaviour
 
         upgradeSpendById[id] += cost;
 
-
+        ClampReservesToEffectiveMax();
         return true;
     }
 
