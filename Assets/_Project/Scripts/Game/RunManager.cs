@@ -27,6 +27,26 @@ public class RunManager : MonoBehaviour
     public TMP_Text nextSectorText;
     public TMP_Text currentSectorExtraText;
 
+    [Header("Compass UI")]
+    public GameObject compassRoot;
+    public SectorCompassUIController compassUI;
+    public SectorRewardsBoxUI rewardsBox;
+
+    [Header("Compass Visuals")]
+    public Transform playerShipRoot;
+    public Transform starfieldRoot;
+    public float shipRotateDuration = 1f;
+    public Ease shipRotateEase = Ease.OutCubic;
+    public float starfieldSpeed = 8f;
+
+    [Header("Background Transition")]
+    public Camera backgroundCamera;
+    public Color fallbackBackgroundColor = Color.black;
+    public float backgroundLerpDuration = 1.5f;
+
+    private readonly List<SectorRewardEntry> pendingEndRunRewards = new List<SectorRewardEntry>();
+    private Color currentBackgroundColor;
+
 
 
     public void Awake()
@@ -39,11 +59,16 @@ public class RunManager : MonoBehaviour
         }
         Instance = this;
         DontDestroyOnLoad(gameObject);
+
+        if (endRunCanvasGroup == null && endRunScreen != null)
+            endRunCanvasGroup = endRunScreen.GetComponent<CanvasGroup>();
+
     }
 
     private void Start()
     {
-
+        if (backgroundCamera != null)
+            currentBackgroundColor = backgroundCamera.backgroundColor;
     }
 
     private void Update()
@@ -93,6 +118,9 @@ public class RunManager : MonoBehaviour
 
     public void StartShowEndRunScreen()
     {
+        Debug.Log("StartShowEndRunScreen()");
+        Debug.Log("ShowEndRunScreen()");
+
         if (endRunScreenCoroutine != null)
             StopCoroutine(endRunScreenCoroutine);
 
@@ -101,10 +129,39 @@ public class RunManager : MonoBehaviour
 
     public IEnumerator ShowEndRunScreen()
     {
+        Debug.Log("HideEndRunScreen called");
+
         if (endRunScreenChanging)
             yield break;
 
         yield return new WaitForSeconds(0.2f);
+
+        Debug.Log("ShowEndRunScreen: start");
+
+        UpdateEndRunStatsUI();
+        Debug.Log("ShowEndRunScreen: after UpdateEndRunStatsUI");
+
+        Color c = endRunBorderImage.color;
+        Debug.Log("ShowEndRunScreen: after border color");
+
+        endRunCanvasGroup.alpha = 1;
+        Debug.Log("ShowEndRunScreen: after canvas alpha");
+
+        endRunScreen.SetActive(true);
+        Debug.Log("ShowEndRunScreen: after SetActive");
+        Debug.Log("endRunScreen activeInHierarchy = " + endRunScreen.activeInHierarchy);
+        Debug.Log("endRunCanvasGroup alpha = " + (endRunCanvasGroup != null ? endRunCanvasGroup.alpha : -1f));
+
+
+        if (endRunCanvasGroup != null)
+        {
+            endRunCanvasGroup.alpha = 1f;
+            endRunCanvasGroup.interactable = true;
+            endRunCanvasGroup.blocksRaycasts = true;
+        }
+
+
+
 
         endRunScreenChanging = true;
         // Turn off all canvas groups first
@@ -117,9 +174,31 @@ public class RunManager : MonoBehaviour
 
         UpdateEndRunStatsUI();
 
+        bool isWin = WasRunVictory();
+
+        if (isWin)
+        {
+            BuildEndRunRewards();
+            ShowCompassForWin();
+        }
+        else
+        {
+            if (SectorManager.Instance != null)
+                SectorManager.Instance.ClearRunModifierState();
+
+            HideCompass();
+        }
+
+        if (restartRunButton != null)
+            restartRunButton.SetActive(!isWin);
+
+        if (rewardsBox != null)
+            rewardsBox.gameObject.SetActive(isWin);
+
+
         yield return new WaitForSeconds(0.2f);
 
-        Color c = endRunBorderImage.color;
+        c = endRunBorderImage.color;
         c.a = Mathf.Clamp01(0);
         endRunBorderImage.color = c;
 
@@ -128,6 +207,7 @@ public class RunManager : MonoBehaviour
         // Activate end run screen
         endRunScreen.SetActive(true);
 
+        Debug.Log("endRunScreen activeInHierarchy = " + endRunScreen.activeInHierarchy);
 
 
         endRunBorderImage.gameObject.SetActive(true);
@@ -137,43 +217,9 @@ public class RunManager : MonoBehaviour
             CanvasGroup cg = child.GetComponent<CanvasGroup>();
             if (cg != null)
                 cg.DOFade(1, 0.15f);
-                
-                
 
-            // only show last child after a delay
-            if (child == rootViewParent.GetChild(rootViewParent.childCount - 1))
-            {
-                // only display if the user has dealt enough damage to WIN
-                if (EnemyManager.Instance.GetPercentOfEnemiesDefeatedInCurrentWave() >= 1f)
-                {
-                    yield return new WaitForSeconds(0.1f);
-
-                    // enable this child
-                    child.gameObject.SetActive(true);
-                    cg.alpha = 0;
-                    cg.DOFade(1, 0.15f).SetDelay(0.5f).SetEase(Ease.OutCubic);
-                    Vector3 baseScale = child.localScale;
-
-                    child.DOKill(); // VERY important
-                    child.localScale = baseScale;
-
-                    child.DOPunchScale(Vector3.one * 0.1f, 0.2f, 10, 1).SetDelay(0.5f)
-                    .SetEase(Ease.OutCubic);
-
-                    // instead the reward, go to next sector button will show
-                    // which is already a apart of the last child
-                    restartRunButton.SetActive(false);
-                }
-                else
-                {
-                    // Turn off Rewards
-                    child.gameObject.SetActive(false);
-                    restartRunButton.SetActive(true);
-                }
-            }
             yield return new WaitForSeconds(0.08f);
         }
-
 
         Color b = endRunBorderImage.color;
         b.a = Mathf.Clamp01(.6f);
@@ -185,6 +231,8 @@ public class RunManager : MonoBehaviour
 
     public void HideEndRunScreen()
     {
+        Debug.Log("HideEndRunScreen called");
+
         if (endRunScreenChanging || endRunScreenCoroutine != null)
         {
             // Force stop any ongoing transition
@@ -192,9 +240,6 @@ public class RunManager : MonoBehaviour
             endRunScreenChanging = false;
         }
 
-
-
-            
         endRunCanvasGroup.DOFade(0, 0.35f)
             .OnComplete(() =>
             {
@@ -209,8 +254,157 @@ public class RunManager : MonoBehaviour
                 }
             });
 
+        HideCompass();
+    }
+
+
+    // True if this run ended with a win.
+    private bool WasRunVictory()
+    {
+        return EnemyManager.Instance != null
+            && EnemyManager.Instance.GetPercentOfEnemiesDefeatedInCurrentWave() >= 1f;
+    }
+
+    // Builds the rewards for the end-run box (current sector + active modifier).
+    private void BuildEndRunRewards()
+    {
+        pendingEndRunRewards.Clear();
+
+        Sector current = SectorManager.Instance != null ? SectorManager.Instance.GetCurrentSector() : null;
+        if (current != null && current.baseRewards != null)
+            pendingEndRunRewards.AddRange(current.baseRewards);
+
+        SectorModifierDefinition active = SectorManager.Instance != null ? SectorManager.Instance.ActiveModifier : null;
+        if (active != null && active.rewards != null)
+            pendingEndRunRewards.AddRange(active.rewards);
+
+        if (rewardsBox != null)
+            rewardsBox.BindRewards(pendingEndRunRewards);
+    }
+
+    // Auto-accept rewards if the player didn't click the box.
+    public void TryAutoAcceptRewards(bool autoAccepted)
+    {
+        if (rewardsBox != null && !rewardsBox.RewardsAccepted)
+            rewardsBox.AcceptRewards(autoAccepted);
+    }
+
+    // Shows compass inside end-run screen (win only).
+    private void ShowCompassForWin()
+    {
+        if (SectorManager.Instance != null)
+        {
+            int nextSectorNumber = SectorManager.Instance.GetNextSectorIndex();
+            SectorManager.Instance.EnsurePendingCompassChoices(nextSectorNumber);
+        }
+
+        if (compassRoot != null)
+            compassRoot.SetActive(true);
+
+        if (compassUI != null)
+            compassUI.RefreshFromPending();
+    }
+
+    // Shows compass without end-run panel (returning from console).
+    public bool TryShowCompassOnly()
+    {
+        if (SectorManager.Instance == null || !SectorManager.Instance.HasPendingCompassChoices())
+            return false;
+
+        if (compassRoot != null)
+            compassRoot.SetActive(true);
+
+        if (compassUI != null)
+            compassUI.RefreshFromPending();
+
+        return true;
+    }
+
+    public void HideCompass()
+    {
+        if (compassRoot != null)
+            compassRoot.SetActive(false);
+    }
+
+    // Called by compass UI when a direction is selected.
+    public void OnCompassChoiceSelected(SectorCompassChoice choice)
+    {
+        TryAutoAcceptRewards(true);
+
+        if (SectorManager.Instance != null)
+        {
+            SectorManager.Instance.SelectCompassChoice(choice);
+            SectorManager.Instance.AdvanceToNextSector();
+        }
+
+        ApplySectorDirectionVisuals(choice.direction);
+        ApplyBackgroundForCurrentSector();
+
+        HideCompass();
+        HideEndRunScreen();
+
+        if (GameManager.Instance != null)
+            GameManager.Instance.StartBattlePhase(false, true);
+    }
+
+    // Rotates the ship and updates starfield direction.
+    private void ApplySectorDirectionVisuals(SectorDirection direction)
+    {
+        float yaw = 0f;
+        switch (direction)
+        {
+            case SectorDirection.North: yaw = 0f; break;
+            case SectorDirection.East: yaw = 90f; break;
+            case SectorDirection.South: yaw = 180f; break;
+            case SectorDirection.West: yaw = 270f; break;
+        }
+
+        if (playerShipRoot != null)
+        {
+            playerShipRoot.DOKill();
+            playerShipRoot.DORotate(new Vector3(0f, yaw, 0f), shipRotateDuration)
+                .SetEase(shipRotateEase);
+        }
+
+        Vector3 forward = Quaternion.Euler(0f, yaw, 0f) * Vector3.forward;
+        ApplyStarfieldVelocity(-forward);
+    }
+
+    // Updates all particle systems under starfield root.
+    private void ApplyStarfieldVelocity(Vector3 direction)
+    {
+        if (starfieldRoot == null)
+            return;
+
+        Vector3 velocity = direction.normalized * starfieldSpeed;
+
+        ParticleSystem[] systems = starfieldRoot.GetComponentsInChildren<ParticleSystem>(true);
+        foreach (ParticleSystem ps in systems)
+        {
+            var vel = ps.velocityOverLifetime;
+            vel.enabled = true;
+            vel.x = velocity.x;
+            vel.y = velocity.y;
+            vel.z = velocity.z;
+        }
+    }
+
+    // Lerp background color to current sector's color.
+    private void ApplyBackgroundForCurrentSector()
+    {
+        if (backgroundCamera == null)
+            return;
+
+        Sector current = SectorManager.Instance != null ? SectorManager.Instance.GetCurrentSector() : null;
+        Color target = current != null ? current.backgroundColor : fallbackBackgroundColor;
+
+        DOTween.To(() => currentBackgroundColor,
+            c =>
+            {
+                currentBackgroundColor = c;
+                backgroundCamera.backgroundColor = c;
+            },
+            target,
+            backgroundLerpDuration);
     }
 }
-
-
-// TODO: Once we work on the Skill Tree system, we can add ways to modify the startingMaxSignalSeconds and decayPerSecond via upgrades.

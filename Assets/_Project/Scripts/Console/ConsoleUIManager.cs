@@ -160,6 +160,7 @@ public class ConsoleUIManager : MonoBehaviour
                 // Background Stuff while the Transition screen is up
                 HUDRoot.SetActive(false);
                 DeltaBarRoot.SetActive(false);
+                RunManager.Instance.TryAutoAcceptRewards(true);
                 RunManager.Instance.HideEndRunScreen();
                 consoleCanvasGroup.alpha = 0;
                 consoleUIRoot.SetActive(true);

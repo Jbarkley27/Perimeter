@@ -27,7 +27,7 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         RoundOver = false;
-        if (autoStartBattlePhase) StartBattlePhase();
+        if (autoStartBattlePhase) StartBattlePhase(true);
         RunAttempts = -1;
 
         Invoke("EndRun", 5.0f);
@@ -35,10 +35,14 @@ public class GameManager : MonoBehaviour
 
 
 
-    public void StartBattlePhase()
+    public void StartBattlePhase(bool resetSectors = false, bool ignoreCompass = false)
     {
-        StartCoroutine(RestartRun());
+        if (!ignoreCompass && RunManager.Instance != null && RunManager.Instance.TryShowCompassOnly())
+            return;
+
+        StartCoroutine(RestartRun(resetSectors));
     }
+
 
 
 
@@ -49,7 +53,9 @@ public class GameManager : MonoBehaviour
         RoundOver = true;
 
         Debug.Log("Run Ended....");
-        
+        Debug.Log("EndRun called. RunManager.Instance = " + (RunManager.Instance != null));
+
+
 
         // Clear active enemies
         GlobalDataStore.Instance.EnemyPooler.ClearAllActiveEnemies();
@@ -67,7 +73,7 @@ public class GameManager : MonoBehaviour
 
 
 
-    public IEnumerator RestartRun()
+    public IEnumerator RestartRun(bool resetSectors)
     {
         RoundOver = false;
         Debug.Log(RunAttempts == 0 ? "Starting Run" : "Restarting Run...");
@@ -76,7 +82,9 @@ public class GameManager : MonoBehaviour
         GlobalDataStore.Instance.BarrierModule.ResetHealthBarrier();
 
         // Sector Reset
-        SectorManager.Instance.ResetSectors();
+        if (resetSectors)
+            SectorManager.Instance.ResetSectors();
+
 
         // Reset Signal UI
         RunManager.Instance.ResetRun();
@@ -98,6 +106,9 @@ public class GameManager : MonoBehaviour
         RunManager.Instance.HideEndRunScreen();
         ConsoleUIManager.Instance.CloseConsole();
         RunManager.Instance.HideEndRunScreen();
+
+        RunManager.Instance.HideCompass();
+
 
         // wait a bit before restarting signal
         yield return new WaitForSeconds(startSignalDelay);
