@@ -95,9 +95,27 @@ public class GlassManager : MonoBehaviour
 
     public void CollectGlass(EnemyDataStore.EnemyType enemyType)
     {
-        double rewardAmount = EnemyDataStore.Instance.GetGlassRewardForEnemyType(enemyType);
-        AddGlass(rewardAmount);
+        CollectGlass(enemyType, Element.Kinetic);
     }
+
+
+    public void CollectGlass(EnemyDataStore.EnemyType enemyType, Element element)
+    {
+        double rewardAmount = EnemyDataStore.Instance.GetGlassRewardForEnemyType(enemyType);
+
+        float mult = SectorManager.Instance != null
+            ? SectorManager.Instance.GetGlassEarnedMultiplier()
+            : 1f;
+
+        float elementMult = SectorManager.Instance != null
+            ? SectorManager.Instance.GetModifierMultiplier(SectorModifierEffectType.ElementGlassMultiplier, element)
+            : 1f;
+
+        AddGlass(rewardAmount * mult * elementMult);
+    }
+
+    
+
 
     public bool SpendGlass(double amount)
     {

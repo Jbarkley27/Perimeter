@@ -98,7 +98,7 @@ public class SkillTreeData : MonoBehaviour
     {
         // Reset global stats and per-skill runtime values
         if (StatsManager.Instance != null)
-            StatsManager.Instance.ResetModifiers();
+            StatsManager.Instance.ResetSkillModifiers();
 
         var uniqueSkills = new HashSet<SkillData>();
         foreach (var node in allNodes)

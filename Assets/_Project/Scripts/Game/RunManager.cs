@@ -47,6 +47,10 @@ public class RunManager : MonoBehaviour
     private readonly List<SectorRewardEntry> pendingEndRunRewards = new List<SectorRewardEntry>();
     private Color currentBackgroundColor;
 
+    [Header("Active Modifier UI")]
+    public SectorActiveModifierUI activeModifierUI;
+
+
 
 
     public void Awake()
@@ -118,9 +122,6 @@ public class RunManager : MonoBehaviour
 
     public void StartShowEndRunScreen()
     {
-        Debug.Log("StartShowEndRunScreen()");
-        Debug.Log("ShowEndRunScreen()");
-
         if (endRunScreenCoroutine != null)
             StopCoroutine(endRunScreenCoroutine);
 
@@ -129,30 +130,18 @@ public class RunManager : MonoBehaviour
 
     public IEnumerator ShowEndRunScreen()
     {
-        Debug.Log("HideEndRunScreen called");
-
         if (endRunScreenChanging)
             yield break;
 
         yield return new WaitForSeconds(0.2f);
 
-        Debug.Log("ShowEndRunScreen: start");
-
         UpdateEndRunStatsUI();
-        Debug.Log("ShowEndRunScreen: after UpdateEndRunStatsUI");
 
         Color c = endRunBorderImage.color;
-        Debug.Log("ShowEndRunScreen: after border color");
 
         endRunCanvasGroup.alpha = 1;
-        Debug.Log("ShowEndRunScreen: after canvas alpha");
 
         endRunScreen.SetActive(true);
-        Debug.Log("ShowEndRunScreen: after SetActive");
-        Debug.Log("endRunScreen activeInHierarchy = " + endRunScreen.activeInHierarchy);
-        Debug.Log("endRunCanvasGroup alpha = " + (endRunCanvasGroup != null ? endRunCanvasGroup.alpha : -1f));
-
-
         if (endRunCanvasGroup != null)
         {
             endRunCanvasGroup.alpha = 1f;
@@ -179,6 +168,8 @@ public class RunManager : MonoBehaviour
         if (isWin)
         {
             BuildEndRunRewards();
+            if (activeModifierUI != null)
+                activeModifierUI.Refresh();
             ShowCompassForWin();
         }
         else
@@ -207,8 +198,6 @@ public class RunManager : MonoBehaviour
         // Activate end run screen
         endRunScreen.SetActive(true);
 
-        Debug.Log("endRunScreen activeInHierarchy = " + endRunScreen.activeInHierarchy);
-
 
         endRunBorderImage.gameObject.SetActive(true);
 
@@ -231,8 +220,6 @@ public class RunManager : MonoBehaviour
 
     public void HideEndRunScreen()
     {
-        Debug.Log("HideEndRunScreen called");
-
         if (endRunScreenChanging || endRunScreenCoroutine != null)
         {
             // Force stop any ongoing transition
@@ -255,6 +242,9 @@ public class RunManager : MonoBehaviour
             });
 
         HideCompass();
+        if (activeModifierUI != null)
+            activeModifierUI.Refresh();
+
     }
 
 
@@ -334,6 +324,8 @@ public class RunManager : MonoBehaviour
         if (SectorManager.Instance != null)
         {
             SectorManager.Instance.SelectCompassChoice(choice);
+            if (activeModifierUI != null)
+                activeModifierUI.Refresh();
             SectorManager.Instance.AdvanceToNextSector();
         }
 

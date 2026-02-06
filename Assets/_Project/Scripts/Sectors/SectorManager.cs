@@ -4,8 +4,10 @@ using UnityEngine;
 /*
  * SectorManager
  * -------------
- * Owns sector progression and provides access to sector data.
+ * Owns sector progression, modifier selection state, and exposes
+ * runtime queries for sector difficulty + active modifiers.
  */
+
 public class SectorManager : MonoBehaviour
 {
     public static SectorManager Instance { get; private set; }
@@ -155,6 +157,13 @@ public class SectorManager : MonoBehaviour
     {
         activeModifier = null;
         activeEffects.Clear();
+
+        if (StatsManager.Instance != null)
+            StatsManager.Instance.ResetSectorModifiers();
+
+        if (SkillTreeData.Instance != null)
+            SkillTreeData.Instance.RebuildAll();
+
     }
 
     /*
@@ -169,6 +178,10 @@ public class SectorManager : MonoBehaviour
 
         if (choice.modifier != null)
             activeEffects.AddRange(choice.modifier.effects);
+
+
+        ApplyActiveModifiersToPlayer();
+
 
         decisionHistory.Add(new SectorDecisionRecord
         {
@@ -498,6 +511,120 @@ public class SectorManager : MonoBehaviour
             || type == SectorModifierEffectType.ElementGlassMultiplier;
     }
 
+
+
+    /*
+     * Runtime multiplier helpers
+     * ---------------------------
+     * These combine sector difficulty + active modifier effects.
+     */
+
+    // Enemy health scaling for the current sector.
+    public float GetEnemyHealthMultiplier()
+    {
+        float multiplier = GetCurrentSectorDifficultyMultiplier();
+        multiplier *= GetModifierMultiplier(SectorModifierEffectType.EnemyHealthMultiplier);
+        return multiplier;
+    }
+
+    // Enemy damage scaling for the current sector (uses element when relevant).
+    public float GetEnemyDamageMultiplier(Element element = Element.Kinetic)
+    {
+        float multiplier = GetCurrentSectorDifficultyMultiplier();
+        multiplier *= GetModifierMultiplier(SectorModifierEffectType.EnemyDamageMultiplier);
+        multiplier *= GetModifierMultiplier(SectorModifierEffectType.AllDamageMultiplier);
+        multiplier *= GetModifierMultiplier(SectorModifierEffectType.ElementDamageMultiplier, element);
+        return multiplier;
+    }
+
+    // Player damage scaling (element‑aware).
+    public float GetPlayerDamageMultiplier(Element element = Element.Kinetic)
+    {
+        float multiplier = 1f;
+        multiplier *= GetModifierMultiplier(SectorModifierEffectType.PlayerDamageMultiplier);
+        multiplier *= GetModifierMultiplier(SectorModifierEffectType.AllDamageMultiplier);
+        multiplier *= GetModifierMultiplier(SectorModifierEffectType.ElementDamageMultiplier, element);
+        return multiplier;
+    }
+
+    // Glass reward scaling (general, not element‑aware yet).
+    public float GetGlassEarnedMultiplier()
+    {
+        return GetModifierMultiplier(SectorModifierEffectType.GlassEarnedMultiplier);
+    }
+
+
+
+    /*
+     * Applies active sector modifiers to player stats and skills.
+     * Called after a compass choice is selected.
+     */
+    public void ApplyActiveModifiersToPlayer()
+    {
+        // Rebuild skills to base + skill tree effects first.
+        if (SkillTreeData.Instance != null)
+            SkillTreeData.Instance.RebuildAll();
+
+        ApplyActiveModifiersToPlayerStats();
+        ApplyActiveModifiersToSkills();
+    }
+
+    // Applies stat-layer sector modifiers (health, barrier, crit).
+    private void ApplyActiveModifiersToPlayerStats()
+    {
+        if (StatsManager.Instance == null)
+            return;
+
+        StatsManager.Instance.ResetSectorModifiers();
+
+        float healthMult = GetModifierMultiplier(SectorModifierEffectType.PlayerHealthMultiplier);
+        if (!Mathf.Approximately(healthMult, 1f))
+            StatsManager.Instance.ApplySectorModifier(StatsManager.StatType.HEALTH, 0, healthMult - 1f);
+
+        float barrierMult = GetModifierMultiplier(SectorModifierEffectType.PlayerBarrierMultiplier);
+        if (!Mathf.Approximately(barrierMult, 1f))
+            StatsManager.Instance.ApplySectorModifier(StatsManager.StatType.BARRIER, 0, barrierMult - 1f);
+
+        float critMult = GetModifierMultiplier(SectorModifierEffectType.PlayerCritChanceMultiplier);
+        if (!Mathf.Approximately(critMult, 1f))
+            StatsManager.Instance.ApplySectorModifier(StatsManager.StatType.CRIT_CHANCE, 0, critMult - 1f);
+
+        // NOTE: Barrier regen multiplier not wired yet (no regen system).
+
+        if (GlobalDataStore.Instance != null && GlobalDataStore.Instance.BarrierModule != null)
+            GlobalDataStore.Instance.BarrierModule.ResetHealthBarrier();
+    }
+
+    // Applies sector modifiers directly to skill runtime values (cooldowns).
+    private void ApplyActiveModifiersToSkills()
+    {
+        if (SkillTreeData.Instance == null)
+            return;
+
+        float cooldownMult = GetModifierMultiplier(SectorModifierEffectType.PlayerCooldownMultiplier);
+        if (Mathf.Approximately(cooldownMult, 1f))
+            return;
+
+        foreach (var skill in SkillTreeData.Instance.allSkills)
+        {
+            if (skill == null)
+                continue;
+
+            skill.cooldownRate *= cooldownMult;
+            skill.cooldownRestartDelay *= cooldownMult;
+        }
+    }
+
+
+
+    // Returns active spawn bonuses (empty if none).
+    public List<SectorEnemySpawnBonus> GetActiveSpawnBonuses()
+    {
+        if (activeModifier == null || activeModifier.spawnBonuses == null)
+            return new List<SectorEnemySpawnBonus>();
+
+        return activeModifier.spawnBonuses;
+    }
 
 }
 

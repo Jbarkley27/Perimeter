@@ -2,6 +2,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+/*
+ * EnemyManager
+ * ------------
+ * Tracks enemy defeat totals, delta bar progress, and wave completion.
+ */
+
+
 public class EnemyManager : MonoBehaviour
 {
     public static EnemyManager Instance;
@@ -116,7 +123,7 @@ public class EnemyManager : MonoBehaviour
 
         totalDamageDealtToEnemiesThisRun = 0;
 
-        deltaBarSlider.maxValue = waveSpawner.GetCurrentCountOfEnemiesInWave();
+        SetWaveTargetCount(waveSpawner.GetCurrentCountOfEnemiesInWave());
 
         deltaBarSlider.value = 0;
     }
@@ -168,4 +175,25 @@ public class EnemyManager : MonoBehaviour
         int attackCost = EnemyDataStore.Instance.GetAttackCostForEnemyType(enemyType);
         enemyAttackPool += attackCost;
     }
+
+
+    // Sets the target count for the delta bar (used by wave spawner).
+    public void SetWaveTargetCount(int targetCount)
+    {
+        if (deltaBarSlider == null)
+            return;
+
+        deltaBarSlider.maxValue = targetCount;
+        deltaBarSlider.value = Mathf.Min(deltaBarSlider.value, deltaBarSlider.maxValue);
+    }
+
+    // Adds extra enemies to the wave target count (bonus spawns).
+    public void AddWaveTargetCount(int amount)
+    {
+        if (deltaBarSlider == null || amount <= 0)
+            return;
+
+        deltaBarSlider.maxValue += amount;
+    }
+
 }

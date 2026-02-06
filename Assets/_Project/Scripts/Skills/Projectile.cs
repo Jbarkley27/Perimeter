@@ -35,6 +35,9 @@ public class Projectile : MonoBehaviour
     private bool isGuiding;
     private float flightTime;
 
+    [Header("Damage Info")]
+    private Element element = Element.Kinetic;
+
 
 
 
@@ -73,11 +76,14 @@ public class Projectile : MonoBehaviour
         Transform targetTransform,
         int dmg,
         float projectileSpeed,
-        float accuracyDegrees
+        float accuracyDegrees,
+        Element damageElement
     )
     {
         target = targetTransform;
         damage = dmg;
+        element = damageElement;
+
 
         baseSpeed = projectileSpeed;
         speed = projectileSpeed * preGuidanceSpeedMultiplier;
@@ -170,8 +176,9 @@ public class Projectile : MonoBehaviour
         EnemyHealthModule healthModule = collision.gameObject.GetComponent<EnemyAI>().healthModule;
         if (healthModule != null)
         {
-            healthModule.TakeDamage(damage);
+            healthModule.TakeDamage(damage, element);
         }
+
         
         Destroy(gameObject);
     }

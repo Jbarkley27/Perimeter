@@ -28,6 +28,17 @@ public class StatsManager : MonoBehaviour
     private float critPercent;
 
 
+    [Header("Sector Modifiers")]
+    private double healthFlatSector;
+    private float healthPercentSector;
+    private double barrierFlatSector;
+    private float barrierPercentSector;
+
+    private float critFlatSector;
+    private float critPercentSector;
+
+
+
 
     private void Awake()
     {
@@ -47,17 +58,25 @@ public class StatsManager : MonoBehaviour
         switch (stat)
         {
             case StatType.HEALTH:
-                return (HealthStat + healthFlat) * (1 + healthPercent);
+                return (HealthStat + healthFlat + healthFlatSector) * (1 + healthPercent + healthPercentSector);
             case StatType.BARRIER:
-                return (BarrierStat + barrierFlat) * (1 + barrierPercent);
+                return (BarrierStat + barrierFlat + barrierFlatSector) * (1 + barrierPercent + barrierPercentSector);
             case StatType.CRIT_CHANCE:
-                return Mathf.Clamp01(critChance + critFlat) * (1 + critPercent);
+                return Mathf.Clamp01(critChance + critFlat + critFlatSector) * (1 + critPercent + critPercentSector);
             default:
                 return 0;
         }
     }
 
+
+    // Backwards compatibility for existing callers.
     public void ResetModifiers()
+    {
+        ResetSkillModifiers();
+    }
+
+    // Resets only skill tree modifiers.
+    public void ResetSkillModifiers()
     {
         healthFlat = 0;
         healthPercent = 0f;
@@ -66,6 +85,18 @@ public class StatsManager : MonoBehaviour
         critFlat = 0f;
         critPercent = 0f;
     }
+
+    // Resets only sector modifiers.
+    public void ResetSectorModifiers()
+    {
+        healthFlatSector = 0;
+        healthPercentSector = 0f;
+        barrierFlatSector = 0;
+        barrierPercentSector = 0f;
+        critFlatSector = 0f;
+        critPercentSector = 0f;
+    }
+
 
     public void ApplyModifier(StatType stat, double flat, float percent)
     {
@@ -85,4 +116,25 @@ public class StatsManager : MonoBehaviour
                 break;
         }
     }
+
+    // Applies a modifier from the sector system (separate from skill tree).
+    public void ApplySectorModifier(StatType stat, double flat, float percent)
+    {
+        switch (stat)
+        {
+            case StatType.HEALTH:
+                healthFlatSector += flat;
+                healthPercentSector += percent;
+                break;
+            case StatType.BARRIER:
+                barrierFlatSector += flat;
+                barrierPercentSector += percent;
+                break;
+            case StatType.CRIT_CHANCE:
+                critFlatSector += (float)flat;
+                critPercentSector += percent;
+                break;
+        }
+    }
+
 }

@@ -13,6 +13,8 @@ public class EnemyHealthModule : MonoBehaviour
     public EnemyDataStore.EnemyType enemyType;
     public Slider castTimeSlider;
     public GameObject assignedEnemy;
+    private Element lastHitElement = Element.Kinetic;
+
 
     void Start()
     {
@@ -45,22 +47,38 @@ public class EnemyHealthModule : MonoBehaviour
     public void Initialize(EnemyDataStore.EnemyType type, float health)
     {
         enemyType = type;
-        maxHealth = health;
-        currentHealth = health;
+
+        // Apply sector difficulty + modifier scaling.
+        float scaledHealth = health;
+        if (SectorManager.Instance != null)
+            scaledHealth *= SectorManager.Instance.GetEnemyHealthMultiplier();
+
+        maxHealth = scaledHealth;
+        currentHealth = scaledHealth;
         healthBarSlider.maxValue = maxHealth;
         healthBarSlider.value = currentHealth;
     }
 
 
+
     public void TakeDamage(int amount)
     {
-        // only send the net damage to SignalManager
+        ApplyDamage(amount, Element.Kinetic);
+    }
+
+    public void TakeDamage(int amount, Element element)
+    {
+        ApplyDamage(amount, element);
+    }
+
+    private void ApplyDamage(int amount, Element element)
+    {
+        lastHitElement = element;
+
         int actualDamage = (int)Mathf.Min(currentHealth, amount);
 
         EnemyManager.Instance.AddDamageDealtToEnemies(actualDamage);
 
-        // Debug.Log($"{gameObject.name} took {amount} damage.");
-        // Debug.Log("Damage Signal Received" + actualDamage);
         currentHealth -= amount;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
 
@@ -69,6 +87,7 @@ public class EnemyHealthModule : MonoBehaviour
             Die();
         }
     }
+
 
     private void UpdateHealthBar()
     {
@@ -87,7 +106,9 @@ public class EnemyHealthModule : MonoBehaviour
 
         EnemyManager.Instance.DefeatEnemy(enemyType);
 
-        GlassManager.Instance.CollectGlass(enemyType);
+        if (GlassManager.Instance != null)
+            GlassManager.Instance.CollectGlass(enemyType, lastHitElement);
+
 
         EnemyPooler.Instance.ReturnEnemyToPool(
             assignedEnemy,
@@ -106,4 +127,7 @@ public class EnemyHealthModule : MonoBehaviour
     {
         currentHealth = maxHealth;
     }
+
+
+    
 }

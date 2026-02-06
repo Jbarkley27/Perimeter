@@ -25,4 +25,8 @@ public class SectorModifierDefinition : ScriptableObject
 
     [Header("Rewards (shown on hover, granted later)")]
     public List<SectorRewardEntry> rewards = new List<SectorRewardEntry>();
+    
+    [Header("Spawn Bonuses")]
+    public List<SectorEnemySpawnBonus> spawnBonuses = new List<SectorEnemySpawnBonus>();
+
 }

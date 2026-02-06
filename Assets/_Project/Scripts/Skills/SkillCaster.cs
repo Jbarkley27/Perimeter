@@ -133,12 +133,19 @@ public class SkillCaster : MonoBehaviour
         GameObject proj = Instantiate(data.projectilePrefab, spawnPos, Quaternion.identity);
 
         // LAUNCH WITH ARC + HOMING + SPEED SETTINGS
+        int finalDamage = data.damage;
+        if (SectorManager.Instance != null)
+            finalDamage = Mathf.RoundToInt(data.damage * SectorManager.Instance.GetPlayerDamageMultiplier(data.element));
+
         proj.GetComponent<Projectile>().Launch(
             target,
-            data.damage,
+            finalDamage,
             data.projectileSpeed,
-            data.accuracyAngle
+            data.accuracyAngle,
+            data.element
         );
+
+
 
 
 

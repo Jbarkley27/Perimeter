@@ -33,7 +33,21 @@ public struct SectorRewardEntry
 {
     public string rewardName;
     [TextArea] public string rewardDescription;
+
+    public SectorRewardType rewardType;
+    public float rewardValue; // interpretation depends on rewardType
 }
+
+
+public enum SectorRewardType
+{
+    GlassFlat,
+    GlassPercentCurrent,
+    GlassPercentTotal,
+    AugmentChance,
+    Placeholder
+}
+
 
 /*
  * SectorModifierEffectType
@@ -87,3 +101,25 @@ public struct SectorModifierEffect
         return effectType.ToString();
     }
 }
+
+
+/*
+ * SectorEnemySpawnBonus
+ * ---------------------
+ * Adds extra enemy spawns on top of base wave spawns.
+ * Rolled per base spawn (chance, extraCount).
+ */
+[Serializable]
+public struct SectorEnemySpawnBonus
+{
+    public EnemyDataStore.EnemyType enemyType;
+
+    [Range(0f, 1f)]
+    public float chance;
+
+    public int extraCount;
+
+    [Tooltip("Max extra spawns per wave for this bonus. 0 or less = no cap.")]
+    public int maxExtraPerWave;
+}
+

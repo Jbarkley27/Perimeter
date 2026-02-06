@@ -1,7 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
+
+/*
+ * WaveSpawner
+ * -----------
+ * Spawns enemies in wave order and handles optional bonus spawns
+ * from active sector modifiers.
+ */
+
 
 public class WaveSpawner : MonoBehaviour
 {
@@ -17,6 +24,26 @@ public class WaveSpawner : MonoBehaviour
 
     Coroutine waveRoutine;
 
+
+    [Header("Wave Runtime State")]
+    private int currentWaveTotalCount = 0;
+    private int currentWaveExtraCount = 0;
+    private Dictionary<int, int> bonusSpawnCounts = new Dictionary<int, int>();
+
+
+
+
+    // Initializes wave counts (base list size).
+    private void InitializeWaveCounts(Wave wave)
+    {
+        currentWaveExtraCount = 0;
+        currentWaveTotalCount = wave.enemyIDs.Count;
+        bonusSpawnCounts.Clear();
+
+
+        if (EnemyManager.Instance != null)
+            EnemyManager.Instance.SetWaveTargetCount(currentWaveTotalCount);
+    }
 
 
 
@@ -37,6 +64,7 @@ public class WaveSpawner : MonoBehaviour
         }
 
         Wave wave = waves[currentWaveIndex];
+        InitializeWaveCounts(wave);
         waveRoutine = StartCoroutine(ProcessWave(wave));
     }
 
@@ -59,7 +87,7 @@ public class WaveSpawner : MonoBehaviour
                 yield break;
             }
 
-            SpawnEnemy(enemyID);
+            SpawnEnemy(enemyID, true);
             yield return new WaitForSeconds(wave.spawnDelay);
         }
 
@@ -74,21 +102,25 @@ public class WaveSpawner : MonoBehaviour
     }
 
 
-    public int GetCurrentCountOfEnemiesInWave()
+     public int GetCurrentCountOfEnemiesInWave()
     {
         if (currentWaveIndex >= waves.Count) return 0;
-        return waves[currentWaveIndex].enemyIDs.Count;
+        if (currentWaveTotalCount <= 0)
+            return waves[currentWaveIndex].enemyIDs.Count;
+
+        return currentWaveTotalCount;
     }
 
 
-    private void SpawnEnemy(EnemyDataStore.EnemyType enemyID)
+
+    // Spawns a single enemy. If allowBonus is true, extra spawns may occur.
+    private void SpawnEnemy(EnemyDataStore.EnemyType enemyID, bool allowBonus)
     {
         if (GameManager.Instance.GamePaused)
         {
             Debug.Log("SpawnEnemy called while game is paused. Aborting spawn.");
             return;
         }
-
 
         GameObject enemy = EnemyPooler.Instance.GetEnemy(enemyID);
 
@@ -100,7 +132,74 @@ public class WaveSpawner : MonoBehaviour
         );
 
         enemy.transform.position = pos;
+
+        if (allowBonus)
+            TrySpawnBonusEnemies();
     }
+
+
+    // Rolls and spawns extra enemies based on active sector modifiers.
+        private void TrySpawnBonusEnemies()
+    {
+        if (SectorManager.Instance == null)
+            return;
+
+        List<SectorEnemySpawnBonus> bonuses = SectorManager.Instance.GetActiveSpawnBonuses();
+        if (bonuses == null || bonuses.Count == 0)
+            return;
+
+        int extraSpawned = 0;
+
+        for (int i = 0; i < bonuses.Count; i++)
+        {
+            SectorEnemySpawnBonus bonus = bonuses[i];
+
+            if (bonus.extraCount <= 0 || bonus.chance <= 0f)
+                continue;
+
+            int spawnedSoFar = 0;
+            bonusSpawnCounts.TryGetValue(i, out spawnedSoFar);
+
+            int remaining = bonus.maxExtraPerWave <= 0
+                ? bonus.extraCount
+                : Mathf.Max(0, bonus.maxExtraPerWave - spawnedSoFar);
+
+            if (remaining <= 0)
+                continue;
+
+            if (Random.value <= bonus.chance)
+            {
+                int spawnCount = bonus.extraCount;
+                if (bonus.maxExtraPerWave > 0)
+                    spawnCount = Mathf.Min(spawnCount, remaining);
+
+                for (int j = 0; j < spawnCount; j++)
+                {
+                    SpawnEnemy(bonus.enemyType, false);
+                    extraSpawned++;
+                }
+
+                if (spawnCount > 0)
+                    bonusSpawnCounts[i] = spawnedSoFar + spawnCount;
+            }
+        }
+
+        if (extraSpawned > 0)
+            RegisterExtraSpawns(extraSpawned);
+    }
+
+
+    // Tracks extra spawns so wave completion includes them.
+    private void RegisterExtraSpawns(int count)
+    {
+        currentWaveExtraCount += count;
+        currentWaveTotalCount += count;
+
+        if (EnemyManager.Instance != null)
+            EnemyManager.Instance.AddWaveTargetCount(count);
+    }
+
+
 
 
     public void Reset()
@@ -113,6 +212,10 @@ public class WaveSpawner : MonoBehaviour
         {
             StopCoroutine(waveRoutine);
         }
+
+        if (currentWaveIndex < waves.Count)
+            InitializeWaveCounts(waves[currentWaveIndex]);
+
 
         StartCoroutine(StartNextWave());
     }

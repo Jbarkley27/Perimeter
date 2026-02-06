@@ -78,6 +78,7 @@ public class SectorRewardsBoxUI : MonoBehaviour, IPointerEnterHandler, IPointerE
             : $"[Accept] {rewardSummary}");
 
         ShowRewardReceivedText(rewardSummary);
+        ApplyRewards();
     }
 
 
@@ -100,4 +101,50 @@ public class SectorRewardsBoxUI : MonoBehaviour, IPointerEnterHandler, IPointerE
                     .SetDelay(rewardMessageHoldTime);
             });
     }
+
+
+    // Executes reward effects (currently Glass-only).
+    private void ApplyRewards()
+    {
+        if (boundRewards == null || boundRewards.Count == 0)
+            return;
+
+        foreach (var reward in boundRewards)
+        {
+            switch (reward.rewardType)
+            {
+                case SectorRewardType.GlassFlat:
+                    if (GlassManager.Instance != null)
+                        GlassManager.Instance.AddGlass(reward.rewardValue);
+                    break;
+
+                case SectorRewardType.GlassPercentCurrent:
+                    if (GlassManager.Instance != null)
+                    {
+                        double current = GlassManager.Instance.GetCurrentGlassShards();
+                        GlassManager.Instance.AddGlass(current * (reward.rewardValue / 100f));
+                    }
+                    break;
+
+                case SectorRewardType.GlassPercentTotal:
+                    if (GlassManager.Instance != null)
+                    {
+                        double total = GlassManager.Instance.GetTotalGlassShardsCollected();
+                        GlassManager.Instance.AddGlass(total * (reward.rewardValue / 100f));
+                    }
+                    break;
+
+                case SectorRewardType.AugmentChance:
+                    // TODO: hook to augment system later.
+                    Debug.Log($"[Reward] Augment chance bonus: {reward.rewardValue}%");
+                    break;
+
+                case SectorRewardType.Placeholder:
+                default:
+                    Debug.Log($"[Reward] {reward.rewardName}");
+                    break;
+            }
+        }
+    }
+
 }

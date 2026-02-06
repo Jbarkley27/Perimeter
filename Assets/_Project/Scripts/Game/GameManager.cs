@@ -33,6 +33,18 @@ public class GameManager : MonoBehaviour
         Invoke("EndRun", 5.0f);
     }
 
+    // resetSectors = true resets sector progression, pending choices, and active modifiers back to sector 1.
+    /*
+     * ignoreCompass = true skips showing the compass UI even if a choice is pending and starts the battle phase immediately.
+
+     * For the console/mining “start run” button, you want resetSectors = false and ignoreCompass = false so it shows the compass if a choice is pending.
+     */
+    public void StartBattlePhaseIgnoreCompass()
+    {
+        StartBattlePhase(resetSectors: false, ignoreCompass: false);
+    }
+
+
 
 
     public void StartBattlePhase(bool resetSectors = false, bool ignoreCompass = false)
@@ -53,7 +65,7 @@ public class GameManager : MonoBehaviour
         RoundOver = true;
 
         Debug.Log("Run Ended....");
-        Debug.Log("EndRun called. RunManager.Instance = " + (RunManager.Instance != null));
+        
 
 
 

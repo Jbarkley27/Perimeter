@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec3a993d0e7664c7fa519e14fbfc84f7, type: 3}
+  m_Name: Heat_Bloom
+  m_EditorClassIdentifier: Assembly-CSharp::SectorModifierDefinition
+  modifierId: heat_bloom
+  displayName: Heat Bloom
+  description: Scorch damage from all combatants is increased. Glass earned from
+    scorch kills are doubled.
+  rarity: 1
+  minSectorReq: 4
+  isHoldCourse: 0
+  effects:
+  - effectType: 18
+    value: 2
+    element: 1
+  - effectType: 17
+    value: 1.2
+    element: 1
+  rewards: []
+  spawnBonuses: []

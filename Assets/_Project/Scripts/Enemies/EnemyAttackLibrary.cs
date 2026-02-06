@@ -1,8 +1,13 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 // This class is a library for enemy attack behaviors
 // TODO: add the damage source when we create the Economy System so that enemy damage scales with the game
+
+
+
+
 
 public class EnemyAttackLibrary : MonoBehaviour
 {
@@ -15,6 +20,22 @@ public class EnemyAttackLibrary : MonoBehaviour
     public GameObject enemyProjectilePrefab;
 
     public static EnemyAttackLibrary Instance { get; private set; }
+
+    /*
+     * AttackElementEntry
+     * ------------------
+     * Maps an enemy attack ID to a damage element.
+     */
+    [System.Serializable]
+    public struct AttackElementEntry
+    {
+        public EnemyAttackID attackID;
+        public Element element;
+    }
+
+    [Header("Attack Elements")]
+    public List<AttackElementEntry> attackElements = new List<AttackElementEntry>();
+
 
     private void Awake()
     {
@@ -67,7 +88,22 @@ public class EnemyAttackLibrary : MonoBehaviour
         ).GetComponent<EnemyProjectile>();
 
 
-        projectile.Launch(GlobalDataStore.Instance.PlayerPosition, 4, 100f);
+        // Base damage uses the enemy context if set; otherwise defaults to 4.
+        Element attackElement = Element.Kinetic;
+        if (enemyContext != null)
+            attackElement = GetAttackElement(enemyContext.enemyAttackID);
+
+        float baseDamage = enemyContext != null && enemyContext.damage > 0 ? (float)enemyContext.damage : 4f;
+
+        float damageMult = SectorManager.Instance != null
+            ? SectorManager.Instance.GetEnemyDamageMultiplier(attackElement)
+            : 1f;
+
+        int finalDamage = Mathf.RoundToInt(baseDamage * damageMult);
+
+        projectile.Launch(GlobalDataStore.Instance.PlayerPosition, finalDamage, 100f);
+
+
 
         yield return new WaitForSeconds(0.1f);
 
@@ -86,33 +122,20 @@ public class EnemyAttackLibrary : MonoBehaviour
 
         yield return null;
     }
+
+
+    // Returns the element for a given attack ID (defaults to Kinetic).
+    public Element GetAttackElement(EnemyAttackID attackID)
+    {
+        for (int i = 0; i < attackElements.Count; i++)
+        {
+            if (attackElements[i].attackID == attackID)
+                return attackElements[i].element;
+        }
+
+        return Element.Kinetic;
+    }
+
 }
 
 
-// public static class EnemyAttacks
-//     {
-//         public static IEnumerator SingleShotAttack(EnemyAI enemyContext, Transform projectileSource)
-//         {
-//             // spawn an EnemyProjectile from the projectileSource
-//             EnemyProjectile projectile = Instantiate(
-//                 GlobalDataStore.Instance.EnemyProjectilePrefab,
-//                 projectileSource.position,
-//                 projectileSource.rotation
-//             ).GetComponent<EnemyProjectile>();
-
-
-//         }
-
-//         public static IEnumerator SpreadShotAttack(EnemyAI enemyContext, Transform[] projectileSources)
-//         {
-//             // Example spread shot attack logic
-//             Debug.Log($"{enemyContext.gameObject.name} is performing Spread Shot Attack!");
-
-//             // Simulate attack delay
-//             yield return new WaitForSeconds(0.5f);
-
-//             // Here you would instantiate multiple projectiles from each source in a spread pattern
-
-//             yield return null;
-//         }
-//     }
