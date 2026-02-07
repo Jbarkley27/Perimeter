@@ -24,6 +24,8 @@ public class EnemyManager : MonoBehaviour
     public bool PlayerWonBySwarmDefeated = false;
     public GameObject EnemyHealthModulePrefab;
     public Transform EnemyHealthModuleParent;
+    private int currentWaveTargetCount = 0;
+
 
 
     public Dictionary<EnemyDataStore.EnemyType, int> enemiesDefeatedByTypeThisRun = new Dictionary<EnemyDataStore.EnemyType, int>()
@@ -60,18 +62,17 @@ public class EnemyManager : MonoBehaviour
     void Update()
     {
         if (GameManager.Instance.RoundOver) return;
-        deltaBarSlider.value = totalEnemiesDeafeatedThisRun;
 
-        // check if player has defeated all enemies in the wave
-        // if (waveSpawner.GetCurrentCountOfEnemiesInWave() == totalEnemiesDeafeatedThisRun
-        //     && GameManager.Instance.RoundOver == false)
+        if (deltaBarSlider != null)
+            deltaBarSlider.value = totalEnemiesDeafeatedThisRun;
+
+
+        // int target = waveSpawner.GetCurrentCountOfEnemiesInWave();
+        // if (totalEnemiesDeafeatedThisRun >= target && !GameManager.Instance.RoundOver)
         // {
-        //     // we don't want to trigger this multiple times even when the round is already over
         //     PlayerWonBySwarmDefeated = true;
         //     GameManager.Instance.EndRun();
         // }
-
-
     }
 
     public void DefeatEnemy(EnemyDataStore.EnemyType enemyType)
@@ -100,17 +101,37 @@ public class EnemyManager : MonoBehaviour
         }
 
         // check if player has defeated all enemies in the wave
-        if (deltaBarSlider.value >= deltaBarSlider.maxValue
+        if (currentWaveTargetCount > 0
+            && totalEnemiesDeafeatedThisRun >= currentWaveTargetCount
             && GameManager.Instance.RoundOver == false)
         {
-            // we don't want to trigger this multiple times even when the round is already over
+            if (deltaBarSlider != null)
+                deltaBarSlider.value = totalEnemiesDeafeatedThisRun;
             PlayerWonBySwarmDefeated = true;
             GameManager.Instance.EndRun();
         }
     }
 
+
+
+
+
+    public bool HasDefeatedAllEnemiesInCurrentWave()
+    {
+        return currentWaveTargetCount > 0
+            && totalEnemiesDeafeatedThisRun >= currentWaveTargetCount;
+    }
+
+
+
     public void Reset()
     {
+        if (waveSpawner == null)
+        {
+            Debug.LogWarning("[EnemyManager] waveSpawner not assigned.");
+            return;
+        }
+
         totalEnemiesDeafeatedThisRun = 0;
         PlayerWonBySwarmDefeated = false;
 
@@ -125,7 +146,12 @@ public class EnemyManager : MonoBehaviour
 
         SetWaveTargetCount(waveSpawner.GetCurrentCountOfEnemiesInWave());
 
-        deltaBarSlider.value = 0;
+        if (deltaBarSlider != null)
+        {
+            deltaBarSlider.maxValue = waveSpawner.GetCurrentCountOfEnemiesInWave();
+            deltaBarSlider.value = 0;
+        }
+
     }
 
 
@@ -153,11 +179,6 @@ public class EnemyManager : MonoBehaviour
         return totalEnemiesDeafeatedThisRun;
     }
 
-    // public bool HasPlayerDealtRequiredDamageToWin()
-    // {
-    //     return totalDamageDealtToEnemiesThisRun >= requiredDamageToWin;
-    // }
-
 
     public bool RequestEnemyAttackPermission(EnemyDataStore.EnemyType enemyType)
     {
@@ -180,6 +201,8 @@ public class EnemyManager : MonoBehaviour
     // Sets the target count for the delta bar (used by wave spawner).
     public void SetWaveTargetCount(int targetCount)
     {
+        currentWaveTargetCount = targetCount;
+
         if (deltaBarSlider == null)
             return;
 

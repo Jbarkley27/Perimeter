@@ -25,23 +25,36 @@ public class EnemyHealthModule : MonoBehaviour
 
     void Update()
     {
+        AutoDestroyIfNoEnemyAssigned();
+
         if (assignedEnemy)
         {
             FollowWorldSpaceEnemyPosition(assignedEnemy.transform);
             UpdateHealthBar();
         }
+    }
 
+
+    public void AutoDestroyIfNoEnemyAssigned()
+    {
+        if (assignedEnemy == null || !assignedEnemy.activeInHierarchy)
+        {
+            Destroy(gameObject);
+            return;
+        }
     }
 
 
     public void FollowWorldSpaceEnemyPosition(Transform enemyTransform)
     {
-        // This is on a UI Canvas NOT in world space, so we need to convert the world position to screen position
+        if (enemyTransform == null || Camera.main == null)
+            return;
+
         Vector3 worldPosition = enemyTransform.position + new Vector3(0, heightOffset, 0);
-        // Debug.Log("Enemy World Position: " + worldPosition);
         Vector3 screenPosition = Camera.main.WorldToScreenPoint(worldPosition);
         transform.position = screenPosition;
     }
+
 
 
     public void Initialize(EnemyDataStore.EnemyType type, float health)
@@ -55,9 +68,14 @@ public class EnemyHealthModule : MonoBehaviour
 
         maxHealth = scaledHealth;
         currentHealth = scaledHealth;
-        healthBarSlider.maxValue = maxHealth;
-        healthBarSlider.value = currentHealth;
+
+        if (healthBarSlider != null)
+        {
+            healthBarSlider.maxValue = maxHealth;
+            healthBarSlider.value = currentHealth;
+        }
     }
+
 
 
 
@@ -98,11 +116,17 @@ public class EnemyHealthModule : MonoBehaviour
     }
 
 
+
     private void Die()
     {
-        // Debug.Log($"{gameObject.name} has died.");
+        if (EnemyManager.Instance == null || EnemyPooler.Instance == null)
+            return;
         
         // Add death logic here (e.g., play animation, drop loot, etc.)
+
+        if (castTimeSlider != null)
+            castTimeSlider.gameObject.SetActive(false);
+
 
         EnemyManager.Instance.DefeatEnemy(enemyType);
 
@@ -110,18 +134,25 @@ public class EnemyHealthModule : MonoBehaviour
             GlassManager.Instance.CollectGlass(enemyType, lastHitElement);
 
 
-        EnemyPooler.Instance.ReturnEnemyToPool(
-            assignedEnemy,
-            enemyType
-        );
+        if (assignedEnemy != null)
+        {
+            EnemyPooler.Instance.ReturnEnemyToPool(
+                assignedEnemy,
+                enemyType
+            );
+        }
     }
 
 
     public void ShowDamageUI(int damage)
     {
+        if (damageNumberPrefab == null)
+            return;
+
         Vector3 offsetVec = new Vector3(transform.position.x, heightOffset, transform.position.z);
-        if (damageNumberPrefab) damageNumberPrefab.Spawn(offsetVec, damage.ToString());
+        damageNumberPrefab.Spawn(offsetVec, damage.ToString());
     }
+
 
     public void ResetHealth()
     {

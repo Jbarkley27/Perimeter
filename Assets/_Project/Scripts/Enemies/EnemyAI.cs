@@ -43,6 +43,11 @@ public class EnemyAI : MonoBehaviour
     private Vector3 currentSlot;
     private float slotTimer;
 
+
+    // Tracks the active attack coroutine so we can stop it on disable.
+    private Coroutine attackRoutine;
+
+
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
@@ -57,36 +62,57 @@ public class EnemyAI : MonoBehaviour
         ring = player.GetComponent<PositionRing>();
 
         PickRandomSlot();
+        ResetEnemy();
         InvokeRepeating(nameof(RandomizeAgentStats), 0f, statUpdateInterval);
-        
+        StartCoroutine(EnsureHealthModule());
+    }
+
+
+    private IEnumerator EnsureHealthModule()
+    {
+        while (EnemyManager.Instance == null)
+            yield return null;
+
         ResetEnemy();
     }
 
 
     public void SetupHealthModule()
     {
-        // Debug.Log(EnemyManager.Instance + "Enemy Manager");
-        // Debug.Log(EnemyManager.Instance.EnemyHealthModulePrefab + "Prefab");
-        // Debug.Log(EnemyManager.Instance.EnemyHealthModuleParent + "Parent");
-        // Debug.Log(healthModule + "Current Module");
-
-
-        if (EnemyManager.Instance.EnemyHealthModulePrefab != null
-            && EnemyManager.Instance.EnemyHealthModuleParent != null) 
+        if (EnemyManager.Instance == null)
         {
-            // Debug.Log("Setting up health module...");
-            GameObject healthModuleGO = Instantiate(
-                EnemyManager.Instance.EnemyHealthModulePrefab,
-                EnemyManager.Instance.EnemyHealthModuleParent
-            );
-
-            healthModule = healthModuleGO.GetComponent<EnemyHealthModule>();
-            castTimeSlider = healthModule.castTimeSlider;
-            healthModule.assignedEnemy = this.gameObject;
-            castTimeSlider.gameObject.SetActive(false);
-            healthModule.Initialize(enemyType, (int)BaseHealth);
+            Debug.LogWarning("[EnemyAI] EnemyManager.Instance is null.");
+            return;
         }
+
+        if (EnemyManager.Instance.EnemyHealthModulePrefab == null
+            || EnemyManager.Instance.EnemyHealthModuleParent == null)
+        {
+            Debug.LogWarning("[EnemyAI] Health module prefab/parent missing.");
+            return;
+        }
+
+        GameObject healthModuleGO = Instantiate(
+            EnemyManager.Instance.EnemyHealthModulePrefab,
+            EnemyManager.Instance.EnemyHealthModuleParent
+        );
+
+        healthModule = healthModuleGO.GetComponent<EnemyHealthModule>();
+        if (healthModule == null)
+        {
+            Debug.LogWarning("[EnemyAI] EnemyHealthModule component missing on prefab.");
+            return;
+        }
+
+        castTimeSlider = healthModule.castTimeSlider;
+        healthModule.assignedEnemy = this.gameObject;
+
+        if (castTimeSlider != null)
+            castTimeSlider.gameObject.SetActive(false);
+
+        healthModule.Initialize(enemyType, (int)BaseHealth);
     }
+
 
 
 
@@ -95,14 +121,10 @@ public class EnemyAI : MonoBehaviour
         if (!player) return;
         if (GameManager.Instance.GamePaused) return;
 
-        // if (healthModule == null)
-        // {
-        //     Debug.Log("Health module missing, setting up...");
-        //     SetupHealthModule();
-        // }
-
         // Move toward current slot
-        agent.SetDestination(currentSlot);
+        if (agent != null && agent.enabled && agent.isOnNavMesh)
+            agent.SetDestination(currentSlot);
+
 
         // Look at player, not movement direction
         Vector3 lookDir = (player.position - transform.position);
@@ -124,7 +146,10 @@ public class EnemyAI : MonoBehaviour
         // Attack range logic
         float dist = Vector3.Distance(transform.position, player.position);
         inAttackRange = dist <= attackRange;
-        // agent.isStopped = inAttackRange;
+
+        if (castTimeSlider == null)
+            return;
+
         CanAttackPlayer();
     }
 
@@ -155,6 +180,14 @@ public class EnemyAI : MonoBehaviour
 
     private void OnDisable()
     {
+        ForceHideHealthUI();
+
+        if (attackRoutine != null)
+        {
+            StopCoroutine(attackRoutine);
+            attackRoutine = null;
+        }
+
         // Check if the agent was attacking, if so return its attack permission
         if (isAttacking)
         {
@@ -175,6 +208,7 @@ public class EnemyAI : MonoBehaviour
         // Reset other stuff
         isOnCooldown = false;
         if (castTimeSlider) castTimeSlider.gameObject.SetActive(false);
+        
         if (healthModule) Destroy(healthModule.gameObject);
         healthModule = null;
     }
@@ -186,29 +220,45 @@ public class EnemyAI : MonoBehaviour
         isOnCooldown = false;
         slotTimer = 0f;
         PickRandomSlot();
-        // SetupHealthModule();
+        SetupHealthModule();
     }
 
 
     public void CanAttackPlayer()
     {
-        // Debug.Log("Checking if enemy can attack player...");
         if (InAttackRange()
             && !isAttacking
             && !isOnCooldown)
         {
-            // Debug.Log($"{gameObject.name} is attempting to attack the player.");
             // Start attack coroutine
             if (EnemyManager.Instance.RequestEnemyAttackPermission(enemyType))
-                StartCoroutine(EnemyAttackCoroutine());
+                attackRoutine = StartCoroutine(EnemyAttackCoroutine());
+
         }
     }
 
     private IEnumerator EnemyAttackCoroutine()
     {
+        if (castTimeSlider == null)
+        {
+            isAttacking = false;
+            yield break;
+        }
+
+        if (enemyBodyTransform == null)
+        {
+            isAttacking = false;
+            yield break;
+        }
+
         isAttacking = true;
-        castTimeSlider.gameObject.SetActive(true);
-        castTimeSlider.value = 0f;
+
+        if (castTimeSlider != null)
+        {
+            castTimeSlider.gameObject.SetActive(true);
+            castTimeSlider.value = 0f;
+        }
+
 
         float elapsed = 0f;
         while (elapsed < attackCastTime)
@@ -224,35 +274,44 @@ public class EnemyAI : MonoBehaviour
 
 
         // animate slider
-        castTimeSlider.gameObject.transform.DOPunchScale(Vector3.one * 0.2f, 0.3f, 10, 1)
-            .SetEase(Ease.OutCubic)
-            .OnComplete(() =>
-            {
-                castTimeSlider.gameObject.transform.localScale = Vector3.one;
-                castTimeSlider.gameObject.SetActive(false);
-            });
+        if (castTimeSlider != null)
+        {
+            castTimeSlider.gameObject.transform.DOPunchScale(Vector3.one * 0.2f, 0.3f, 10, 1)
+                .SetEase(Ease.OutCubic)
+                .OnComplete(() =>
+                {
+                    castTimeSlider.gameObject.transform.localScale = Vector3.one;
+                    castTimeSlider.gameObject.SetActive(false);
+                });
+        }
+
 
 
 
         // Perform attack
-        StartCoroutine(
-            EnemyAttackLibrary.Instance.PerformAttack(
-                enemyAttackID,
-                this,
-                new Transform[] { enemyBodyTransform } // for now, just use the body transform as the projectile source
-            )
-        );
+        if (EnemyAttackLibrary.Instance != null)
+        {
+            StartCoroutine(
+                EnemyAttackLibrary.Instance.PerformAttack(
+                    enemyAttackID,
+                    this,
+                    new Transform[] { enemyBodyTransform }
+                )
+            );
+        }
+
 
 
         // Deal damage to player
-       // later add projectile/attaack system that shoots a new EnemyProjectile toward the player
-                // animate enemy body
-        enemyBodyTransform.DOPunchScale(Vector3.one * 0.15f, 0.2f, 10, 1)
-            .SetEase(Ease.OutCubic)
-            .OnComplete(() =>
-            {
-                enemyBodyTransform.localScale = Vector3.one;
-            });
+        // later add projectile/attaack system that shoots a new EnemyProjectile toward the player
+        // animate enemy body
+        if (enemyBodyTransform != null)
+            enemyBodyTransform.DOPunchScale(Vector3.one * 0.15f, 0.2f, 10, 1)
+                .SetEase(Ease.OutCubic)
+                .OnComplete(() =>
+                {
+                    enemyBodyTransform.localScale = Vector3.one;
+                });
 
 
         // wait a bit before allowing movement again
@@ -269,7 +328,26 @@ public class EnemyAI : MonoBehaviour
         // Start cooldown
         yield return new WaitForSeconds(attackCooldown);
         isOnCooldown = false;
+        attackRoutine = null;
     }
+
+
+    // Immediately hides and destroys the health UI (cast slider + health bar).
+    public void ForceHideHealthUI()
+    {
+        if (castTimeSlider != null)
+            castTimeSlider.gameObject.SetActive(false);
+
+        if (healthModule != null)
+        {
+            healthModule.gameObject.SetActive(false);
+            Destroy(healthModule.gameObject);
+            healthModule = null;
+        }
+
+        castTimeSlider = null;
+    }
+
 }
 
 

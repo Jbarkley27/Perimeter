@@ -24,6 +24,10 @@ public class EnemyProjectile : MonoBehaviour
         float speed
     )
     {
+
+        if (rb == null)
+            rb = GetComponent<Rigidbody>();
+
         damage = dmg;
 
         Vector3 direction = (target.position - transform.position).normalized;
@@ -42,11 +46,12 @@ public class EnemyProjectile : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        Debug.Log($"EnemyProjectile collided with {collision.gameObject.name}");
         if (!collision.gameObject.CompareTag("PlayerHit"))
             return;
 
-        GlobalDataStore.Instance.BarrierModule.TakeDamage(damage);
+        if (GlobalDataStore.Instance != null && GlobalDataStore.Instance.BarrierModule != null)
+            GlobalDataStore.Instance.BarrierModule.TakeDamage(damage);
+
 
         Destroy(gameObject);
     }

@@ -93,6 +93,11 @@ public class EnemyPooler : MonoBehaviour
             return;
         }
 
+        var ai = enemy.GetComponent<EnemyAI>();
+        if (ai != null)
+            ai.ForceHideHealthUI();
+
+
 
         enemy.SetActive(false);
         enemy.transform.SetParent(inactiveParent);

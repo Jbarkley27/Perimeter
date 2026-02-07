@@ -29,8 +29,6 @@ public class GameManager : MonoBehaviour
         RoundOver = false;
         if (autoStartBattlePhase) StartBattlePhase(true);
         RunAttempts = -1;
-
-        Invoke("EndRun", 5.0f);
     }
 
     // resetSectors = true resets sector progression, pending choices, and active modifiers back to sector 1.
@@ -64,7 +62,6 @@ public class GameManager : MonoBehaviour
         if (RoundOver) return;
         RoundOver = true;
 
-        Debug.Log("Run Ended....");
         
 
 
@@ -88,7 +85,6 @@ public class GameManager : MonoBehaviour
     public IEnumerator RestartRun(bool resetSectors)
     {
         RoundOver = false;
-        Debug.Log(RunAttempts == 0 ? "Starting Run" : "Restarting Run...");
 
         // Restor Barrier Signal
         GlobalDataStore.Instance.BarrierModule.ResetHealthBarrier();

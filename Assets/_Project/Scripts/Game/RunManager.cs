@@ -77,7 +77,7 @@ public class RunManager : MonoBehaviour
 
     private void Update()
     {
-
+        
     }
 
     // -----------------------------
@@ -139,8 +139,6 @@ public class RunManager : MonoBehaviour
 
         Color c = endRunBorderImage.color;
 
-        endRunCanvasGroup.alpha = 1;
-
         endRunScreen.SetActive(true);
         if (endRunCanvasGroup != null)
         {
@@ -167,6 +165,7 @@ public class RunManager : MonoBehaviour
 
         if (isWin)
         {
+            Debug.Log("Player won the run! Showing rewards and compass.");
             BuildEndRunRewards();
             if (activeModifierUI != null)
                 activeModifierUI.Refresh();
@@ -174,11 +173,14 @@ public class RunManager : MonoBehaviour
         }
         else
         {
+            Debug.Log("Player lost the run. Hiding rewards and compass.");
             if (SectorManager.Instance != null)
                 SectorManager.Instance.ClearRunModifierState();
 
             HideCompass();
         }
+
+        endRunCanvasGroup.alpha = 1;
 
         if (restartRunButton != null)
             restartRunButton.SetActive(!isWin);
@@ -252,7 +254,7 @@ public class RunManager : MonoBehaviour
     private bool WasRunVictory()
     {
         return EnemyManager.Instance != null
-            && EnemyManager.Instance.GetPercentOfEnemiesDefeatedInCurrentWave() >= 1f;
+            && EnemyManager.Instance.HasDefeatedAllEnemiesInCurrentWave();
     }
 
     // Builds the rewards for the end-run box (current sector + active modifier).

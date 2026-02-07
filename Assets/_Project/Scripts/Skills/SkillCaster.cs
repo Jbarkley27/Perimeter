@@ -149,7 +149,6 @@ public class SkillCaster : MonoBehaviour
 
 
 
-        if (target) Debug.Log($"[SkillCaster] Fired {data.skillName} → {target.name}");
     }
 
 

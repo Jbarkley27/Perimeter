@@ -49,7 +49,12 @@ public class WaveSpawner : MonoBehaviour
 
     public IEnumerator StartNextWave()
     {
-        Debug.Log("Starting Next Wave...");
+        if (waves == null || waves.Count == 0)
+        {
+            Debug.LogWarning("[WaveSpawner] No waves configured.");
+            yield break;
+        }
+
         if (isSpawning || GameManager.Instance.GamePaused) yield return null;
 
         if (waveRoutine != null)
@@ -59,7 +64,6 @@ public class WaveSpawner : MonoBehaviour
 
         if (currentWaveIndex >= waves.Count) 
         {
-            Debug.Log("All waves completed!");
             yield return null;
         }
 
@@ -75,7 +79,6 @@ public class WaveSpawner : MonoBehaviour
     public IEnumerator ProcessWave(Wave wave)
     {
         isSpawning = true;
-        Debug.Log($"Starting Wave: {wave.waveName}");
 
         foreach (var enemyID in wave.enemyIDs)
         {
@@ -83,7 +86,6 @@ public class WaveSpawner : MonoBehaviour
             {
                 // stop spawning if the game is paused
                 isSpawning = false;
-                Debug.Log("Wave spawning paused.");
                 yield break;
             }
 
@@ -94,7 +96,6 @@ public class WaveSpawner : MonoBehaviour
         wave.isCompleted = true;
         waves[currentWaveIndex] = wave; // update stored struct state
 
-        Debug.Log($"Wave Completed: {wave.waveName}");
 
         // Disabling for now to just use the same wave repeatedly
         currentWaveIndex++;
@@ -116,20 +117,28 @@ public class WaveSpawner : MonoBehaviour
     // Spawns a single enemy. If allowBonus is true, extra spawns may occur.
     private void SpawnEnemy(EnemyDataStore.EnemyType enemyID, bool allowBonus)
     {
+
+        if (player == null)
+        {
+            Debug.LogWarning("[WaveSpawner] Player transform not assigned.");
+            return;
+        }
+
+
         if (GameManager.Instance.GamePaused)
         {
-            Debug.Log("SpawnEnemy called while game is paused. Aborting spawn.");
             return;
         }
 
         GameObject enemy = EnemyPooler.Instance.GetEnemy(enemyID);
 
-        float angle = Random.Range(0f, 360f);
+        float angle = Random.Range(0f, 360f) * Mathf.Deg2Rad;
         Vector3 pos = player.position + new Vector3(
             Mathf.Cos(angle) * spawnRadius,
             0,
             Mathf.Sin(angle) * spawnRadius
         );
+
 
         enemy.transform.position = pos;
 

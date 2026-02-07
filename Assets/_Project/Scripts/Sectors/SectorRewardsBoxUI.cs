@@ -30,6 +30,61 @@ public class SectorRewardsBoxUI : MonoBehaviour, IPointerEnterHandler, IPointerE
 
     private bool rewardsAccepted = false;
     public bool RewardsAccepted => rewardsAccepted;
+    [Header("Follow Mouse")]
+    public Vector3 mouseOffset = new Vector3(15f, -15f, 0f);
+    private bool isHovering;
+
+
+
+    private void Awake()
+    {
+        if (rewardButton == null)
+            rewardButton = GetComponent<Button>() ?? GetComponentInChildren<Button>(true);
+
+        if (rewardButton != null)
+        {
+            rewardButton.onClick.RemoveAllListeners();
+            rewardButton.onClick.AddListener(() => AcceptRewards(false));
+        }
+
+        SetHoverPanelVisible(false);
+    }
+
+    private void Update()
+    {
+        if (!isHovering || hoverPanelRoot == null || !hoverPanelRoot.activeSelf)
+            return;
+
+        FollowMousePosition(GetCursorPosition());
+    }
+
+
+    private void OnEnable()
+    {
+        SetHoverPanelVisible(false);
+    }
+
+    private void OnDisable()
+    {
+        SetHoverPanelVisible(false);
+    }
+
+    private void SetHoverPanelVisible(bool visible)
+    {
+        if (hoverPanelRoot == null)
+            return;
+
+        hoverPanelRoot.SetActive(visible);
+
+        // Make sure the hover panel doesn't block raycasts.
+        CanvasGroup cg = hoverPanelRoot.GetComponent<CanvasGroup>();
+        if (cg != null)
+        {
+            cg.interactable = false;
+            cg.blocksRaycasts = false;
+        }
+    }
+
 
 
     // Binds the rewards that will be shown and accepted.
@@ -46,20 +101,26 @@ public class SectorRewardsBoxUI : MonoBehaviour, IPointerEnterHandler, IPointerE
 
         if (rewardList != null)
             rewardList.SetRewards(boundRewards);
+        
+        SetHoverPanelVisible(false);
+
     }
 
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if (hoverPanelRoot != null)
-            hoverPanelRoot.SetActive(true);
+        isHovering = true;
+        SetHoverPanelVisible(true);
+        FollowMousePosition(GetCursorPosition());
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        if (hoverPanelRoot != null)
-            hoverPanelRoot.SetActive(false);
+        isHovering = false;
+        SetHoverPanelVisible(false);
     }
+
+
 
     // Called by the button (or by auto-accept later).
     public void AcceptRewards(bool autoAccepted)
@@ -79,6 +140,11 @@ public class SectorRewardsBoxUI : MonoBehaviour, IPointerEnterHandler, IPointerE
 
         ShowRewardReceivedText(rewardSummary);
         ApplyRewards();
+        
+        SetHoverPanelVisible(false);
+        hoverPanelRoot?.SetActive(false);
+        gameObject.SetActive(false);
+
     }
 
 
@@ -147,4 +213,16 @@ public class SectorRewardsBoxUI : MonoBehaviour, IPointerEnterHandler, IPointerE
         }
     }
 
+    private Vector3 GetCursorPosition()
+    {
+        if (WorldCursor.instance != null)
+            return WorldCursor.instance.GetCursorPosition();
+
+        return Input.mousePosition;
+    }
+
+    private void FollowMousePosition(Vector3 mousePosition)
+    {
+        hoverPanelRoot.transform.position = mousePosition + mouseOffset;
+    }
 }

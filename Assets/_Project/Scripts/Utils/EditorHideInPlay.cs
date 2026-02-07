@@ -1,26 +1,18 @@
 using UnityEngine;
 
-/*
- * EditorHideInPlay
- * ----------------
- * Hides a GameObject in Edit Mode, but auto‑enables it when Play starts.
- */
 [ExecuteAlways]
-public class EditorHideInPlay : MonoBehaviour
+public class EditorHideInPlayTarget : MonoBehaviour
 {
+    public GameObject target;
     public bool hideInEditMode = true;
 
     private void OnEnable()
     {
+        if (target == null) return;
+
         if (Application.isPlaying)
-        {
-            if (!gameObject.activeSelf)
-                gameObject.SetActive(true);
-        }
+            target.SetActive(true);
         else if (hideInEditMode)
-        {
-            if (gameObject.activeSelf)
-                gameObject.SetActive(false);
-        }
+            target.SetActive(false);
     }
 }

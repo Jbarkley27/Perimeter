@@ -80,6 +80,12 @@ public class EnemyAttackLibrary : MonoBehaviour
 
     public IEnumerator SingleShotAttack(EnemyAI enemyContext, Transform projectileSource)
     {
+        if (enemyProjectilePrefab == null)
+        {
+            Debug.LogWarning("[EnemyAttackLibrary] enemyProjectilePrefab is missing.");
+            yield break;
+        }
+
         // spawn an EnemyProjectile from the projectileSource
         EnemyProjectile projectile = Instantiate(
             enemyProjectilePrefab,
@@ -100,6 +106,12 @@ public class EnemyAttackLibrary : MonoBehaviour
             : 1f;
 
         int finalDamage = Mathf.RoundToInt(baseDamage * damageMult);
+
+        if (GlobalDataStore.Instance == null || GlobalDataStore.Instance.PlayerPosition == null)
+        {
+            Debug.LogWarning("[EnemyAttackLibrary] PlayerPosition is missing.");
+            yield break;
+        }
 
         projectile.Launch(GlobalDataStore.Instance.PlayerPosition, finalDamage, 100f);
 
