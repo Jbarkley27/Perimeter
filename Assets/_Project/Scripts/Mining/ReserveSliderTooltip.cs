@@ -18,14 +18,22 @@ public class ReserveSliderTooltip : MonoBehaviour, IPointerEnterHandler, IPointe
 
     [Header("Follow Mouse")]
     public Vector3 mouseOffset = new Vector3(15f, -15f, 0f);
+    public Canvas rootCanvas;
 
     private bool isHovering;
+    private RectTransform tooltipRect;
 
     // Hide the tooltip on startup.
     private void Awake()
     {
         if (tooltipRoot != null)
             tooltipRoot.SetActive(false);
+
+        if (rootCanvas == null)
+            rootCanvas = GetComponentInParent<Canvas>();
+
+        if (tooltipRoot != null)
+            tooltipRect = tooltipRoot.GetComponent<RectTransform>();
     }
 
     // Keep the tooltip updated while hovering.
@@ -96,9 +104,24 @@ public class ReserveSliderTooltip : MonoBehaviour, IPointerEnterHandler, IPointe
     // Moves the tooltip to the cursor with the configured offset.
     private void FollowMousePosition(Vector3 mousePosition)
     {
-        if (tooltipRoot == null)
+        if (tooltipRect == null)
             return;
 
-        tooltipRoot.transform.position = mousePosition + mouseOffset;
+        RectTransform parentRect = tooltipRect.parent as RectTransform;
+        if (parentRect == null)
+            return;
+
+        Camera cam = rootCanvas != null && rootCanvas.renderMode != RenderMode.ScreenSpaceOverlay
+            ? rootCanvas.worldCamera
+            : null;
+
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            parentRect,
+            mousePosition,
+            cam,
+            out Vector2 localPoint
+        );
+
+        tooltipRect.anchoredPosition = localPoint + (Vector2)mouseOffset;
     }
 }

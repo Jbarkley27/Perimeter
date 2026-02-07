@@ -11,19 +11,30 @@ public class SectorCompassUIController : MonoBehaviour
     [Header("Nodes")]
     public List<SectorCompassNodeUI> nodes = new List<SectorCompassNodeUI>();
 
-    [Header("Hover Info")]
-    public SectorCompassInfoPanel infoPanel;
-    public Vector3 mouseOffset = new Vector3(15f, -15f, 0f);
-
     [Header("Rewards Box")]
     public SectorRewardsBoxUI rewardsBox;
 
     private SectorCompassChoice? hoveredChoice;
 
+    [Header("Hover Info")]
+    public SectorCompassInfoPanel infoPanel;
+    public Vector3 mouseOffset = new Vector3(15f, -15f, 0f);
+    public Canvas rootCanvas;
+
+    private RectTransform infoPanelRect;
+
+
     private void Awake()
     {
         if (infoPanel != null)
             infoPanel.Hide();
+
+        if (rootCanvas == null)
+            rootCanvas = GetComponentInParent<Canvas>();
+
+        if (infoPanel != null)
+            infoPanelRect = infoPanel.GetComponent<RectTransform>();
+
     }
 
     private void Update()
@@ -65,6 +76,8 @@ public class SectorCompassUIController : MonoBehaviour
             if (hasChoice)
                 node.Bind(choice, this);
         }
+
+        HideInfo();
     }
 
     // Hover show.
@@ -144,9 +157,25 @@ public class SectorCompassUIController : MonoBehaviour
 
     private void FollowMousePosition(Vector3 mousePosition)
     {
-        if (infoPanel == null)
+        if (infoPanelRect == null)
             return;
 
-        infoPanel.transform.position = mousePosition + mouseOffset;
+        RectTransform parentRect = infoPanelRect.parent as RectTransform;
+        if (parentRect == null)
+            return;
+
+        Camera cam = rootCanvas != null && rootCanvas.renderMode != RenderMode.ScreenSpaceOverlay
+            ? rootCanvas.worldCamera
+            : null;
+
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            parentRect,
+            mousePosition,
+            cam,
+            out Vector2 localPoint
+        );
+
+        infoPanelRect.anchoredPosition = localPoint + (Vector2)mouseOffset;
     }
+
 }

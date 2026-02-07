@@ -27,7 +27,12 @@ public class SectorRewardListUI : MonoBehaviour
         Clear();
 
         if (contentRoot == null || entryPrefab == null || rewards == null)
+        {
+            Debug.Log($"[SectorRewardListUI] SetRewards skipped (contentRoot={(contentRoot != null)}, entryPrefab={(entryPrefab != null)}, rewardsNull={(rewards == null)})");
             return;
+        }
+
+        Debug.Log($"[SectorRewardListUI] SetRewards building {rewards.Count} entries");
 
         for (int i = 0; i < rewards.Count; i++)
         {

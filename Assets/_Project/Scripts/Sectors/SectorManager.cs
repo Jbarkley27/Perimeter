@@ -173,6 +173,25 @@ public class SectorManager : MonoBehaviour
      */
     public void SelectCompassChoice(SectorCompassChoice choice)
     {
+        // Hold Course should behave like "no active modifier".
+        if (choice.modifier != null && choice.modifier.isHoldCourse)
+        {
+            activeModifier = null;
+            activeEffects.Clear();
+
+            ApplyActiveModifiersToPlayer(); // resets sector modifiers to base
+
+            decisionHistory.Add(new SectorDecisionRecord
+            {
+                sectorIndex = currentSectorIndex,
+                direction = choice.direction,
+                modifierId = "HOLD_COURSE"
+            });
+
+            ClearPendingCompassChoices();
+            return;
+        }
+
         activeModifier = choice.modifier;
         activeEffects.Clear();
 

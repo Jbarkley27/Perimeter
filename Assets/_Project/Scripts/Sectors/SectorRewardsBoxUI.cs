@@ -32,7 +32,9 @@ public class SectorRewardsBoxUI : MonoBehaviour, IPointerEnterHandler, IPointerE
     public bool RewardsAccepted => rewardsAccepted;
     [Header("Follow Mouse")]
     public Vector3 mouseOffset = new Vector3(15f, -15f, 0f);
+    public Canvas rootCanvas;
     private bool isHovering;
+    private RectTransform hoverPanelRect;
 
 
 
@@ -46,6 +48,12 @@ public class SectorRewardsBoxUI : MonoBehaviour, IPointerEnterHandler, IPointerE
             rewardButton.onClick.RemoveAllListeners();
             rewardButton.onClick.AddListener(() => AcceptRewards(false));
         }
+
+        if (rootCanvas == null)
+            rootCanvas = GetComponentInParent<Canvas>();
+
+        if (hoverPanelRoot != null)
+            hoverPanelRect = hoverPanelRoot.GetComponent<RectTransform>();
 
         SetHoverPanelVisible(false);
     }
@@ -101,7 +109,14 @@ public class SectorRewardsBoxUI : MonoBehaviour, IPointerEnterHandler, IPointerE
 
         if (rewardList != null)
             rewardList.SetRewards(boundRewards);
-        
+
+        Debug.Log($"[SectorRewardsBoxUI] BindRewards count={boundRewards.Count} rewardsNull={(rewards == null)}");
+        if (boundRewards.Count > 0)
+        {
+            for (int i = 0; i < boundRewards.Count; i++)
+                Debug.Log($"[SectorRewardsBoxUI] Reward[{i}] {boundRewards[i].rewardName} ({boundRewards[i].rewardType})");
+        }
+
         SetHoverPanelVisible(false);
 
     }
@@ -112,6 +127,14 @@ public class SectorRewardsBoxUI : MonoBehaviour, IPointerEnterHandler, IPointerE
         isHovering = true;
         SetHoverPanelVisible(true);
         FollowMousePosition(GetCursorPosition());
+
+        gameObject.transform.DOPunchScale(Vector3.one * .1f, 0.25f)
+            .SetEase(Ease.Linear)
+            .OnComplete(() =>
+            {
+                // reset scale to ensure no drift
+                gameObject.transform.localScale = Vector3.one;
+            });
     }
 
     public void OnPointerExit(PointerEventData eventData)
@@ -127,6 +150,9 @@ public class SectorRewardsBoxUI : MonoBehaviour, IPointerEnterHandler, IPointerE
     {
         if (rewardsAccepted || boundRewards.Count == 0)
             return;
+
+        Debug.Log($"[SectorRewardsBoxUI] AcceptRewards called auto={autoAccepted} accepted={rewardsAccepted} boundCount={boundRewards.Count} glassTotal={(GlassManager.Instance != null ? GlassManager.Instance.GetTotalGlassShardsCollected() : -1)}");
+
 
         rewardsAccepted = true;
 
@@ -175,8 +201,15 @@ public class SectorRewardsBoxUI : MonoBehaviour, IPointerEnterHandler, IPointerE
         if (boundRewards == null || boundRewards.Count == 0)
             return;
 
+
         foreach (var reward in boundRewards)
         {
+            double before = GlassManager.Instance != null
+                ? GlassManager.Instance.GetTotalGlassShardsCollected()
+                : -1;
+
+            Debug.Log($"[SectorRewardsBoxUI] Applying {reward.rewardType} value={reward.rewardValue} before={before}");
+
             switch (reward.rewardType)
             {
                 case SectorRewardType.GlassFlat:
@@ -201,7 +234,6 @@ public class SectorRewardsBoxUI : MonoBehaviour, IPointerEnterHandler, IPointerE
                     break;
 
                 case SectorRewardType.AugmentChance:
-                    // TODO: hook to augment system later.
                     Debug.Log($"[Reward] Augment chance bonus: {reward.rewardValue}%");
                     break;
 
@@ -210,7 +242,14 @@ public class SectorRewardsBoxUI : MonoBehaviour, IPointerEnterHandler, IPointerE
                     Debug.Log($"[Reward] {reward.rewardName}");
                     break;
             }
+
+            double after = GlassManager.Instance != null
+                ? GlassManager.Instance.GetTotalGlassShardsCollected()
+                : -1;
+
+            Debug.Log($"[SectorRewardsBoxUI] Applied {reward.rewardType} after={after}");
         }
+
     }
 
     private Vector3 GetCursorPosition()
@@ -223,6 +262,24 @@ public class SectorRewardsBoxUI : MonoBehaviour, IPointerEnterHandler, IPointerE
 
     private void FollowMousePosition(Vector3 mousePosition)
     {
-        hoverPanelRoot.transform.position = mousePosition + mouseOffset;
+        if (hoverPanelRect == null)
+            return;
+
+        RectTransform parentRect = hoverPanelRect.parent as RectTransform;
+        if (parentRect == null)
+            return;
+
+        Camera cam = rootCanvas != null && rootCanvas.renderMode != RenderMode.ScreenSpaceOverlay
+            ? rootCanvas.worldCamera
+            : null;
+
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            parentRect,
+            mousePosition,
+            cam,
+            out Vector2 localPoint
+        );
+
+        hoverPanelRect.anchoredPosition = localPoint + (Vector2)mouseOffset;
     }
 }

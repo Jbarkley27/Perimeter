@@ -1,3 +1,4 @@
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -49,6 +50,16 @@ public class SectorCompassNodeUI : MonoBehaviour, IPointerEnterHandler, IPointer
     {
         if (hasChoice && owner != null)
             owner.ShowInfo(boundChoice);
+
+        gameObject.transform.DOKill();
+
+        gameObject.transform.DOPunchScale(Vector3.one * .1f, 0.15f)
+            .SetEase(Ease.Linear)
+            .OnComplete(() =>
+            {
+                // reset scale to ensure no drift
+                gameObject.transform.localScale = Vector3.one;
+            });
     }
 
     public void OnPointerExit(PointerEventData eventData)
@@ -61,5 +72,13 @@ public class SectorCompassNodeUI : MonoBehaviour, IPointerEnterHandler, IPointer
     {
         if (hasChoice && owner != null)
             owner.SelectChoice(boundChoice);
+
+        gameObject.transform.DOPunchScale(Vector3.one * 1.2f, 0.25f)
+            .SetEase(Ease.InBack)
+            .OnComplete(() =>
+            {
+                // reset scale to ensure no drift
+                gameObject.transform.localScale = Vector3.one;
+            });
     }
 }

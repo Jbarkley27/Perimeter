@@ -33,6 +33,9 @@ public class SkillTreeUIManager : MonoBehaviour
     [Header("Follow Mouse Settings")]
     public Vector3 mouseOffset = new Vector3(15f, -15f, 0f);
     public Vector3 equippedOffset = new Vector3(15f, -45f, 0f);
+    public Canvas rootCanvas;
+
+    private RectTransform hoverPanelRect;
 
 
     private void Awake()
@@ -45,6 +48,12 @@ public class SkillTreeUIManager : MonoBehaviour
         }
         Instance = this;
         DontDestroyOnLoad(gameObject);
+
+        if (rootCanvas == null)
+            rootCanvas = GetComponentInParent<Canvas>();
+
+        if (skillHoverCanvasGroup != null)
+            hoverPanelRect = skillHoverCanvasGroup.GetComponent<RectTransform>();
     }
 
     public void Start()
@@ -406,10 +415,29 @@ public class SkillTreeUIManager : MonoBehaviour
     {
         if (!isHovering) return;
 
-        Vector3 targetPosition = mousePosition + (SkillLoadout.Instance.IsSkillEquipped(hoveredSkillData)
-            ? equippedOffset
-            : mouseOffset);
-        skillHoverCanvasGroup.gameObject.transform.position = targetPosition;
+        if (hoverPanelRect == null)
+            return;
+
+        RectTransform parentRect = hoverPanelRect.parent as RectTransform;
+        if (parentRect == null)
+            return;
+
+        Camera cam = rootCanvas != null && rootCanvas.renderMode != RenderMode.ScreenSpaceOverlay
+            ? rootCanvas.worldCamera
+            : null;
+
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            parentRect,
+            mousePosition,
+            cam,
+            out Vector2 localPoint
+        );
+
+        Vector2 offset = SkillLoadout.Instance.IsSkillEquipped(hoveredSkillData)
+            ? (Vector2)equippedOffset
+            : (Vector2)mouseOffset;
+
+        hoverPanelRect.anchoredPosition = localPoint + offset;
     }
 
 

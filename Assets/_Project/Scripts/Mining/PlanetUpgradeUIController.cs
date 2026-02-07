@@ -31,6 +31,8 @@ public class PlanetUpgradeUIController : MonoBehaviour
 
     [Header("Follow Mouse Settings")]
     public Vector3 mouseOffset = new Vector3(15f, -15f, 0f);
+    public Canvas rootCanvas;
+    private RectTransform infoPanelRect;
 
     [Header("Refund")]
     public Button refundButton;
@@ -46,6 +48,12 @@ public class PlanetUpgradeUIController : MonoBehaviour
 
         if (infoPanel != null)
             infoPanel.Hide();
+
+        if (rootCanvas == null)
+            rootCanvas = GetComponentInParent<Canvas>();
+
+        if (infoPanel != null)
+            infoPanelRect = infoPanel.GetComponent<RectTransform>();
     }
 
     // Refresh UI when this panel is enabled.
@@ -218,10 +226,25 @@ public class PlanetUpgradeUIController : MonoBehaviour
     // Moves the hover panel to the cursor with a configurable offset.
     private void FollowMousePosition(Vector3 mousePosition)
     {
-        if (infoPanel == null)
+        if (infoPanelRect == null)
             return;
 
-        infoPanel.transform.position = mousePosition + mouseOffset;
+        RectTransform parentRect = infoPanelRect.parent as RectTransform;
+        if (parentRect == null)
+            return;
+
+        Camera cam = rootCanvas != null && rootCanvas.renderMode != RenderMode.ScreenSpaceOverlay
+            ? rootCanvas.worldCamera
+            : null;
+
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            parentRect,
+            mousePosition,
+            cam,
+            out Vector2 localPoint
+        );
+
+        infoPanelRect.anchoredPosition = localPoint + (Vector2)mouseOffset;
     }
 
 

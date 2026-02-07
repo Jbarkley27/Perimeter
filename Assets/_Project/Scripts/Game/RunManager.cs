@@ -22,10 +22,11 @@ public class RunManager : MonoBehaviour
     public TMP_Text totalDamageDealtText;
     public TMP_Text totalEnemiesDefeatedText;
     public TMP_Text glassCollectedText;
-    public Slider endRunDamageSlider;
+    // public Slider endRunDamageSlider;
     public TMP_Text currentHeaderSectorText;
-    public TMP_Text nextSectorText;
-    public TMP_Text currentSectorExtraText;
+    // public TMP_Text nextSectorText;
+    // public TMP_Text currentSectorExtraText;
+    public TMP_Text victoryText;
 
     [Header("Compass UI")]
     public GameObject compassRoot;
@@ -49,6 +50,9 @@ public class RunManager : MonoBehaviour
 
     [Header("Active Modifier UI")]
     public SectorActiveModifierUI activeModifierUI;
+
+    private SectorDirection? lastChosenDirection = null;
+
 
 
 
@@ -103,18 +107,23 @@ public class RunManager : MonoBehaviour
             glassCollectedText.DOText(GlassManager.Instance.GetCurrentGlassShardsFormatted(), 1);
 
         // End Run Damage Slider Animation to next slider
-        if (endRunDamageSlider)
-            endRunDamageSlider.maxValue = (float)EnemyManager.Instance.requiredDamageToWin;
-            endRunDamageSlider.DOValue((float)(EnemyManager.Instance.GetTotalDamageDealtToEnemiesThisRun() / EnemyManager.Instance.requiredDamageToWin), 1).SetEase(Ease.OutCubic);
+        // if (endRunDamageSlider)
+        //     endRunDamageSlider.maxValue = (float)EnemyManager.Instance.requiredDamageToWin;
+        //     endRunDamageSlider.DOValue((float)(EnemyManager.Instance.GetTotalDamageDealtToEnemiesThisRun() / EnemyManager.Instance.requiredDamageToWin), 1).SetEase(Ease.OutCubic);
 
         if (currentHeaderSectorText)
             currentHeaderSectorText.text = $"Sector {SectorManager.Instance.currentSectorIndex + 1}";
 
-        if (nextSectorText)
-            nextSectorText.text = SectorManager.Instance.GetNextSectorIndex()  + "";
+        // if (nextSectorText)
+        //     nextSectorText.text = SectorManager.Instance.GetNextSectorIndex()  + "";
 
-        if (currentSectorExtraText)
-            currentSectorExtraText.text = SectorManager.Instance.GetCurrentSectorIndex() + "";
+        // if (currentSectorExtraText)
+        //     currentSectorExtraText.text = SectorManager.Instance.GetCurrentSectorIndex() + "";
+
+        if (victoryText)
+            victoryText.text = WasRunVictory() 
+                ? "Victory! Accept your rewards and set next course." 
+                : "You were overwhelmed by The Swarm.";
     }
 
 
@@ -263,15 +272,22 @@ public class RunManager : MonoBehaviour
         pendingEndRunRewards.Clear();
 
         Sector current = SectorManager.Instance != null ? SectorManager.Instance.GetCurrentSector() : null;
+        int baseRewardCount = current != null && current.baseRewards != null ? current.baseRewards.Count : 0;
         if (current != null && current.baseRewards != null)
             pendingEndRunRewards.AddRange(current.baseRewards);
 
         SectorModifierDefinition active = SectorManager.Instance != null ? SectorManager.Instance.ActiveModifier : null;
+        int modifierRewardCount = active != null && active.rewards != null ? active.rewards.Count : 0;
+
+        Debug.Log($"[RunManager] BuildEndRunRewards sector={SectorManager.Instance?.GetCurrentSectorIndex()} baseRewards={baseRewardCount} activeModifier={(active != null ? active.displayName : "None")} modifierRewards={modifierRewardCount}");
+
         if (active != null && active.rewards != null)
             pendingEndRunRewards.AddRange(active.rewards);
 
         if (rewardsBox != null)
             rewardsBox.BindRewards(pendingEndRunRewards);
+
+        Debug.Log($"[RunManager] Total rewards bound={pendingEndRunRewards.Count}");
     }
 
     // Auto-accept rewards if the player didn't click the box.
@@ -316,12 +332,19 @@ public class RunManager : MonoBehaviour
     {
         if (compassRoot != null)
             compassRoot.SetActive(false);
+
+        if (compassUI != null)
+            compassUI.HideInfo();
+
     }
 
     // Called by compass UI when a direction is selected.
     public void OnCompassChoiceSelected(SectorCompassChoice choice)
     {
         TryAutoAcceptRewards(true);
+
+        // Apply animation to direction button
+
 
         if (SectorManager.Instance != null)
         {
@@ -339,24 +362,44 @@ public class RunManager : MonoBehaviour
 
         if (GameManager.Instance != null)
             GameManager.Instance.StartBattlePhase(false, true);
+
+        if (compassUI != null)
+            compassUI.HideInfo();
+
     }
 
     // Rotates the ship and updates starfield direction.
     private void ApplySectorDirectionVisuals(SectorDirection direction)
     {
-        float yaw = 0f;
-        switch (direction)
+        // Exit early if the same direction is chosen again (can happen when returning from console), but still update starfield in case it got reset.
+        if (lastChosenDirection.HasValue && lastChosenDirection.Value == direction)
         {
-            case SectorDirection.North: yaw = 0f; break;
-            case SectorDirection.East: yaw = 90f; break;
-            case SectorDirection.South: yaw = 180f; break;
-            case SectorDirection.West: yaw = 270f; break;
+            // Still update starfield (in case it got reset elsewhere).
+            float yawSame = GetYawForDirection(direction);
+            Vector3 forwardSame = Quaternion.Euler(0f, yawSame, 0f) * Vector3.forward;
+            ApplyStarfieldVelocity(-forwardSame);
+            return;
         }
+
+        lastChosenDirection = direction;
+
+        float yaw = GetYawForDirection(direction);
 
         if (playerShipRoot != null)
         {
+            float currentYaw = GetCurrentYaw();
+            float delta = Mathf.DeltaAngle(currentYaw, yaw);
+
+            // Already facing target direction → no rotation
+            if (Mathf.Abs(delta) < 0.1f)
+            {
+                Vector3 forwardD = Quaternion.Euler(0f, yaw, 0f) * Vector3.forward;
+                ApplyStarfieldVelocity(-forwardD);
+                return;
+            }
+
             playerShipRoot.DOKill();
-            playerShipRoot.DORotate(new Vector3(0f, yaw, 0f), shipRotateDuration)
+            playerShipRoot.DORotate(new Vector3(0f, yaw, 0f), shipRotateDuration, RotateMode.Fast)
                 .SetEase(shipRotateEase);
         }
 
@@ -401,4 +444,27 @@ public class RunManager : MonoBehaviour
             target,
             backgroundLerpDuration);
     }
+
+
+
+    private float GetYawForDirection(SectorDirection direction)
+    {
+        switch (direction)
+        {
+            case SectorDirection.North: return 0f;
+            case SectorDirection.East: return 90f;
+            case SectorDirection.South: return 180f;
+            case SectorDirection.West: return 270f;
+            default: return 0f;
+        }
+    }
+
+    private float GetCurrentYaw()
+    {
+        if (playerShipRoot == null)
+            return 0f;
+
+        return Mathf.Repeat(playerShipRoot.eulerAngles.y, 360f);
+    }
+
 }

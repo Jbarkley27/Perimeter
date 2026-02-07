@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Sector
   sectorID: 0
   sectorName: A
-  backgroundColor: {r: 0.07008723, g: 0.101493604, b: 0.3301887, a: 1}
+  backgroundColor: {r: 0.16862746, g: 0.19215687, b: 0.36078432, a: 1}
   baseRewards:
   - rewardName: Glass Bundle
     rewardDescription: Gain 10% of your current glass reserves
     rewardType: 2
-    rewardValue: 0.1
+    rewardValue: 10

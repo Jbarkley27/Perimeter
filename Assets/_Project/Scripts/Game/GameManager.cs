@@ -48,10 +48,15 @@ public class GameManager : MonoBehaviour
     public void StartBattlePhase(bool resetSectors = false, bool ignoreCompass = false)
     {
         if (!ignoreCompass && RunManager.Instance != null && RunManager.Instance.TryShowCompassOnly())
+        {
+            if (ConsoleUIManager.Instance != null)
+                ConsoleUIManager.Instance.CloseConsole(); 
             return;
+        }
 
         StartCoroutine(RestartRun(resetSectors));
     }
+
 
 
 
@@ -63,9 +68,6 @@ public class GameManager : MonoBehaviour
         RoundOver = true;
 
         
-
-
-
         // Clear active enemies
         GlobalDataStore.Instance.EnemyPooler.ClearAllActiveEnemies();
 
