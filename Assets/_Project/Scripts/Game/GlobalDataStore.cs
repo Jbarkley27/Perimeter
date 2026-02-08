@@ -7,6 +7,7 @@ public class GlobalDataStore : MonoBehaviour
     public GameObject Player;
     public SkillElementLibrary SkillElementLibrary;
     public SkillCaster SkillCaster;
+    public SkillTreeUIController SkillTreeUIController;
     public EnemyPooler EnemyPooler;
     public WaveSpawner WaveSpawner;
     public BarrierModule BarrierModule;

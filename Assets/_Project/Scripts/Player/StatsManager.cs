@@ -8,7 +8,8 @@ public class StatsManager : MonoBehaviour
     {
         HEALTH,
         BARRIER,
-        CRIT_CHANCE
+        CRIT_CHANCE,
+        LOADOUT_SLOTS
     }
 
     [Header("Health/Barrier Stats")]
@@ -27,6 +28,10 @@ public class StatsManager : MonoBehaviour
     private float critFlat;
     private float critPercent;
 
+    [Header("Loadout Slots")]
+    public int baseLoadoutSlots = 1;
+    private int loadoutSlotsFlat;
+
 
     [Header("Sector Modifiers")]
     private double healthFlatSector;
@@ -36,6 +41,8 @@ public class StatsManager : MonoBehaviour
 
     private float critFlatSector;
     private float critPercentSector;
+
+    private int loadoutSlotsFlatSector;
 
 
 
@@ -63,6 +70,8 @@ public class StatsManager : MonoBehaviour
                 return (BarrierStat + barrierFlat + barrierFlatSector) * (1 + barrierPercent + barrierPercentSector);
             case StatType.CRIT_CHANCE:
                 return Mathf.Clamp01(critChance + critFlat + critFlatSector) * (1 + critPercent + critPercentSector);
+            case StatType.LOADOUT_SLOTS:
+                return Mathf.Max(1, baseLoadoutSlots + loadoutSlotsFlat + loadoutSlotsFlatSector);
             default:
                 return 0;
         }
@@ -84,6 +93,7 @@ public class StatsManager : MonoBehaviour
         barrierPercent = 0f;
         critFlat = 0f;
         critPercent = 0f;
+        loadoutSlotsFlat = 0;
     }
 
     // Resets only sector modifiers.
@@ -95,6 +105,7 @@ public class StatsManager : MonoBehaviour
         barrierPercentSector = 0f;
         critFlatSector = 0f;
         critPercentSector = 0f;
+        loadoutSlotsFlatSector = 0;
     }
 
 
@@ -113,6 +124,9 @@ public class StatsManager : MonoBehaviour
             case StatType.CRIT_CHANCE:
                 critFlat += (float)flat;
                 critPercent += percent;
+                break;
+            case StatType.LOADOUT_SLOTS:
+                loadoutSlotsFlat += Mathf.RoundToInt((float)flat);
                 break;
         }
     }
@@ -134,7 +148,14 @@ public class StatsManager : MonoBehaviour
                 critFlatSector += (float)flat;
                 critPercentSector += percent;
                 break;
+            case StatType.LOADOUT_SLOTS:
+                loadoutSlotsFlatSector += Mathf.RoundToInt((float)flat);
+                break;
         }
     }
 
+    public int GetMaxLoadoutSlots()
+    {
+        return Mathf.Max(1, baseLoadoutSlots + loadoutSlotsFlat + loadoutSlotsFlatSector);
+    }
 }

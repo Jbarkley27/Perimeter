@@ -29,6 +29,7 @@ public class GameManager : MonoBehaviour
         RoundOver = false;
         if (autoStartBattlePhase) StartBattlePhase(true);
         RunAttempts = -1;
+        Invoke(nameof(CompleteRun), 3f);
     }
 
     // resetSectors = true resets sector progression, pending choices, and active modifiers back to sector 1.

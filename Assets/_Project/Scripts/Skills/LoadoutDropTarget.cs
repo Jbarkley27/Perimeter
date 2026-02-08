@@ -8,11 +8,13 @@ public class LoadoutDropTarget : MonoBehaviour, IDropHandler, IPointerEnterHandl
     [Header("Slot Settings")]
     public Transform snapParent;
     public GameObject hoverVisual;
+    public Transform scaleRoot;
 
     [Header("Hover Animation")]
     public float hoverScale = 1.1f;
     public float hoverAnimDuration = 0.15f;
     public Ease hoverEase = Ease.OutBack;
+    public CanvasGroup hoverCanvasGroup;
 
 
     [Header("Runtime State")]
@@ -20,6 +22,13 @@ public class LoadoutDropTarget : MonoBehaviour, IDropHandler, IPointerEnterHandl
     public Vector3 hoverOriginalScale = Vector3.one * .5f;
     public Vector3 hoverOccupiedScale = Vector3.one * 1.0f;
     public bool IsOccupied => occupiedItem != null;
+    public SkillDraggable OccupiedItem => occupiedItem;
+
+    public int SlotIndex { get; private set; } = -1;
+    public bool IsActiveSlot { get; private set; }
+    public bool IsDisabledSlot { get; private set; }
+    public bool IsEnabledSlot { get; private set; }
+    private Vector3 baseScale = Vector3.one;
 
 
 
@@ -27,6 +36,12 @@ public class LoadoutDropTarget : MonoBehaviour, IDropHandler, IPointerEnterHandl
     {
         if (snapParent == null)
             snapParent = transform;
+
+        if (scaleRoot == null)
+            scaleRoot = transform;
+
+        if (scaleRoot != null)
+            baseScale = scaleRoot.localScale;
 
         if (hoverVisual != null)
             hoverOriginalScale = hoverVisual.transform.localScale;
@@ -52,24 +67,59 @@ public class LoadoutDropTarget : MonoBehaviour, IDropHandler, IPointerEnterHandl
 
     public void OnDrop(PointerEventData eventData)
     {
-        if (IsOccupied)
+        SkillDraggable draggable = null;
+        if (eventData.pointerDrag != null)
+            draggable = eventData.pointerDrag.GetComponent<SkillDraggable>();
+
+        if (SlotIndex >= 0 && (!IsActiveSlot || IsDisabledSlot))
+        {
+            Debug.Log("Drop blocked: slot is not active.");
+            if (draggable != null)
+            {
+                draggable.Snapping = false;
+                draggable.ReturnToOriginalPosition();
+            }
             return;
+        }
+
+        if (IsOccupied)
+        {
+            Debug.Log("Slot is already occupied!");
+            if (draggable != null)
+            {
+                draggable.Snapping = false;
+                draggable.ReturnToOriginalPosition();
+            }
+            return;
+        }
 
         if (eventData.pointerDrag == null)
+        {
+            Debug.Log("No draggable item detected in drop event.");
             return;
+        }
 
         if (!eventData.pointerDrag.CompareTag("Draggable"))
+        {
+            Debug.Log("Dropped item does not have the 'Draggable' tag.");
             return;
+        }
 
-        var draggable = eventData.pointerDrag.GetComponent<SkillDraggable>();
         if (draggable == null)
+        {
+            Debug.Log("Dropped item does not have a SkillDraggable component.");
             return;
+        }
 
-        draggable.SnapToSlot(this);
+        draggable.Snapping = true;
+        draggable.SnapToSlot(this, true);
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
+        if (SlotIndex >= 0 && (!IsActiveSlot || IsDisabledSlot))
+            return;
+
         if (IsOccupied)
             return;
 
@@ -103,5 +153,18 @@ public class LoadoutDropTarget : MonoBehaviour, IDropHandler, IPointerEnterHandl
             IsOccupied ? hoverOccupiedScale : hoverOriginalScale,
             hoverAnimDuration
         ).SetEase(hoverEase);
+    }
+
+    public void SetSlotState(int index, bool isActive, bool isDisabled, bool isEnabled, float scaleMult)
+    {
+        SlotIndex = index;
+        IsActiveSlot = isActive;
+        IsDisabledSlot = isDisabled;
+        IsEnabledSlot = isEnabled;
+
+        gameObject.SetActive(isEnabled);
+
+        if (scaleRoot != null)
+            scaleRoot.localScale = baseScale * scaleMult;
     }
 }
