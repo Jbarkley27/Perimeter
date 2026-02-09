@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,6 +11,15 @@ using UnityEngine;
 public class SkillTreeLayoutDefinition : ScriptableObject
 {
     public List<SkillTreeLayoutEntry> entries = new List<SkillTreeLayoutEntry>();
+
+#if UNITY_EDITOR
+    public static event Action<SkillTreeLayoutDefinition> LayoutChanged;
+
+    private void OnValidate()
+    {
+        LayoutChanged?.Invoke(this);
+    }
+#endif
 }
 
 [System.Serializable]

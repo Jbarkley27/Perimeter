@@ -1,11 +1,15 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+
 
 /*
  * SkillTreeUIController
  * ---------------------
  * Manages UI nodes, hover panel, and auto‑generated connectors.
  */
+
+ [ExecuteAlways]
 public class SkillTreeUIController : MonoBehaviour
 {
     [Header("Runtime")]
@@ -35,8 +39,27 @@ public class SkillTreeUIController : MonoBehaviour
     public RectTransform nodeParent;
 
 
+    [Header("Editor Preview")]
+    public bool previewLayoutInEditor = true;
+    [Range(0f, 1f)] public float editorNodeGhostAlpha = 0.45f;
+    [Range(0f, 1f)] public float editorConnectorGhostAlpha = 0.25f;
+
+    #if UNITY_EDITOR
+    private bool editorPreviewRebuildQueued;
+    #endif
+
+
+    
+
+
     private void Awake()
     {
+        if (!Application.isPlaying)
+        {
+            QueueEditorPreviewRebuild();
+            return;
+        }
+
         if (runtime == null)
             runtime = SkillTreeRuntime.Instance;
 
@@ -52,6 +75,27 @@ public class SkillTreeUIController : MonoBehaviour
         RefreshAll();
         BuildFromLayout();
     }
+
+    private void OnEnable()
+    {
+    #if UNITY_EDITOR
+        SkillTreeLayoutDefinition.LayoutChanged += OnLayoutDefinitionChanged;
+    #endif
+        QueueEditorPreviewRebuild();
+    }
+
+    private void OnDisable()
+    {
+    #if UNITY_EDITOR
+        SkillTreeLayoutDefinition.LayoutChanged -= OnLayoutDefinitionChanged;
+    #endif
+    }
+
+    private void OnValidate()
+    {
+        QueueEditorPreviewRebuild();
+    }
+
 
     private void Update()
     {
@@ -143,10 +187,23 @@ public class SkillTreeUIController : MonoBehaviour
         for (int i = 0; i < spawnedConnectors.Count; i++)
         {
             if (spawnedConnectors[i] != null)
-                Destroy(spawnedConnectors[i].gameObject);
+                DestroyObjectSafe(spawnedConnectors[i].gameObject);
         }
         spawnedConnectors.Clear();
+
+    #if UNITY_EDITOR
+        if (!Application.isPlaying && connectorParent != null)
+        {
+            for (int i = connectorParent.childCount - 1; i >= 0; i--)
+            {
+                Transform child = connectorParent.GetChild(i);
+                if (child != null && child.GetComponent<TreeNodeConnector>() != null)
+                    DestroyObjectSafe(child.gameObject);
+            }
+        }
+    #endif
     }
+
 
     // Shows hover info for a node.
     public void ShowInfo(SkillNodeUI node, bool altOffset = false)
@@ -169,29 +226,7 @@ public class SkillTreeUIController : MonoBehaviour
             infoPanel.Hide();
     }
 
-    // Converts cursor to local canvas space and positions the panel.
-    // private void FollowMousePosition(Vector3 mousePosition)
-    // {
-    //     if (infoPanelRect == null)
-    //         return;
 
-    //     RectTransform parentRect = infoPanelRect.parent as RectTransform;
-    //     if (parentRect == null)
-    //         return;
-
-    //     Camera cam = rootCanvas != null && rootCanvas.renderMode != RenderMode.ScreenSpaceOverlay
-    //         ? rootCanvas.worldCamera
-    //         : null;
-
-    //     RectTransformUtility.ScreenPointToLocalPointInRectangle(
-    //         parentRect,
-    //         mousePosition,
-    //         cam,
-    //         out Vector2 localPoint
-    //     );
-
-    //     // infoPanelRect.anchoredPosition = localPoint + (Vector2)mouseOffset;
-    // }
 
     // Returns the current cursor position.
     private Vector3 GetCursorPosition()
@@ -205,14 +240,16 @@ public class SkillTreeUIController : MonoBehaviour
 
 
 
-    public void BuildFromLayout()
+    public void BuildFromLayout(bool editorPreview = false)
     {
         if (layoutDefinition == null || nodePrefab == null || nodeParent == null)
             return;
 
+        ClearConnectors();
+
         // Clear old nodes
         for (int i = nodeParent.childCount - 1; i >= 0; i--)
-            Destroy(nodeParent.GetChild(i).gameObject);
+            DestroyObjectSafe(nodeParent.GetChild(i).gameObject);
 
         nodes.Clear();
 
@@ -221,8 +258,6 @@ public class SkillTreeUIController : MonoBehaviour
         {
             if (entry.node == null)
                 continue;
-
-                
 
             SkillNodeUI node = Instantiate(nodePrefab, nodeParent);
 
@@ -234,11 +269,115 @@ public class SkillTreeUIController : MonoBehaviour
             node.nodeDefinition = entry.node;
             node.uiController = this;
             nodes.Add(node);
+
+            if (editorPreview)
+                ApplyEditorGhostNode(node);
         }
 
         BuildLookup();
         BuildConnectors();
-        RefreshAll();
+
+        if (editorPreview)
+            ApplyEditorGhostConnectors();
+        else
+            RefreshAll();
     }
+
+
+
+    #if UNITY_EDITOR
+    private void OnLayoutDefinitionChanged(SkillTreeLayoutDefinition changedLayout)
+    {
+        if (Application.isPlaying || !previewLayoutInEditor)
+            return;
+
+        if (changedLayout == layoutDefinition)
+            QueueEditorPreviewRebuild();
+    }
+    #endif
+
+    private void QueueEditorPreviewRebuild()
+    {
+    #if UNITY_EDITOR
+        if (Application.isPlaying || !previewLayoutInEditor)
+            return;
+
+        if (editorPreviewRebuildQueued)
+            return;
+
+        editorPreviewRebuildQueued = true;
+        UnityEditor.EditorApplication.delayCall += RebuildEditorPreviewIfNeeded;
+    #endif
+    }
+
+    #if UNITY_EDITOR
+    private void RebuildEditorPreviewIfNeeded()
+    {
+        editorPreviewRebuildQueued = false;
+
+        if (this == null || Application.isPlaying || !previewLayoutInEditor)
+            return;
+
+        BuildFromLayout(true);
+    }
+    #endif
+
+    private void ApplyEditorGhostNode(SkillNodeUI node)
+    {
+        if (node == null)
+            return;
+
+        CanvasGroup group = node.nodeCanvasGroup != null
+            ? node.nodeCanvasGroup
+            : node.GetComponent<CanvasGroup>();
+
+        if (group == null)
+            group = node.gameObject.AddComponent<CanvasGroup>();
+
+        group.alpha = Mathf.Clamp01(editorNodeGhostAlpha);
+        group.interactable = false;
+        group.blocksRaycasts = false;
+
+        if (node.draggable != null)
+            node.draggable.enabled = false;
+
+        Graphic[] graphics = node.GetComponentsInChildren<Graphic>(true);
+        for (int i = 0; i < graphics.Length; i++)
+            graphics[i].raycastTarget = false;
+    }
+
+    private void ApplyEditorGhostConnectors()
+    {
+        float alpha = Mathf.Clamp01(editorConnectorGhostAlpha);
+
+        for (int i = 0; i < spawnedConnectors.Count; i++)
+        {
+            TreeNodeConnector connector = spawnedConnectors[i];
+            if (connector == null)
+                continue;
+
+            CanvasGroup cg = connector.GetComponent<CanvasGroup>();
+            if (cg == null)
+                cg = connector.gameObject.AddComponent<CanvasGroup>();
+
+            cg.alpha = alpha;
+            cg.interactable = false;
+            cg.blocksRaycasts = false;
+        }
+    }
+
+    private void DestroyObjectSafe(Object target)
+    {
+        if (target == null)
+            return;
+
+    #if UNITY_EDITOR
+        if (!Application.isPlaying)
+            DestroyImmediate(target);
+        else
+    #endif
+            Destroy(target);
+    }
+
 
 }

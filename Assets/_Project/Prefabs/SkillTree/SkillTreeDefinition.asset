@@ -14,5 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkillTreeDefinition
   nodes:
   - {fileID: 11400000, guid: ee4d43ff094514e4bb80dd673db786f4, type: 2}
+  - {fileID: 11400000, guid: ee4d43ff094514e4bb80dd673db786f4, type: 2}
   baseCostMultiplier: 1
   perLevelCostMultiplier: 1.15

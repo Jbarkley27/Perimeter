@@ -15,28 +15,18 @@ public class SkillData : ScriptableObject
     public int maxLevel = 5;
     public bool isPassive = false;
 
-
-
-
     [Header("Skill Classification")]
     public SkillType type = SkillType.Projectile;
     public bool isProjectile = true;
-
-
-
 
     [Header("Combat Stats")]
     public float cooldownRate = 1.5f;
     public float cooldownRestartDelay = 1f;
     public int damage = 10;
 
-
-
     [Header("Projectile Settings (If Projectile)")]
     public GameObject projectilePrefab;
     public float projectileSpeed = 10f;
-
-    
 
     public bool IsProjectileSkill => isProjectile && projectilePrefab != null;
     public bool IsInstantSkill => !isProjectile;
@@ -54,8 +44,6 @@ public class SkillData : ScriptableObject
     [Header("Cursor Type")]
     public WorldCursorMode cursorMode = WorldCursorMode.SINGLE_TARGET;
 
-
-
     [Header("Upgrade Effects")]
     public List<SkillUpgrade> upgrades = new List<SkillUpgrade>();
 
@@ -69,6 +57,8 @@ public class SkillData : ScriptableObject
     public Element baseElement;
     public float baseAccuracyAngle;
     public float cooldownRestartDelayBase;
+    public GameObject baseProjectilePrefab;
+    [TextArea(3, 10)] public string baseDescription;
 
     public void ResetRuntimeStats()
     {
@@ -77,6 +67,12 @@ public class SkillData : ScriptableObject
         element = baseElement;
         accuracyAngle = baseAccuracyAngle;
         cooldownRestartDelay = cooldownRestartDelayBase;
+
+        // Needed for exclusive projectile visual switching.
+        projectilePrefab = baseProjectilePrefab;
+
+        // Needed for exclusive description switching.
+        description = baseDescription;
     }
 
     public void ResetProgress()
@@ -85,9 +81,7 @@ public class SkillData : ScriptableObject
         currentLevel = 0;
         isUnlocked = false;
     }
-    
 }
-
 
 [System.Serializable]
 public class SkillUpgrade
@@ -95,5 +89,3 @@ public class SkillUpgrade
     public int level;
     public List<SkillEffect> effects;
 }
-
-

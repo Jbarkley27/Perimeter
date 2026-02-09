@@ -8,12 +8,15 @@ public class SkillElementOverrideEffect : SkillEffect
 
     public override void Apply()
     {
-        Debug.Log($"Applying SkillElementOverrideEffect: Setting {targetSkill.skillName} element to {newElement}");
         if (targetSkill != null)
-        {
-            Debug.Log($"Before Override: {targetSkill.skillName} element is {targetSkill.element}");
             targetSkill.element = newElement;
-        }
-            
+    }
+
+    public override string GetDescription()
+    {
+        if (targetSkill == null)
+            return "Override element";
+
+        return $"{targetSkill.skillName}: Element -> {newElement}";
     }
 }
