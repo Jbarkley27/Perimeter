@@ -13,14 +13,18 @@ MonoBehaviour:
   m_Name: Blast_Scorch
   m_EditorClassIdentifier: Assembly-CSharp::SkillNodeDefinition
   nodeId: a10e14d6-6ef8-45e83-9a2d-2444837af38f
-  displayName: Blast
-  description: Auto-Fire a Kinetic Blast at the closest target.
-  nodeType: 1
+  displayName: Scorched Blast
+  description: Converts the Blast skill's damage type to Scorch.
+  nodeType: 2
   skill: {fileID: 11400000, guid: ab1927c5bbb5e420f8371da4665725e1, type: 2}
-  element: 0
+  element: 1
   maxLevel: 1
-  baseCost: 0
-  costPerLevel: 0
-  prerequisites: []
-  exclusiveGroupId: 
-  levelEffects: []
+  baseCost: 20
+  costPerLevel: 1
+  prerequisites:
+  - node: {fileID: 11400000, guid: ee4d43ff094514e4bb80dd673db786f4, type: 2}
+    requiredLevel: 1
+  exclusiveGroupId: blast
+  levelEffects:
+  - level: 1
+    effects: []
