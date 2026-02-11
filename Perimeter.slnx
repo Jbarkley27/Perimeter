@@ -1,0 +1,15 @@
+﻿<Solution>
+  <Project Path="Assembly-CSharp.csproj" />
+  <Project Path="MK.Toon.Editor.csproj" />
+  <Project Path="DamageNumbersPro.csproj" />
+  <Project Path="Assembly-CSharp-firstpass.csproj" />
+  <Project Path="MK.RampCreator.csproj" />
+  <Project Path="MK.Toon.csproj" />
+  <Project Path="Assembly-CSharp-Editor.csproj" />
+  <Project Path="MK.Toon.VariantsManager.csproj" />
+  <Project Path="Assembly-CSharp-Editor-firstpass.csproj" />
+  <Project Path="MK.MeshUtility.csproj" />
+  <Project Path="MK.Toon.URP.Editor.csproj" />
+  <Project Path="MK.MKTextureChannelPacker.csproj" />
+  <Project Path="MK.Toon.URP.csproj" />
+</Solution>

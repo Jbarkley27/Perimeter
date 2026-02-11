@@ -161,8 +161,8 @@ public class SectorManager : MonoBehaviour
         if (StatsManager.Instance != null)
             StatsManager.Instance.ResetSectorModifiers();
 
-        if (SkillTreeData.Instance != null)
-            SkillTreeData.Instance.RebuildAll();
+        // if (SkillTreeData.Instance != null)
+        //     SkillTreeData.Instance.RebuildAll();
 
     }
 
@@ -581,8 +581,8 @@ public class SectorManager : MonoBehaviour
     public void ApplyActiveModifiersToPlayer()
     {
         // Rebuild skills to base + skill tree effects first.
-        if (SkillTreeData.Instance != null)
-            SkillTreeData.Instance.RebuildAll();
+        // if (SkillTreeData.Instance != null)
+        //     SkillTreeData.Instance.RebuildAll();
 
         ApplyActiveModifiersToPlayerStats();
         ApplyActiveModifiersToSkills();
@@ -617,21 +617,21 @@ public class SectorManager : MonoBehaviour
     // Applies sector modifiers directly to skill runtime values (cooldowns).
     private void ApplyActiveModifiersToSkills()
     {
-        if (SkillTreeData.Instance == null)
-            return;
+        // if (SkillTreeData.Instance == null)
+        //     return;
 
         float cooldownMult = GetModifierMultiplier(SectorModifierEffectType.PlayerCooldownMultiplier);
         if (Mathf.Approximately(cooldownMult, 1f))
             return;
 
-        foreach (var skill in SkillTreeData.Instance.allSkills)
-        {
-            if (skill == null)
-                continue;
+        // foreach (var skill in SkillTreeData.Instance.allSkills)
+        // {
+        //     if (skill == null)
+        //         continue;
 
-            skill.cooldownRate *= cooldownMult;
-            skill.cooldownRestartDelay *= cooldownMult;
-        }
+        //     skill.cooldownRate *= cooldownMult;
+        //     skill.cooldownRestartDelay *= cooldownMult;
+        // }
     }
 
 

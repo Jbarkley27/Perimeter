@@ -77,4 +77,13 @@ public class InputManager : MonoBehaviour
             GlobalDataStore.Instance.SkillCaster.ClearActiveManualSkill();
         }
     }
+
+
+    public void ToggleInventory(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            InventoryManager.Instance.ToggleInventory();
+        }
+    }
 }

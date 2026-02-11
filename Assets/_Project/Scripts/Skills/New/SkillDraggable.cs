@@ -52,16 +52,16 @@ public class SkillDraggable : MonoBehaviour,
     public void OnBeginDrag(PointerEventData eventData)
     {
         // Only non passive skills can be dragged
-        if (skillData == null || skillData.isPassive
-            || nodeUI == null || SkillTreeRuntime.Instance == null
-            || !SkillTreeRuntime.Instance.IsNodeActive(nodeUI.nodeDefinition))
-        {
-            Debug.Log("Cannot drag passive or inactive skills.");
-            return;
-        }
+        // if (skillData == null || skillData.isPassive
+        //     || nodeUI == null || SkillTreeRuntime.Instance == null
+        //     || !SkillTreeRuntime.Instance.IsNodeActive(nodeUI.nodeDefinition))
+        // {
+        //     Debug.Log("Cannot drag passive or inactive skills.");
+        //     return;
+        // }
 
-        if (SkillTreeUIManager.Instance != null && SkillTreeUIManager.Instance.parentScrollRect != null)
-            SkillTreeUIManager.Instance.parentScrollRect.enabled = false;
+        // if (SkillTreeUIManager.Instance != null && SkillTreeUIManager.Instance.parentScrollRect != null)
+        //     SkillTreeUIManager.Instance.parentScrollRect.enabled = false;
 
         // Hide hover info when dragging skill
         if(nodeUI != null)
@@ -82,8 +82,8 @@ public class SkillDraggable : MonoBehaviour,
 
         // Disable parent scroll rect so that when dragging the skill it 
         // doesn't drag the background scroll rect.
-        if (SkillTreeUIManager.Instance.parentScrollRect != null)
-            SkillTreeUIManager.Instance.parentScrollRect.enabled = false;
+        // if (SkillTreeUIManager.Instance.parentScrollRect != null)
+        //     SkillTreeUIManager.Instance.parentScrollRect.enabled = false;
 
 
         // Adjust canvas group for dragging
@@ -102,15 +102,15 @@ public class SkillDraggable : MonoBehaviour,
     public void OnDrag(PointerEventData eventData)
     {
         rectTransform.anchoredPosition += eventData.delta / canvas.scaleFactor;
-        GlobalDataStore.Instance.SkillTreeUIController.HideInfo();
+        // GlobalDataStore.Instance.SkillTreeUIController.HideInfo();
     }
 
 
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        if (SkillTreeUIManager.Instance != null && SkillTreeUIManager.Instance.parentScrollRect != null)
-            SkillTreeUIManager.Instance.parentScrollRect.enabled = true;
+        // if (SkillTreeUIManager.Instance != null && SkillTreeUIManager.Instance.parentScrollRect != null)
+        //     SkillTreeUIManager.Instance.parentScrollRect.enabled = true;
 
         // Restore canvas group
         canvasGroup.blocksRaycasts = true;
@@ -130,8 +130,8 @@ public class SkillDraggable : MonoBehaviour,
         IsDragging = false;
 
         // Re-enable parent scroll rect
-        if (SkillTreeUIManager.Instance.parentScrollRect != null)
-            SkillTreeUIManager.Instance.parentScrollRect.enabled = true;
+        // if (SkillTreeUIManager.Instance.parentScrollRect != null)
+        //     SkillTreeUIManager.Instance.parentScrollRect.enabled = true;
     }
 
     #endregion
@@ -168,16 +168,16 @@ public class SkillDraggable : MonoBehaviour,
         if (notifyLoadout && skillData) SkillLoadout.Instance.EquipSkill(skillData);
 
         // Animate loadout icon to give feedback
-        if (SkillTreeUIManager.Instance != null && SkillTreeUIManager.Instance.skillLoadoutIcon != null)
-        {
-            SkillTreeUIManager.Instance.skillLoadoutIcon.transform.DOPunchScale(Vector3.one * 1.2f, 0.4f, 1, 0.5f)
-                .SetEase(Ease.OutCubic)
-                .OnComplete(() =>
-                {
-                    SkillTreeUIManager.Instance.skillLoadoutIcon.transform.localScale = Vector3.one;
-                    Snapping = false;
-                });
-        }
+        // if (SkillTreeUIManager.Instance != null && SkillTreeUIManager.Instance.skillLoadoutIcon != null)
+        // {
+        //     SkillTreeUIManager.Instance.skillLoadoutIcon.transform.DOPunchScale(Vector3.one * 1.2f, 0.4f, 1, 0.5f)
+        //         .SetEase(Ease.OutCubic)
+        //         .OnComplete(() =>
+        //         {
+        //             SkillTreeUIManager.Instance.skillLoadoutIcon.transform.localScale = Vector3.one;
+        //             Snapping = false;
+        //         });
+        // }
     }
 
 
