@@ -28,11 +28,6 @@ public class InventoryManager : MonoBehaviour
         if (InventoryOpen)
         {
             CloseInventory();
-            foreach (var hud in HUDCanvasGroup)
-            {
-                hud.DOKill();
-                hud.DOFade(1, 0.3f);
-            }
         }
         else
         {
@@ -55,6 +50,7 @@ public class InventoryManager : MonoBehaviour
 
         foreach (var section in inventorySections)
         {
+            section.DOKill();
             section.alpha = 0;
             section.DOFade(1, 0.15f).SetDelay(.15f); // Start all sections at 0 alpha
         }
@@ -68,13 +64,21 @@ public class InventoryManager : MonoBehaviour
 
         foreach (var section in inventorySections)
         {
-            section.DOFade(0, 0.15f).SetDelay(.15f); // Fade out all sections
+            section.DOKill();
+            section.DOFade(0, 0.15f);
+        }
+
+        foreach (var hud in HUDCanvasGroup)
+        {
+            hud.DOKill();
+            hud.DOFade(1, 0.3f);
         }
 
         inventoryRoot.DOFade(0, 0.3f).OnComplete(() =>
         {
             inventoryRoot.gameObject.SetActive(false);
         });
+        
         InventoryOpen = false;
     }
 }

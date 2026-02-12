@@ -24,7 +24,8 @@ public class GlassManager : MonoBehaviour
 
     void Start()
     {
-        totalGlassShardsCollected = Random.Range(60, 70); // For testing purposes
+        // Keep default at 0 for fresh profiles; persistent load will overwrite this.
+        totalGlassShardsCollected = 0;
     }
 
     void Update()
